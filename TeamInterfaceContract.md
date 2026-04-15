@@ -527,12 +527,14 @@
 {
   "match_id": "match_20260405_001",
   "camera_id": "cam_01",
-  "timestamp_ms": 1712323200123,
+  "origin_timestamp_ms": 1712323200123, // 【关键】原始采集帧时间戳
   "focus_region": {
     "x": 1200,
     "y": 650,
     "width": 1400,
-    "height": 800
+    "height": 800,
+    "x_ratio": 0.3125,
+    "y_ratio": 0.3009
   },
   "source_type": "motion_cluster",
   "confidence": 0.87
@@ -550,12 +552,18 @@
 | focus_region.height | integer | 裁切高度                                                                 |
 | source_type         | string  | 数据来源。当前可用值：ball_position、motion_cluster、fallback_center       |
 | confidence          | float   | 置信度，取值范围：0 ~ 1                                                   |
-
+focus_region.x_ratio	float	强制要求：中心点横坐标 / 画面总宽度。用于分辨率无关性裁切。
+focus_region.y_ratio	float	强制要求：中心点纵坐标 / 画面总高度。
+origin_timestamp_ms	integer	强制要求。视频帧被采集时的原始时间戳。用于模块 B 解决“AI 计算延时”导致的音画不同步问题。
 责任边界：
 
 模块 C 负责提供关注区域建议
 模块 B 负责最终裁切和平滑
 模块 B 必须在没有关注区域时回退到默认中心区域
+模块 B 负责人（叶禹）注：模块 B 要求模块 C 必须提供归一化坐标（x_ratio, y_ratio）。若不提供，当采集源从 4K 切换至 1080P 调试时，裁切逻辑将产生严重偏移。模块 B 将优先读取 ratio 字段。
+延迟容忍度与补偿契约：
+时效性要求：从模块 A 采集到模块 B 收到坐标的端到端延迟必须 <=150ms
+预测机制：若 origin_timestamp_ms 显示延迟超过 150ms，模块 B 将认为当前坐标已过时，并自动启用内部卡尔曼滤波 (Kalman Filter) 算法对足球轨迹进行线性外推预测，补偿后的坐标将用于当前帧裁切。
 8.4 模块 E -> 模块 C
 8.4.1 接口：初始化视觉分析任务
 
