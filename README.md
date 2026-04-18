@@ -165,6 +165,34 @@
 + Pull Request 工作流
 
 ---
+## 目录结构
+football-auto-broadcast/
+├── docker/
+│   ├── windows/
+│   │   ├── common/
+│   │   │   └── install_runtime.ps1
+│   │   ├── record-program-module/
+│   │   │   └── Dockerfile.windows
+│   │   ├── vision-event-module/
+│   │   │   └── Dockerfile.windows
+│   │   ├── highlight-generation-module/
+│   │   │   └── Dockerfile.windows
+│   │   ├── platform-orchestration-module/
+│   │   │   └── Dockerfile.windows
+│   │   └── ingest-streaming-module/
+│   │       └── Dockerfile.windows
+├── services/
+│   ├── ingest-streaming-module/
+│   ├── record-program-module/
+│   ├── vision-event-module/
+│   ├── highlight-generation-module/
+│   └── platform-orchestration-module/
+└── third_party/
+    └── windows/
+        ├── gstreamer/
+        ├── opencv/
+        ├── onnxruntime/
+        └── vc_redist/
 
 ## **逻辑模块划分**
 虽然运行架构已经改为单主机集中式处理，但工程实现上仍然保留模块化设计，便于多人协作与后续扩展。
