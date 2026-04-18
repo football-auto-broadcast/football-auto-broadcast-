@@ -90,6 +90,77 @@
     HOST --> VIEW -->
 ![](https://cdn.nlark.com/yuque/__mermaid_v3/15da9b57663a5a072f103ebb1dda2811.svg)
 
+## 通信架构
+<!-- 这是一个文本绘图，源码为：flowchart TB
+
+    subgraph L1["硬件层"]
+        CAM1["工业相机1<br/>GigE / 主机位"]
+        CAM2["工业相机2<br/>GigE / 辅机位"]
+        SW["千兆 PoE 交换机"]
+    end
+    
+    subgraph L2["接入层"]
+        A["ingest-streaming-module<br/>采集与编码分发"]
+    end
+    
+    subgraph L3["处理层"]
+        B["record-program-module<br/>录像与主画面生成"]
+        C["vision-event-module<br/>视觉分析"]
+        D["highlight-generation-module<br/>事件与集锦生成"]
+    end
+    
+    subgraph L4["存储层"]
+        RAW["raw<br/>原始录像"]
+        PROGRAM["program<br/>主画面录像"]
+        META["metadata<br/>候选事件数据"]
+        OUTPUT["output<br/>集锦输出"]
+        LOGS["logs<br/>运行日志"]
+    end
+    
+    subgraph L5["平台层"]
+        E["platform-orchestration-module<br/>平台与调度"]
+        VIEW["浏览器 / 可选控制端"]
+    end
+    
+    CAM1 --> SW
+    CAM2 --> SW
+    SW --> A
+    
+    A --> B
+    A --> C
+    
+    C -- "关注区域" --> B
+    C -- "候选事件" --> D
+    
+    B --> RAW
+    B --> PROGRAM
+    C --> META
+    D --> OUTPUT
+    
+    A --> LOGS
+    B --> LOGS
+    C --> LOGS
+    D --> LOGS
+    E --> LOGS
+    
+    RAW --> D
+    PROGRAM --> D
+    META --> D
+    
+    E -- "HTTP 控制" --> A
+    E -- "HTTP 控制" --> B
+    E -- "HTTP 控制" --> C
+    E -- "HTTP 控制" --> D
+    
+    B -- "主画面预览" --> E
+    D -- "任务状态 / 输出路径" --> E
+    
+    VIEW --> E -->
+
+![](https://cdn.nlark.com/yuque/__mermaid_v3/f4a431362e0be3e464a45c50791ca64b.svg)
+
+--- 
+
 ### 核心思路
 + 两台工业相机通过 GigE 接入千兆 PoE 交换机
 + 主机通过工业相机 SDK 统一取流
