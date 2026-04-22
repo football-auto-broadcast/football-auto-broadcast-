@@ -17,7 +17,7 @@ target_include_directories(platform_orchestration_service PRIVATE
 )
 
 # spdlog 需要定义这个宏才能正常编译
-target_compile_definitions(platform_orchestration_service PRIVATE SPDLOG_FMT_EXTERNAL)
+#target_compile_definitions(platform_orchestration_service PRIVATE SPDLOG_FMT_EXTERNAL)
 
 # 设置输出目录
 set_target_properties(platform_orchestration_service PROPERTIES

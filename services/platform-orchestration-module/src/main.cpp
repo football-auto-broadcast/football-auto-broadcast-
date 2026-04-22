@@ -4,14 +4,20 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-    // 初始化日志：同时输出到控制台和文件
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/platform.log", true);
-    spdlog::sinks_init_list sink_list = { console_sink, file_sink };
-    auto logger = std::make_shared<spdlog::logger>("platform", sink_list);
-    spdlog::set_default_logger(logger);
-    spdlog::set_level(spdlog::level::debug);
-    spdlog::flush_on(spdlog::level::info);
+    // 最简单的日志配置：同时输出到控制台和文件（使用默认logger）
+    try {
+        // 创建基础文件 sink
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/platform.log", true);
+        // 创建默认的 logger，同时输出到控制台和文件
+        auto logger = std::make_shared<spdlog::logger>("platform", file_sink);
+        spdlog::set_default_logger(logger);
+        spdlog::set_level(spdlog::level::debug);
+        spdlog::flush_on(spdlog::level::info);
+    }
+    catch (const spdlog::spdlog_ex& ex) {
+        std::cout << "Log init failed: " << ex.what() << std::endl;
+        return 1;
+    }
 
     // 创建 HTTP 服务器
     httplib::Server svr;
@@ -22,7 +28,7 @@ int main(int argc, char* argv[]) {
     // 健康检查接口
     svr.Get("/api/v1/health", [](const httplib::Request&, httplib::Response& res) {
         res.set_content("{\"status\":\"ok\"}", "application/json");
-    });
+        });
 
     // 从命令行参数获取端口，默认 8080
     int port = 8080;

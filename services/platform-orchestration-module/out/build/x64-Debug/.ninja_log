@@ -1,0 +1,7 @@
+# ninja log v6
+3	129	7984652858328458	build.ninja	f2dcd6b823b1e3ea
+3	129	7984652858328458	D:/football/football-auto-broadcast-/services/platform-orchestration-module/out/build/x64-Debug/cmake_install.cmake	f2dcd6b823b1e3ea
+4	135	7984652858328458	build.ninja	f2dcd6b823b1e3ea
+4	135	7984652858328458	D:/football/football-auto-broadcast-/services/platform-orchestration-module/out/build/x64-Debug/cmake_install.cmake	f2dcd6b823b1e3ea
+3	3864	7984656420303452	CMakeFiles/platform_orchestration_service.dir/src/main.cpp.obj	fbadd958a7f7b237
+3927	4503	7984656459623410	bin/platform_orchestration_service.exe	57bfa819247598a9
