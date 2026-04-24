@@ -1,0 +1,12 @@
+# escape=`
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+WORKDIR C:\app
+
+# 拷贝依赖（FFmpeg 会在这里）
+COPY third_party\windows C:\deps
+# 拷贝编译出的程序
+COPY services\highlight-generation-module\build\Release\highlight_service.exe C:\app\
+
+EXPOSE 8084
+ENTRYPOINT ["C:\\app\\highlight_service.exe"]
