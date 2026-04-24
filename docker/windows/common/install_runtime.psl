@@ -1,0 +1,30 @@
+$ErrorActionPreference = "Stop"
+
+Write-Host "Installing VC++ runtime..."
+if (Test-Path "C:\deps\vc_redist\vc_redist.x64.exe") {
+    Start-Process -FilePath "C:\deps\vc_redist\vc_redist.x64.exe" -ArgumentList "/install", "/quiet", "/norestart" -Wait
+}
+
+Write-Host "Copying OpenCV..."
+if (Test-Path "C:\deps\opencv") {
+    New-Item -ItemType Directory -Force -Path "C:\runtime\opencv" | Out-Null
+    Copy-Item -Recurse -Force "C:\deps\opencv\*" "C:\runtime\opencv\"
+}
+
+Write-Host "Copying GStreamer..."
+if (Test-Path "C:\deps\gstreamer") {
+    New-Item -ItemType Directory -Force -Path "C:\runtime\gstreamer" | Out-Null
+    Copy-Item -Recurse -Force "C:\deps\gstreamer\*" "C:\runtime\gstreamer\"
+}
+
+Write-Host "Copying ONNX Runtime..."
+if (Test-Path "C:\deps\onnxruntime") {
+    New-Item -ItemType Directory -Force -Path "C:\runtime\onnxruntime" | Out-Null
+    Copy-Item -Recurse -Force "C:\deps\onnxruntime\*" "C:\runtime\onnxruntime\"
+}
+
+[Environment]::SetEnvironmentVariable("PATH",
+    $env:PATH + ";C:\runtime\opencv\bin;C:\runtime\gstreamer\bin;C:\runtime\onnxruntime\lib",
+    [EnvironmentVariableTarget]::Machine)
+
+Write-Host "Runtime install finished."
