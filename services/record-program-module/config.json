@@ -1,0 +1,17 @@
+{
+    "server_port": 8082,
+    "data_root": "V:/Football_Storage",
+    "cam_01": {
+        "source": "V:/Football_Storage/test_4k_source.mp4",
+        "rtsp_url": "rtsp://127.0.0.1:8554/main"
+    },
+    "cam_02": {
+        "source": "V:/Football_Storage/test_4k_source.mp4",
+        "rtsp_url": "rtsp://127.0.0.1:8555/aux"
+    },
+    "algorithm": {
+        "ema_alpha": 0.15,
+        "ai_timeout_ms": 1000,
+        "decision_timeout_ms": 3000
+    }
+}

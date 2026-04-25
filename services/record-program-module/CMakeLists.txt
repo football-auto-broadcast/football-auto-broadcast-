@@ -16,8 +16,10 @@ FetchContent_Declare(json GIT_REPOSITORY https://github.com/nlohmann/json.git GI
 FetchContent_MakeAvailable(httplib json)
 
 # 3. 定义可执行文件（目标名中间绝对不能有空格）
-add_executable(record_program_service src/main.cpp)
-
+add_executable(record_program_service
+    src/main.cpp
+    config.json
+)
 # 4. 链接库（加入 Windows 网络必需的 ws2_32 和 crypt32）
 target_link_libraries(record_program_service 
     PRIVATE 
