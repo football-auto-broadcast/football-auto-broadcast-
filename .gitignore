@@ -1,0 +1,22 @@
+# Python 缓存文件
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VS Code 配置
+.vscode/
+
+# 数据集、训练输出、模型文件
+service/vision-event-module/training/datasets/
+service/vision-event-module/training/runs/
+service/vision-event-module/training/weights/
+service/vision-event-module/training/raw_data/
+# 其他临时文件
+*.log
+*.tmp
+
+# 深度学习模型
+*.pt
+*.onnx
+*.engine

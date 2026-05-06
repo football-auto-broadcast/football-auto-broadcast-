@@ -55,6 +55,7 @@ output:
   push_dual_regions: true
   push_program_decision: true
   event_push_enabled: true
+  metadata_root: "../data/metadata"
 
 # HTTP 服务器配置
 http:

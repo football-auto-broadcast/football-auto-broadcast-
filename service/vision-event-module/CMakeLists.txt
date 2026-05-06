@@ -46,6 +46,7 @@ include_directories(
 
 set(CORE_SOURCES
     src/main.cpp
+    src/frame_input.cpp
     src/service.cpp
     src/http_server.cpp
     src/event_types.cpp
@@ -83,6 +84,10 @@ target_link_libraries(vision_event_service
     onnxruntime
 )
 
+if(WIN32)
+    target_link_libraries(vision_event_service ws2_32)
+endif()
+
 # ============================================================================
 # 测试
 # ============================================================================
@@ -94,6 +99,7 @@ set(TEST_SOURCES
     tests/test_focus_region.cpp
     tests/test_multi_focus_region.cpp
     tests/test_fusion_policy.cpp
+    tests/test_service_algorithm.cpp
 )
 
 # TODO: 配置测试框架 (Google Test / Catch2)

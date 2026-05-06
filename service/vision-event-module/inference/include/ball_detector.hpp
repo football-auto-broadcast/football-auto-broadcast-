@@ -9,6 +9,7 @@
 #define VISION_EVENT_MODULE_BALL_DETECTOR_HPP
 
 #include <string>
+#include <memory>
 #include <vector>
 
 namespace vision {
