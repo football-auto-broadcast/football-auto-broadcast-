@@ -6,6 +6,7 @@
 
 #include "event_types.hpp"
 
+#include <cctype>
 #include <sstream>
 
 namespace vision {
@@ -37,7 +38,11 @@ EventType event_type_from_string(const std::string& str) {
 // ============================================================================
 
 bool Event::is_valid() const {
-    if (event_id.empty() || event_id.substr(0, 4) != "evt_") return false;
+    if (event_id.size() < 8 || event_id.substr(0, 4) != "evt_") return false;
+    for (size_t i = 4; i < event_id.size(); ++i) {
+        if (!std::isdigit(static_cast<unsigned char>(event_id[i]))) return false;
+    }
+    if (event_type_to_string(event_type) == std::string("unknown")) return false;
     if (start_sec < 0.0) return false;
     if (end_sec <= start_sec) return false;
     if (confidence < 0.0 || confidence > 1.0) return false;

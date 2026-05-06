@@ -61,6 +61,16 @@ public:
      */
     ModuleState state() const;
 
+    /**
+     * @brief 获取指定比赛状态
+     */
+    ModuleStatus get_status(const std::string& match_id) const;
+
+    /**
+     * @brief 按模拟输入推进一帧双机位分析，用于无 RTSP/无模型联调
+     */
+    void process_simulated_frames();
+
     // ========================================================================
     // 比赛管理
     // ========================================================================
@@ -79,6 +89,11 @@ public:
      * @brief 停止一场比赛的视觉分析
      */
     bool stop_match(const std::string& match_id);
+
+    /**
+     * @brief 将候选事件写入 event_candidates.json
+     */
+    bool write_event_candidates(const std::string& match_id);
 
     // ========================================================================
     // 帧处理

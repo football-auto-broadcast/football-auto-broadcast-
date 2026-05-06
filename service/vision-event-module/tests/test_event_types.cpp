@@ -7,6 +7,7 @@
 #include "event_types.hpp"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -81,7 +82,7 @@ void test_event_duration() {
     Event event;
     event.start_sec = 312.4;
     event.end_sec = 320.6;
-    assert(event.duration_sec() == 8.2);
+    assert(std::fabs(event.duration_sec() - 8.2) < 1e-9);
     std::cout << "[PASS] test_event_duration" << std::endl;
 }
 
