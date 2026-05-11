@@ -1,0 +1,2 @@
+#pragma code_page(65001)
+1 /* CREATEPROCESS_MANIFEST_RESOURCE_ID */ 24 /* RT_MANIFEST */ "D:/football/football-auto-broadcast-/services/platform-orchestration-module/out/build/x64-Debug/CMakeFiles/platform_orchestration_service.dir/embed.manifest"

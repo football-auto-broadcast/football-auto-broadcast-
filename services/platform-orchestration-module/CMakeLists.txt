@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 指定可执行文件
 add_executable(platform_orchestration_service
     src/main.cpp
-)
+ "src/httplib.h")
 
 # 添加头文件搜索路径（指向我们手动下载的库）
 target_include_directories(platform_orchestration_service PRIVATE
