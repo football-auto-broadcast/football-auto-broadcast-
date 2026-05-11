@@ -1,0 +1,13 @@
+# ninja log v6
+5	18	8002157017547641	clean	44e920a614519ae1
+4	17	8002168467072630	clean	44e920a614519ae1
+5	15	8002168759546326	clean	44e920a614519ae1
+5	18	8002169861296122	clean	44e920a614519ae1
+4	4598	8002169861561613	CMakeFiles/platform_orchestration_service.dir/src/main.cpp.obj	fbadd958a7f7b237
+4607	5172	8002169907588196	bin/platform_orchestration_service.exe	57bfa819247598a9
+5	23	8002181138875721	clean	44e920a614519ae1
+5	5114	8002181139225558	CMakeFiles/platform_orchestration_service.dir/src/main.cpp.obj	fbadd958a7f7b237
+5141	5438	8002181190580685	bin/platform_orchestration_service.exe	57bfa819247598a9
+4	23	8002191200733076	clean	44e920a614519ae1
+4	4939	8002191201058638	CMakeFiles/platform_orchestration_service.dir/src/main.cpp.obj	fbadd958a7f7b237
+4948	5269	8002191250505735	bin/platform_orchestration_service.exe	57bfa819247598a9

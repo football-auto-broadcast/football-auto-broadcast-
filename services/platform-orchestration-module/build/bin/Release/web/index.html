@@ -4,22 +4,28 @@
     <title>足球转播平台</title>
     <meta charset="utf-8">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 40px; background-color: #f4f7f6; }
         h1 { color: #2c3e50; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; min-width: 300px; }
         ul { list-style-type: none; padding: 0; }
-        li { margin: 10px 0; }
-        a { text-decoration: none; color: #3498db; font-size: 18px; }
-        a:hover { text-decoration: underline; }
+        li { margin: 15px 0; }
+        a { text-decoration: none; color: #3498db; font-size: 18px; font-weight: bold; }
+        a:hover { color: #2980b9; text-decoration: underline; }
+        .status-tag { font-size: 12px; color: #7f8c8d; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>⚽ 足球赛事自动转播系统</h1>
-    <p>平台与调度模块运行中</p>
-    <ul>
-        <li><a href="/matches.html">📋 比赛管理</a></li>
-        <li><a href="/status.html">📊 服务状态</a></li>
-    </ul>
-    <hr>
-    <p><small>API 健康检查: <a href="/api/v1/health">/api/v1/health</a></small></p>
+    <div class="card">
+        <h1>⚽ 足球赛事自动转播系统</h1>
+        <p>平台与调度模块运行中</p>
+        <ul>
+            <li><a href="/matches.html">📋 比赛管理</a></li>
+            <li><a href="/status.html">📊 服务状态查询</a></li>
+        </ul>
+        
+        <div class="status-tag">
+            <small>系统状态接口 (验证后端): <a href="/api/v1/system/status">/api/v1/system/status</a></small>
+        </div>
+    </div>
 </body>
 </html>
