@@ -1,2 +1,2 @@
-[2026-04-23 20:23:40.561] [platform] [info] Config loaded: ingest=8081, record=8082, vision=8083, highlight=8084
-[2026-04-23 20:23:40.563] [platform] [info] Server starting on 0.0.0.0:8080
+[2026-05-11 22:47:35.792] [platform] [info] Config: ingest=8081, record=8082, vision=8083, highlight=8084, data_root=D:\football\data
+[2026-05-11 22:47:35.793] [platform] [info] Server starting on 0.0.0.0:8080
