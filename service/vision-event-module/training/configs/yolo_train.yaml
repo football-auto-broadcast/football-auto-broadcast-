@@ -1,16 +1,14 @@
 # YOLO football detector training config.
 #
-# This file is intentionally split into two parts:
-# 1. dataset: consumed directly by Ultralytics YOLO as data=...
-# 2. train: copied into the CLI or read by local tooling.
+# This file stores project training metadata. Use yolo_dataset.yaml as the
+# Ultralytics data= file because Ultralytics expects top-level train/val/test
+# keys to be dataset paths.
 #
 # Recommended command from service/vision-event-module/training:
-#   yolo detect train model=weights/pretrained/yolov8n.pt data=configs/yolo_train.yaml imgsz=1280 epochs=120 batch=8 project=runs/football name=ball_yolov8n_v1
+#   yolo detect train model=weights/pretrained/yolov8s.pt data=configs/yolo_dataset.yaml imgsz=1280 epochs=120 batch=8 project=runs/football name=ball_yolov8s_v1
 
-path: ../datasets/football
-train: images/train
-val: images/val
-test: images/test
+dataset_yaml: configs/yolo_dataset.yaml
+source_dataset: raw_data/roboflow/football_merged_ball_only.v1i.yolov8
 
 names:
   0: ball
@@ -24,8 +22,8 @@ dataset:
   target_object: football
   label_format: yolo_det_txt
 
-train:
-  model: weights/pretrained/yolov8n.pt
+training:
+  model: weights/trained/ball_detector_yolov8s.pt
   epochs: 120
   imgsz: 1280
   batch: 8
@@ -35,7 +33,7 @@ train:
   patience: 30
   cache: false
   project: runs/football
-  name: ball_yolov8n_v1
+  name: ball_yolov8s_v1
   exist_ok: true
   seed: 2026
 
@@ -58,7 +56,7 @@ export:
   opset: 12
   simplify: true
   dynamic: false
-  output: weights/trained/ball_detector_yolov8n.onnx
+  output: weights/trained/ball_detector_yolov8s.onnx
 
 metrics:
   primary: recall
