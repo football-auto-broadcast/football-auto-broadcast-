@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 """Split YOLO images/labels into train/val/test folders."""
+"""把图片和标签拆成 YOLO 标准训练集结构。
 
+用途：从一堆图片和一堆标签里，按比例复制成：
+
+images/train
+images/val
+images/test
+labels/train
+labels/val
+labels/test
+默认比例是 80% / 15% / 5%。如果某张图没有标签，会自动生成空标签文件。"""
 from __future__ import annotations
 
 import argparse
