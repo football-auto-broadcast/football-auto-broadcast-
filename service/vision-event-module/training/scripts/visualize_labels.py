@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """Render YOLO labels on images for manual QA."""
+"""visualize_labels.py
 
+把 YOLO 标签框画回图片上，用来人工检查标注质量。
+
+用途：确认框有没有偏、类别是否正确、空标签是否合理。
+输入：图片目录和标签目录。
+输出：带黄色框和 ball 字样的 QA 图片。
+常用在正式训练前抽样检查，比如渲染 200 张看看。"""
 from __future__ import annotations
 
 import argparse
