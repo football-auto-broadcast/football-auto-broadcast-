@@ -8,14 +8,14 @@ The immediate target is a single-class football detector used by
 
 ```text
 training/
+├── configs/yolo_dataset.yaml
 ├── configs/yolo_train.yaml
 ├── datasets/football/
 │   ├── videos/cam_01/
 │   ├── videos/cam_02/
 │   ├── frames_unlabeled/
-│   └── yolo/
-│       ├── images/{train,val,test}/
-│       └── labels/{train,val,test}/
+│   ├── images/{train,val,test}/
+│   └── labels/{train,val,test}/
 ├── raw_data/
 ├── runs/football/
 ├── scripts/
@@ -55,31 +55,31 @@ python scripts/convert_format.py --format coco --images datasets/football/frames
 5. Split dataset:
 
 ```bash
-python scripts/split_dataset.py --images datasets/football/frames_unlabeled --labels raw_data/yolo_labels --output datasets/football/yolo
+python scripts/split_dataset.py --images datasets/football/frames_unlabeled --labels raw_data/yolo_labels --output datasets/football
 ```
 
 6. Visual QA:
 
 ```bash
-python scripts/visualize_labels.py --images datasets/football/yolo/images/train --labels datasets/football/yolo/labels/train --output raw_data/qa_train --sample 200
+python scripts/visualize_labels.py --images datasets/football/images/train --labels datasets/football/labels/train --output raw_data/qa_train --sample 200
 ```
 
 7. Train:
 
 ```bash
-yolo detect train model=weights/pretrained/yolov8n.pt data=configs/yolo_train.yaml imgsz=1280 epochs=120 batch=8 project=runs/football name=ball_yolov8n_v1
+yolo detect train model=../../yolov8s.pt data=configs/yolo_dataset.yaml imgsz=1280 epochs=120 batch=8 project=runs/football name=ball_yolov8s_v1
 ```
 
 8. Export ONNX:
 
 ```bash
-yolo export model=runs/football/ball_yolov8n_v1/weights/best.pt format=onnx opset=12 simplify=True imgsz=1280
+yolo export model=runs/football/ball_yolov8s_v1/weights/best.pt format=onnx opset=12 simplify=True imgsz=1280
 ```
 
 Copy the exported model to:
 
 ```text
-weights/trained/ball_detector_yolov8n.onnx
+weights/trained/ball_detector_yolov8s.onnx
 ```
 
 ## Labeling Rules
@@ -98,4 +98,3 @@ weights/trained/ball_detector_yolov8n.onnx
 - Runtime confidence threshold starts at 0.25.
 - Runtime NMS IoU starts at 0.45.
 - False negatives near the penalty area are more costly than false positives.
-
