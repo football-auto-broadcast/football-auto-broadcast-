@@ -1,6 +1,10 @@
-[2026-05-12 00:12:45.129] [platform] [info] --- Platform Service Starting ---
-[2026-05-12 00:12:45.130] [platform] [info] E-Module Server online at http://localhost:8080
-[2026-05-12 00:13:07.334] [platform] [info] Match created: 测试 (ID: match_1778515987334)
-[2026-05-12 00:13:10.093] [platform] [info] Match started: match_1778515987334
-[2026-05-12 00:13:13.461] [platform] [info] Match stopped: match_1778515987334
-[2026-05-12 00:13:16.138] [platform] [info] Highlight task triggered for match: match_1778515987334
+[2026-05-13 23:47:06.767] [platform] [info] --- Platform Service Starting ---
+[2026-05-13 23:47:06.769] [platform] [info] E-Module Server online at http://localhost:8080
+[2026-05-13 23:49:52.564] [platform] [info] Match created: 测试 (ID: match_1778687392564)
+[2026-05-13 23:49:55.988] [platform] [info] Match started: match_1778687392564
+[2026-05-13 23:49:59.233] [platform] [info] Match stopped: match_1778687392564
+[2026-05-13 23:50:02.991] [platform] [info] Highlight task triggered for match: match_1778687392564
+[2026-05-13 23:52:21.079] [platform] [info] Match created: 111 (ID: match_1778687541079)
+[2026-05-13 23:52:25.278] [platform] [info] Match started: match_1778687541079
+[2026-05-13 23:52:28.954] [platform] [info] Match stopped: match_1778687541079
+[2026-05-13 23:52:34.434] [platform] [info] Highlight task triggered for match: match_1778687541079
