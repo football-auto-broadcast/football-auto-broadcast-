@@ -71,6 +71,11 @@ public:
      */
     void process_simulated_frames();
 
+    /**
+     * @brief 从配置的 RTSP 视频流读取并处理一帧双机位输入
+     */
+    bool process_realtime_stream_frames();
+
     // ========================================================================
     // 比赛管理
     // ========================================================================
@@ -84,6 +89,11 @@ public:
      * @brief 开始一场比赛的视觉分析
      */
     bool start_match(const std::string& match_id);
+
+    /**
+     * @brief 配置一路输入视频流
+     */
+    bool configure_stream(const std::string& camera_id, const std::string& stream_uri);
 
     /**
      * @brief 停止一场比赛的视觉分析
@@ -132,6 +142,8 @@ public:
     EventList get_event_candidates(const std::string& match_id);
 
 private:
+    void publish_outputs();
+
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };
