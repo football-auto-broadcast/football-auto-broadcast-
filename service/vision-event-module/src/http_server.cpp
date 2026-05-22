@@ -69,6 +69,38 @@ std::string extract_json_string(const std::string& body, const std::string& key)
     return body.substr(first_quote + 1, second_quote - first_quote - 1);
 }
 
+std::string extract_stream_uri_for_camera(const std::string& body, const std::string& camera_id) {
+    // Minimal JSON extraction for the frozen E->C init payload. The project does
+    // not currently link a JSON parser, so keep this scoped to stream_uri.
+    const std::string camera_marker = "\"camera_id\"";
+    size_t search_pos = 0;
+    while (true) {
+        const size_t camera_key_pos = body.find(camera_marker, search_pos);
+        if (camera_key_pos == std::string::npos) return "";
+        const size_t camera_value_pos = body.find("\"" + camera_id + "\"", camera_key_pos);
+        if (camera_value_pos == std::string::npos) return "";
+
+        const size_t object_end = body.find('}', camera_value_pos);
+        const size_t stream_key_pos = body.find("\"stream_uri\"", camera_value_pos);
+        if (stream_key_pos != std::string::npos &&
+            (object_end == std::string::npos || stream_key_pos < object_end)) {
+            const size_t colon = body.find(':', stream_key_pos);
+            if (colon == std::string::npos) {
+                return "";
+            }
+            const size_t first_quote = body.find('"', colon + 1);
+            if (first_quote == std::string::npos) {
+                return "";
+            }
+            const size_t second_quote = body.find('"', first_quote + 1);
+            if (second_quote != std::string::npos) {
+                return body.substr(first_quote + 1, second_quote - first_quote - 1);
+            }
+        }
+        search_pos = camera_value_pos + camera_id.size();
+    }
+}
+
 int parse_content_length(const std::string& request) {
     const std::string key = "Content-Length:";
     size_t pos = request.find(key);
@@ -145,6 +177,14 @@ struct HttpServer::Impl {
             if (match_id.empty()) {
                 return ApiResponse::error(ErrorCode::ERR_PARAM, "match_id required").to_json();
             }
+            const std::string main_stream_uri = extract_stream_uri_for_camera(body, "cam_01");
+            const std::string aux_stream_uri = extract_stream_uri_for_camera(body, "cam_02");
+            if (!main_stream_uri.empty()) {
+                service->configure_stream("cam_01", main_stream_uri);
+            }
+            if (!aux_stream_uri.empty()) {
+                service->configure_stream("cam_02", aux_stream_uri);
+            }
             return service->init_match(match_id)
                 ? ApiResponse::ok("{\"initialized\":true}").to_json()
                 : ApiResponse::error(ErrorCode::ERR_PARAM).to_json();
@@ -163,7 +203,7 @@ struct HttpServer::Impl {
 
         if (method == "POST" && path == "/api/v1/vision/matches/" + match_id + "/stop") {
             return service->stop_match(match_id)
-                ? ApiResponse::ok("{\"stopped\":true,\"event_candidates_written\":true}").to_json()
+                ? ApiResponse::ok("{\"stopped\":true}").to_json()
                 : ApiResponse::error(ErrorCode::ERR_NOT_INITIALIZED).to_json();
         }
 
