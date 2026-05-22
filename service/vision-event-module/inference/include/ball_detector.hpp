@@ -34,7 +34,9 @@ struct BallDetection {
  */
 class BallDetector {
 public:
-    explicit BallDetector(const std::string& model_path);
+    explicit BallDetector(const std::string& model_path,
+                          float confidence_threshold = 0.35f,
+                          float nms_threshold = 0.45f);
     ~BallDetector();
 
     /**
