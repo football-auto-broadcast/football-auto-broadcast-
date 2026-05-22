@@ -19,6 +19,7 @@ Ultralytics/
 *.log
 *.tmp
 *.crdownload
+service/vision-event-module/build*/
 service/vision-event-module/training/detect_test/*.mp4
 
 # 深度学习模型
