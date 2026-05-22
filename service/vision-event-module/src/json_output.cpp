@@ -21,9 +21,21 @@ const char* error_code_to_string(ErrorCode code) {
         case ErrorCode::ERR_NOT_INITIALIZED:   return "资源未初始化";
         case ErrorCode::ERR_SOURCE_UNAVAILABLE: return "输入源不可用";
         case ErrorCode::ERR_STREAM_EXCEPTION:  return "视频流异常";
+        case ErrorCode::ERR_FILE_WRITE_FAILED: return "文件写入失败";
+        case ErrorCode::ERR_FILE_READ_FAILED:  return "文件读取失败";
+        case ErrorCode::ERR_TASK_FAILED:       return "任务执行失败";
+        case ErrorCode::ERR_UPSTREAM_UNREACHABLE: return "上游服务不可达";
+        case ErrorCode::ERR_NOT_FOUND:         return "资源不存在";
+        case ErrorCode::ERR_STATE_CONFLICT:    return "状态冲突";
+        case ErrorCode::ERR_CONFIG:            return "配置错误";
         case ErrorCode::ERR_SDK_INIT_FAILED:   return "工业相机 SDK 初始化失败";
         case ErrorCode::ERR_ENUM_FAILED:       return "工业相机枚举失败";
         case ErrorCode::ERR_STREAM_FAILED:     return "相机取流失败";
+        case ErrorCode::ERR_CAMERA_NOT_BOUND:  return "相机未绑定";
+        case ErrorCode::ERR_CAMERA_SERIAL_CONFLICT: return "相机序列号冲突";
+        case ErrorCode::ERR_FOCUS_REGION_EXPIRED: return "关注区域过期";
+        case ErrorCode::ERR_DECISION_TIMEOUT:  return "决策超时";
+        case ErrorCode::ERR_DISK_SPACE_LOW:    return "磁盘空间不足";
         default:                               return "未知错误";
     }
 }
@@ -67,6 +79,7 @@ const char* module_state_to_string(ModuleState state) {
         case ModuleState::IDLE:           return "idle";
         case ModuleState::INITIALIZING:   return "initializing";
         case ModuleState::RUNNING:        return "running";
+        case ModuleState::DEGRADED:       return "degraded";
         case ModuleState::STOPPED:        return "stopped";
         case ModuleState::FAILED:         return "failed";
         default:                          return "unknown";
@@ -90,6 +103,8 @@ std::string ModuleStatus::to_json() const {
     oss << "\"focus_region_cam_01_ready\":" << (focus_region_cam_01_ready ? "true" : "false") << ",";
     oss << "\"focus_region_cam_02_ready\":" << (focus_region_cam_02_ready ? "true" : "false") << ",";
     oss << "\"last_program_decision_camera\":\"" << last_program_decision_camera << "\",";
+    oss << "\"last_focus_region_timestamp_ms\":" << last_focus_region_timestamp_ms << ",";
+    oss << "\"last_decision_timestamp_ms\":" << last_decision_timestamp_ms << ",";
     oss << "\"error_message\":\"" << error_message << "\"";
     oss << "}";
     return oss.str();
