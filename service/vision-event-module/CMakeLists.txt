@@ -44,8 +44,7 @@ include_directories(
 # 核心模块源文件
 # ============================================================================
 
-set(CORE_SOURCES
-    src/main.cpp
+set(CORE_LIBRARY_SOURCES
     src/frame_input.cpp
     src/service.cpp
     src/http_server.cpp
@@ -56,6 +55,11 @@ set(CORE_SOURCES
     src/json_output.cpp
     src/camera_role.cpp
     src/fusion_policy.cpp
+)
+
+set(CORE_SOURCES
+    src/main.cpp
+    ${CORE_LIBRARY_SOURCES}
 )
 
 # ============================================================================
@@ -74,19 +78,23 @@ set(INFERENCE_SOURCES
 # 可执行文件
 # ============================================================================
 
-add_executable(vision_event_service
-    ${CORE_SOURCES}
+add_library(vision_event_core
+    ${CORE_LIBRARY_SOURCES}
     ${INFERENCE_SOURCES}
 )
 
-target_link_libraries(vision_event_service
+target_link_libraries(vision_event_core
+    PUBLIC
     ${OpenCV_LIBS}
     onnxruntime
 )
 
 if(WIN32)
-    target_link_libraries(vision_event_service ws2_32)
+    target_link_libraries(vision_event_core PUBLIC ws2_32)
 endif()
+
+add_executable(vision_event_service src/main.cpp)
+target_link_libraries(vision_event_service PRIVATE vision_event_core)
 
 # ============================================================================
 # 测试
@@ -95,17 +103,18 @@ endif()
 enable_testing()
 
 set(TEST_SOURCES
-    tests/test_event_types.cpp
-    tests/test_focus_region.cpp
-    tests/test_multi_focus_region.cpp
-    tests/test_fusion_policy.cpp
-    tests/test_service_algorithm.cpp
+    test_event_types
+    test_focus_region
+    test_multi_focus_region
+    test_fusion_policy
+    test_service_algorithm
 )
 
-# TODO: 配置测试框架 (Google Test / Catch2)
-# add_executable(vision_event_tests ${CORE_SOURCES} ${TEST_SOURCES})
-# target_link_libraries(vision_event_tests ${OpenCV_LIBS} onnxruntime GTest::GTest GTest::Main)
-# add_test(NAME VisionEventTests COMMAND vision_event_tests)
+foreach(test_name ${TEST_SOURCES})
+    add_executable(${test_name} tests/${test_name}.cpp)
+    target_link_libraries(${test_name} PRIVATE vision_event_core)
+    add_test(NAME ${test_name} COMMAND ${test_name})
+endforeach()
 
 # ============================================================================
 # 安装规则
