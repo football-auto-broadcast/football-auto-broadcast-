@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\football -github -new\\football-auto-broadcast-\\serveces\\ingest-streaming-module\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football -github -new\\football-auto-broadcast-\\serveces\\ingest-streaming-module\\camera_enum.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|solutionrelative:camera_enum.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\C\u002B\u002B BIG PROJECT\\MVS\u8F6F\u4EF6\\MVS\\DEVELOPMENT\\INCLUDES\\CAMERAPARAMS.H||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CameraParams.h",
+              "DocumentMoniker": "D:\\C\u002B\u002B Big project\\MVS\u8F6F\u4EF6\\MVS\\Development\\Includes\\CameraParams.h",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\C\u002B\u002B Big project\\MVS\u8F6F\u4EF6\\MVS\\Development\\Includes\\CameraParams.h",
+              "ToolTip": "D:\\C\u002B\u002B Big project\\MVS\u8F6F\u4EF6\\MVS\\Development\\Includes\\CameraParams.h",
+              "RelativeToolTip": "..\\..\\..\\..\\C\u002B\u002B Big project\\MVS\u8F6F\u4EF6\\MVS\\Development\\Includes\\CameraParams.h",
+              "ViewState": "AgIAAAQAAAAAAAAAAADwvxgAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-05-24T09:16:52.358Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "camera_enum.cpp",
+              "DocumentMoniker": "D:\\football -github -new\\football-auto-broadcast-\\serveces\\ingest-streaming-module\\camera_enum.cpp",
+              "RelativeDocumentMoniker": "camera_enum.cpp",
+              "ToolTip": "D:\\football -github -new\\football-auto-broadcast-\\serveces\\ingest-streaming-module\\camera_enum.cpp",
+              "RelativeToolTip": "camera_enum.cpp",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-05-24T08:53:43.33Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
