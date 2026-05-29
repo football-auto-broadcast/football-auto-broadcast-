@@ -1,5 +1,6 @@
 #include "ingest_engine.h"
 #include <iostream>
+#include <chrono>
 
 IngestEngine::IngestEngine() {}
 
@@ -19,13 +20,16 @@ bool IngestEngine::Initialize(const IngestConfig& config) {
     
     for (const auto& camConfig : config.cameras) {
         auto camera = std::make_unique<CameraDevice>(camConfig.serial, camConfig.camera_id, camConfig.role);
-        bool success = camera->Initialize();
+        bool cameraSuccess = camera->Initialize();
         
-        if (!success) {
+        if (!cameraSuccess) {
             std::cout << "[WARN] Camera " << camConfig.serial << " initialization failed, continuing with other cameras" << std::endl;
         }
         
         m_cameras.push_back(std::move(camera));
+        
+        auto streamer = std::make_unique<GstRtspStreamer>(camConfig.rtsp_url, camConfig.width, camConfig.height, camConfig.fps);
+        m_streamers.push_back(std::move(streamer));
     }
     
     if (m_cameras.empty()) {
@@ -52,27 +56,52 @@ bool IngestEngine::Start() {
         return false;
     }
     
+    m_running = true;
     size_t startedCount = 0;
+    size_t streamerInitializedCount = 0;
     
-    for (auto& camera : m_cameras) {
-        if (camera->StartGrabbing()) {
+    for (size_t i = 0; i < m_cameras.size(); i++) {
+        if (m_cameras[i]->StartGrabbing()) {
             startedCount++;
         }
+    }
+    
+    for (size_t i = 0; i < m_streamers.size(); i++) {
+        if (m_streamers[i]->Initialize()) {
+            streamerInitializedCount++;
+        } else {
+            std::cout << "[ERROR] Streamer for camera " << i << " failed to initialize" << std::endl;
+        }
+    }
+    
+    for (size_t i = 0; i < m_streamers.size(); i++) {
+        if (m_streamers[i]->GetStatus() == GstRtspStreamer::Status::stopped) {
+            m_streamers[i]->Start();
+        }
+    }
+    
+    for (size_t i = 0; i < m_cameras.size(); i++) {
+        m_streamingThreads.emplace_back(&IngestEngine::StreamingThread, this, i);
     }
     
     if (startedCount == 0) {
         std::cout << "[ERROR] No cameras started successfully" << std::endl;
         m_status = Status::failed;
+        m_running = false;
         return false;
     }
     
-    if (startedCount == m_cameras.size()) {
+    bool allStreaming = (streamerInitializedCount == m_streamers.size());
+    
+    if (startedCount == m_cameras.size() && allStreaming) {
         m_status = Status::running;
     } else {
         m_status = Status::degraded;
     }
     
-    std::cout << "[SUCCESS] IngestEngine started. " << startedCount << "/" << m_cameras.size() << " cameras running" << std::endl;
+    std::cout << "[SUCCESS] IngestEngine started. " << startedCount << "/" << m_cameras.size() 
+              << " cameras running, " << streamerInitializedCount << "/" << m_streamers.size() 
+              << " streamers initialized" << std::endl;
     return true;
 }
 
@@ -83,6 +112,19 @@ void IngestEngine::Stop() {
         return;
     }
     
+    m_running = false;
+    
+    for (auto& thread : m_streamingThreads) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
+    m_streamingThreads.clear();
+    
+    for (auto& streamer : m_streamers) {
+        streamer->Stop();
+    }
+    
     for (auto& camera : m_cameras) {
         camera->Stop();
         camera->Close();
@@ -90,6 +132,26 @@ void IngestEngine::Stop() {
     
     m_status = Status::stopped;
     std::cout << "[INFO] IngestEngine stopped" << std::endl;
+}
+
+void IngestEngine::StreamingThread(size_t cameraIndex) {
+    std::cout << "[INFO] Streaming thread started for camera " << cameraIndex << std::endl;
+    
+    while (m_running) {
+        FrameData frame;
+        if (m_cameras[cameraIndex]->GetFrame(frame, 100)) {
+            if (m_streamers[cameraIndex]->GetStatus() == GstRtspStreamer::Status::running) {
+                GstFlowReturn ret = m_streamers[cameraIndex]->PushFrame(frame.data, frame.frameInfo.nFrameLen);
+                if (ret != GST_FLOW_OK) {
+                    std::cout << "[ERROR] Camera " << cameraIndex << " PushFrame failed" << std::endl;
+                }
+            }
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+    }
+    
+    std::cout << "[INFO] Streaming thread stopped for camera " << cameraIndex << std::endl;
 }
 
 IngestEngine::Status IngestEngine::GetStatus() const {
@@ -102,14 +164,15 @@ std::vector<IngestEngine::CameraStatus> IngestEngine::GetCameraStatuses() const 
     
     std::vector<CameraStatus> statuses;
     
-    for (const auto& camera : m_cameras) {
+    for (size_t i = 0; i < m_cameras.size(); i++) {
         CameraStatus status;
-        status.camera_id = camera->GetCameraId();
-        status.role = camera->GetRole();
-        status.online = camera->IsOnline();
-        status.frame_count = camera->GetFrameCount();
+        status.camera_id = m_cameras[i]->GetCameraId();
+        status.role = m_cameras[i]->GetRole();
+        status.online = m_cameras[i]->IsOnline();
+        status.streaming = (m_streamers[i]->GetStatus() == GstRtspStreamer::Status::running);
+        status.frame_count = m_cameras[i]->GetFrameCount();
         
-        auto info = camera->GetCameraInfo();
+        auto info = m_cameras[i]->GetCameraInfo();
         status.width = info.width;
         status.height = info.height;
         status.fps = info.fps;
@@ -142,12 +205,17 @@ void IngestEngine::CheckAndReconnect() {
     std::lock_guard<std::mutex> lock(m_mutex);
     
     size_t onlineCount = 0;
-    for (auto& camera : m_cameras) {
-        if (!camera->IsOnline()) {
-            std::cout << "[INFO] Camera " << camera->GetSerial() << " is offline, attempting reconnect..." << std::endl;
-            camera->Reconnect();
+    for (size_t i = 0; i < m_cameras.size(); i++) {
+        if (!m_cameras[i]->IsOnline()) {
+            std::cout << "[INFO] Camera " << m_cameras[i]->GetSerial() << " is offline, attempting reconnect..." << std::endl;
+            if (m_cameras[i]->Reconnect()) {
+                std::cout << "[INFO] Restarting streamer for camera " << i << std::endl;
+                m_streamers[i]->Stop();
+                m_streamers[i]->Initialize();
+                m_streamers[i]->Start();
+            }
         }
-        if (camera->IsOnline()) {
+        if (m_cameras[i]->IsOnline()) {
             onlineCount++;
         }
     }
