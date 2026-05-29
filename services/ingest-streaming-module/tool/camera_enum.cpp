@@ -1,6 +1,7 @@
-﻿#include <iostream>
+﻿﻿﻿﻿﻿﻿#include <iostream>
 #include <cstring>
 #include "MvCameraControl.h"
+#include"httplib.h"
 
 void PrintError(unsigned int errCode, const char* msg)
 {
@@ -61,4 +62,4 @@ int main()
     std::cout << std::endl << "Enumeration completed. Press any key to exit..." << std::endl;
     system("pause");
     return 0;
-}
+}*/
