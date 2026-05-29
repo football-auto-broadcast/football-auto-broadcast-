@@ -2,20 +2,20 @@
   "configurations": [
     {
       "inheritEnvironments": [
-        "msvc_x86"
+        "msvc_x64"
       ],
-      "name": "x86-Debug",
+      "name": "x64-Release",
       "includePath": [
         "${env.INCLUDE}",
         "${workspaceRoot}\\**"
       ],
       "defines": [
         "WIN32",
-        "_DEBUG",
+        "NDEBUG",
         "UNICODE",
         "_UNICODE"
       ],
-      "intelliSenseMode": "windows-msvc-x86"
+      "intelliSenseMode": "windows-msvc-x64"
     }
   ]
 }
