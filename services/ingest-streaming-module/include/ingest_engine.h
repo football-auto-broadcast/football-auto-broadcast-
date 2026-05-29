@@ -4,15 +4,19 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <thread>
+#include <atomic>
 #include "camera_device.h"
+#include "gst_rtsp_streamer.h"
 
 struct CameraConfig {
     std::string serial;
     int camera_id;
     std::string role;
-    int width = 1920;
-    int height = 1080;
+    int width = 2592;
+    int height = 1944;
     double fps = 25.0;
+    std::string rtsp_url;
 };
 
 struct IngestConfig {
@@ -45,6 +49,7 @@ public:
         int camera_id;
         std::string role;
         bool online;
+        bool streaming;
         uint64_t frame_count;
         int width;
         int height;
@@ -58,7 +63,12 @@ public:
     void CheckAndReconnect();
 
 private:
+    void StreamingThread(size_t cameraIndex);
+    
     std::vector<std::unique_ptr<CameraDevice>> m_cameras;
+    std::vector<std::unique_ptr<GstRtspStreamer>> m_streamers;
+    std::vector<std::thread> m_streamingThreads;
+    std::atomic<bool> m_running{false};
     Status m_status = Status::idle;
     mutable std::mutex m_mutex;
 };
