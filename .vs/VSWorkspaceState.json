@@ -1,9 +1,16 @@
 {
   "ExpandedNodes": [
     "",
+    "\\configs",
+    "\\docker",
     "\\services",
-    "\\services\\ingest-streaming-module"
+    "\\services\\ingest-streaming-module",
+    "\\services\\ingest-streaming-module\\build",
+    "\\services\\ingest-streaming-module\\ignore\\ingest-s.72ff2d92\\Debug\\microsoft",
+    "\\services\\ingest-streaming-module\\src",
+    "\\services\\ingest-streaming-module\\tool",
+    "\\services\\ingest-streaming-module\\x64"
   ],
-  "SelectedNode": "\\services\\ingest-streaming-module\\camera_enum.cpp",
+  "SelectedNode": "\\services\\ingest-streaming-module\\src\\main.cpp",
   "PreviewInSolutionExplorer": false
 }
