@@ -3,8 +3,20 @@
   "WorkspaceRootPath": "D:\\football -github -new\\football-auto-broadcast-\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\camera_enum.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:services\\ingest-streaming-module\\camera_enum.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.filters||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.filters||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.user||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.user||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\tool\\camera_enum.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:services\\ingest-streaming-module\\tool\\camera_enum.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +31,53 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "camera_enum.cpp",
-              "DocumentMoniker": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\camera_enum.cpp",
-              "RelativeDocumentMoniker": "services\\ingest-streaming-module\\camera_enum.cpp",
-              "ToolTip": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\camera_enum.cpp",
-              "RelativeToolTip": "services\\ingest-streaming-module\\camera_enum.cpp",
+              "Title": "ingest-streaming-module.vcxproj.filters",
+              "DocumentMoniker": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.filters",
+              "RelativeDocumentMoniker": "services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.filters",
+              "ToolTip": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.filters",
+              "RelativeToolTip": "services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.filters",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-05-27T12:48:56.444Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ingest-streaming-module.vcxproj.user",
+              "DocumentMoniker": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.user",
+              "RelativeDocumentMoniker": "services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.user",
+              "ToolTip": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.user",
+              "RelativeToolTip": "services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj.user",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003464|",
+              "WhenOpened": "2026-05-27T12:48:54.671Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ingest-streaming-module.vcxproj",
+              "DocumentMoniker": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj",
+              "RelativeDocumentMoniker": "services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj",
+              "ToolTip": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj",
+              "RelativeToolTip": "services\\ingest-streaming-module\\ignore\\ingest-streaming-module.vcxproj",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000698|",
+              "WhenOpened": "2026-05-27T12:48:49.468Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "camera_enum.cpp",
+              "DocumentMoniker": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\tool\\camera_enum.cpp",
+              "RelativeDocumentMoniker": "services\\ingest-streaming-module\\tool\\camera_enum.cpp",
+              "ToolTip": "D:\\football -github -new\\football-auto-broadcast-\\services\\ingest-streaming-module\\tool\\camera_enum.cpp",
+              "RelativeToolTip": "services\\ingest-streaming-module\\tool\\camera_enum.cpp",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAIAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-05-24T10:12:20.919Z",
+              "WhenOpened": "2026-05-27T12:43:17.818Z",
               "EditorCaption": ""
             }
           ]
