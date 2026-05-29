@@ -23,6 +23,7 @@ void StatusPrinter(IngestEngine& engine) {
                       << "] " << status.width << "x" << status.height 
                       << " @ " << std::fixed << std::setprecision(1) << status.fps << "fps"
                       << " | online=" << std::boolalpha << status.online
+                      << " | streaming=" << std::boolalpha << status.streaming
                       << " | frames=" << status.frame_count << std::endl;
         }
         
@@ -75,18 +76,20 @@ int main() {
     cam01.serial = "F92514845";
     cam01.camera_id = 0;
     cam01.role = "main";
-    cam01.width = 1920;
-    cam01.height = 1080;
+    cam01.width = 2592;
+    cam01.height = 1944;
     cam01.fps = 25.0;
+    cam01.rtsp_url = "rtsp://127.0.0.1:8554/main";
     config.cameras.push_back(cam01);
     
     CameraConfig cam02;
     cam02.serial = "D91363830";
     cam02.camera_id = 1;
     cam02.role = "aux";
-    cam02.width = 1920;
-    cam02.height = 1080;
+    cam02.width = 2592;
+    cam02.height = 1944;
     cam02.fps = 25.0;
+    cam02.rtsp_url = "rtsp://127.0.0.1:8554/aux";
     config.cameras.push_back(cam02);
 
     IngestEngine engine;
@@ -136,6 +139,7 @@ int main() {
             json += "{\"camera_id\":" + std::to_string(statuses[i].camera_id) +
                     ",\"role\":\"" + statuses[i].role + "\"" +
                     ",\"online\":" + (statuses[i].online ? "true" : "false") +
+                    ",\"streaming\":" + (statuses[i].streaming ? "true" : "false") +
                     ",\"frame_count\":" + std::to_string(statuses[i].frame_count) +
                     ",\"width\":" + std::to_string(statuses[i].width) +
                     ",\"height\":" + std::to_string(statuses[i].height);
