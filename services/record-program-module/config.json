@@ -1,0 +1,8 @@
+{
+    "server_port": 8082,
+    "data_root": "V:/Football_Storage",
+    "rtsp_preview_url": "rtsp://127.0.0.1:8560/program",
+    "cam_01_src": "V:/Football_Storage/test_4k_source.mp4",
+    "cam_02_src": "V:/Football_Storage/test_4k_source.mp4",
+    "ema_alpha": 0.15
+}
