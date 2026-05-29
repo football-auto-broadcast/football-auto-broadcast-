@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>比赛管理</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <h1>比赛管理</h1>
+    <div>
+        <h2>创建新比赛</h2>
+        <input type="text" id="matchName" placeholder="比赛名称" />
+        <button onclick="createMatch()">创建</button>
+    </div>
+
+    <h2>比赛列表</h2>
+    <div id="matchList"></div>
+    <p><a href="/">返回首页</a></p>
+
+    <script>
+        async function loadMatches() {
+            try {
+                const res = await fetch('/api/v1/matches');
+                const data = await res.json();
+                if (data.code === 0) {
+                    const listDiv = document.getElementById('matchList');
+                    listDiv.innerHTML = '';
+                    for (const match of data.data) {
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.innerHTML = `
+                            <div>比赛ID: ${match.match_id}</div>
+                            <div>名称: ${match.match_name}</div>
+                            <div>状态: <strong>${match.status}</strong></div>
+                            <div style="margin-top: 8px;">
+                                ${match.status === 'idle' ? `<button onclick="startMatch('${match.match_id}')">开始比赛</button>` : ''}
+                                ${match.status === 'running' ? `<button onclick="stopMatch('${match.match_id}')">结束比赛</button>` : ''}
+                                ${match.status === 'finished' ? `<button onclick="generateHighlight('${match.match_id}')">生成集锦</button>` : ''}
+                            </div>
+                        `;
+                        listDiv.appendChild(card);
+                    }
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function createMatch() {
+            const name = document.getElementById('matchName').value;
+            if (!name) return alert('请输入比赛名称');
+            const res = await fetch('/api/v1/matches', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({match_name: name})
+            });
+            const data = await res.json();
+            if (data.code === 0) {
+                alert('创建成功！');
+                loadMatches();
+            } else {
+                alert('创建失败: ' + data.message);
+            }
+        }
+
+        async function startMatch(id) {
+            const res = await fetch(`/api/v1/matches/${id}/start`, {method: 'POST'});
+            const data = await res.json();
+            if (data.code === 0) {
+                alert('比赛已开始');
+                loadMatches();
+            } else {
+                alert('开始失败: ' + data.message);
+            }
+        }
+
+        async function stopMatch(id) {
+            const res = await fetch(`/api/v1/matches/${id}/stop`, {method: 'POST'});
+            const data = await res.json();
+            if (data.code === 0) {
+                alert('比赛已结束');
+                loadMatches();
+            } else {
+                alert('结束失败: ' + data.message);
+            }
+        }
+
+        async function generateHighlight(id) {
+            const res = await fetch(`/api/v1/matches/${id}/highlight`, {method: 'POST'});
+            const data = await res.json();
+            if (data.code === 0) {
+                alert('集锦任务已触发');
+            } else {
+                alert('集锦生成失败: ' + data.message);
+            }
+        }
+
+        loadMatches();
+        setInterval(loadMatches, 5000);
+    </script>
+</body>
+</html>

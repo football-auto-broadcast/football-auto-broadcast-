@@ -14,11 +14,6 @@
 
 一个面向校队比赛与训练赛的轻量、可移动部署的足球自动转播与精彩集锦生成系统。
 
- HEAD
-本项目当前聚焦于一个可落地的 MVP 版本，采用 **双 GigE 工业相机 + 千兆 PoE 交换机 + 单主机集中式处理架构**。系统由一台 RTX 4080 主机统一完成采集、录制、自动转播主画面生成、事件识别和赛后全场精彩集锦生成。
-本项目当前聚焦于一个可落地的 MVP 版本，采用 **双 GigE 工业相机 + 千兆 PoE 交换机 + 单主机集中式处理架构**。系统由一台主机统一完成采集、录制、自动转播主画面生成、事件识别和赛后全场精彩集锦生成。
- develop
-
 ---
 
 ## 项目简介
@@ -280,6 +275,34 @@
 + Pull Request 工作流
 
 ---
+## 目录结构
+football-auto-broadcast/
+├── docker/
+│   ├── windows/
+│   │   ├── common/
+│   │   │   └── install_runtime.ps1
+│   │   ├── record-program-module/
+│   │   │   └── Dockerfile.windows
+│   │   ├── vision-event-module/
+│   │   │   └── Dockerfile.windows
+│   │   ├── highlight-generation-module/
+│   │   │   └── Dockerfile.windows
+│   │   ├── platform-orchestration-module/
+│   │   │   └── Dockerfile.windows
+│   │   └── ingest-streaming-module/
+│   │       └── Dockerfile.windows
+├── services/
+│   ├── ingest-streaming-module/
+│   ├── record-program-module/
+│   ├── vision-event-module/
+│   ├── highlight-generation-module/
+│   └── platform-orchestration-module/
+└── third_party/
+    └── windows/
+        ├── gstreamer/
+        ├── opencv/
+        ├── onnxruntime/
+        └── vc_redist/
 
 ## **逻辑模块划分**
 虽然运行架构已经改为单主机集中式处理，但工程实现上仍然保留模块化设计，便于多人协作与后续扩展。
