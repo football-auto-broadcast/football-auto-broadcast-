@@ -4,14 +4,12 @@
 Examples:
   python scripts/extract_frames.py --input datasets/football/videos/cam_01 --output datasets/football/frames_unlabeled/cam_01 --fps 2 --camera-id cam_01
   python scripts/extract_frames.py --input datasets/football/videos --output datasets/football/frames_unlabeled --every-n 25
-"""
-#
-"""用途：把 datasets/football/videos/cam_01、cam_02 里的比赛视频转成 .jpg 帧。
+
+用途：把 datasets/football/videos/cam_01、cam_02 里的比赛视频转成 .jpg 帧。
 输入：视频文件或视频目录。
 输出：图片帧目录，以及 extract_manifest.json 抽帧记录。
 常用命令：
 conda run -n yolo_football python scripts/extract_frames.py --input datasets/football/videos --output datasets/football/frames_unlabeled --fps 2
-
 """
 from __future__ import annotations
 
