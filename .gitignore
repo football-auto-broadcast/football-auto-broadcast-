@@ -16,6 +16,7 @@ service/vision-event-module/training/raw_data/
 service/vision-event-module/training/Ultralytics/
 Ultralytics/
 # 其他临时文件
+.tmp_pip/
 *.log
 *.tmp
 *.crdownload
