@@ -1,25 +1,6 @@
-﻿  main.cpp
-D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\include\httplib.h(1,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  (编译源文件“../src/main.cpp”)
-  
-D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\include\httplib.h(1046,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  (编译源文件“../src/main.cpp”)
-  
-D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\include\httplib.h(5968,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  (编译源文件“../src/main.cpp”)
-  
-D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\include\httplib.h(10412,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  (编译源文件“../src/main.cpp”)
-  
-D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\include\httplib.h(12101,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  (编译源文件“../src/main.cpp”)
-  
-D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\include\httplib.h(12930,1): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-  (编译源文件“../src/main.cpp”)
-  
-  正在生成代码
-  1 of 5185 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+﻿  正在生成代码
+  586 of 5390 functions (10.9%) were compiled, the rest were copied from previous compilation.
+    198 functions were new in current compilation
+    304 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   ingest-streaming-module.vcxproj -> D:\football-github-new\football-auto-broadcast-\services\ingest-streaming-module\ignore\x64\Release\ingest-streaming-module.exe
