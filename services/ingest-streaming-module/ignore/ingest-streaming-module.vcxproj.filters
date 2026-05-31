@@ -24,6 +24,9 @@
     <ClCompile Include="..\src\camera_device.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\gst_rtsp_streamer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\camera_device.h">
@@ -33,6 +36,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\include\httplib.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\gst_rtsp_streamer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
