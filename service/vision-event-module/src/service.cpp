@@ -26,6 +26,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -194,6 +195,49 @@ std::string json_escape(const std::string& text) {
     return oss.str();
 }
 
+std::string date_yyyymmdd() {
+    const std::time_t current = std::time(nullptr);
+    std::tm local_time{};
+#ifdef _WIN32
+    localtime_s(&local_time, &current);
+#else
+    localtime_r(&current, &local_time);
+#endif
+    std::ostringstream oss;
+    oss << std::setw(4) << std::setfill('0') << (local_time.tm_year + 1900)
+        << std::setw(2) << std::setfill('0') << (local_time.tm_mon + 1)
+        << std::setw(2) << std::setfill('0') << local_time.tm_mday;
+    return oss.str();
+}
+
+std::string time_hhmmss() {
+    const std::time_t current = std::time(nullptr);
+    std::tm local_time{};
+#ifdef _WIN32
+    localtime_s(&local_time, &current);
+#else
+    localtime_r(&current, &local_time);
+#endif
+    std::ostringstream oss;
+    oss << std::setw(2) << std::setfill('0') << local_time.tm_hour << ":"
+        << std::setw(2) << std::setfill('0') << local_time.tm_min << ":"
+        << std::setw(2) << std::setfill('0') << local_time.tm_sec;
+    return oss.str();
+}
+
+std::string event_list_data_json(const EventList& events) {
+    std::ostringstream oss;
+    oss << "{";
+    oss << "\"match_id\":\"" << json_escape(events.match_id) << "\",";
+    oss << "\"events\":[";
+    for (size_t i = 0; i < events.events.size(); ++i) {
+        if (i > 0) oss << ",";
+        oss << events.events[i].to_json();
+    }
+    oss << "]}";
+    return oss.str();
+}
+
 std::string http_request_body(const std::string& host,
                               const std::string& path,
                               const std::string& json) {
@@ -300,9 +344,10 @@ struct VisionService::Impl {
     std::atomic<bool> running{false};
 
     FusionPolicy fusion_policy;
-    HttpServer* http_server = nullptr;
+    std::unique_ptr<HttpServer> http_server;
     std::string default_match_id = "match_20260405_001";
     std::string metadata_root = "../data/metadata";
+    std::string log_root = "../logs";
     std::string main_stream_uri = "rtsp://127.0.0.1:8554/main";
     std::string aux_stream_uri = "rtsp://127.0.0.1:8555/aux";
     std::string record_host = "127.0.0.1";
@@ -314,6 +359,10 @@ struct VisionService::Impl {
     bool fallback_to_simulation = false;
     bool push_dual_regions = true;
     bool push_program_decision = true;
+    bool enable_goal_candidate = true;
+    bool enable_shot_candidate = true;
+    bool enable_danger_attack_candidate = true;
+    bool enable_celebration_candidate = true;
     int focus_region_update_ms = 200;
     int stale_stream_timeout_ms = 3000;
     int input_width = kDefaultWidth;
@@ -743,7 +792,8 @@ struct VisionService::Impl {
     struct MatchState {
         std::string match_id;
         bool running = false;
-        int64_t match_start_timestamp_ms = 0;
+        int64_t record_start_timestamp_ms = 0;
+        bool record_time_base_configured = false;
         int events_detected = 0;
         int event_counter = 0;
         bool focus_region_cam_01_ready = false;
@@ -770,9 +820,14 @@ struct VisionService::Impl {
     // HTTP 服务器端口
     int http_port = 8083;
     std::string http_host = "127.0.0.1";
+    std::string default_region_policy_cam_01 = "half_field_center_safe_16_9";
+    std::string default_region_policy_cam_02 = "goal_side_attack_area_16_9";
 
     ~Impl() {
-        delete http_server;
+        if (http_server) {
+            http_server->stop();
+            http_server.reset();
+        }
     }
 
     static std::string trim(const std::string& value) {
@@ -892,6 +947,12 @@ struct VisionService::Impl {
                 http_host = value_after_colon(stripped);
             } else if (section == "output" && stripped.find("metadata_root:") == 0) {
                 metadata_root = value_after_colon(stripped);
+            } else if (section == "logging" && stripped.find("file:") == 0) {
+                const std::string configured_log_file = value_after_colon(stripped);
+                const std::string configured_log_dir = directory_name(configured_log_file);
+                if (!configured_log_dir.empty()) {
+                    log_root = configured_log_dir;
+                }
             } else if (section == "output" && stripped.find("record_host:") == 0) {
                 record_host = value_after_colon(stripped);
             } else if (section == "output" && stripped.find("record_port:") == 0) {
@@ -995,6 +1056,13 @@ struct VisionService::Impl {
                        stripped.find("gate_speed_scale:") == 0) {
                 ball_kalman_config.gate_speed_scale =
                     std::atof(value_after_colon(stripped).c_str());
+            } else if (section == "roi" && !roi_camera.empty() && roi_name.empty()) {
+                CameraRoiConfig& roi_config = roi_configs[roi_camera];
+                if (stripped.find("frame_width:") == 0) {
+                    roi_config.source_width = std::atoi(value_after_colon(stripped).c_str());
+                } else if (stripped.find("frame_height:") == 0) {
+                    roi_config.source_height = std::atoi(value_after_colon(stripped).c_str());
+                }
             } else if (section == "roi" && !roi_camera.empty() && !roi_name.empty()) {
                 Rect* target = nullptr;
                 CameraRoiConfig& roi_config = roi_configs[roi_camera];
@@ -1025,6 +1093,10 @@ struct VisionService::Impl {
         if (metadata_root.empty()) metadata_root = "../data/metadata";
         if (!is_absolute_path(metadata_root)) {
             metadata_root = join_path(directory_name(config_path), metadata_root);
+        }
+        if (log_root.empty()) log_root = "../logs";
+        if (!is_absolute_path(log_root)) {
+            log_root = join_path(directory_name(config_path), log_root);
         }
         if (!is_absolute_path(ball_model_path)) {
             ball_model_path = join_path(directory_name(config_path), ball_model_path);
@@ -1099,9 +1171,11 @@ struct VisionService::Impl {
         }
 
         std::cout << "[service] Opening " << camera_id << " stream: " << stream_uri << std::endl;
+        log("info", std::string("opening stream uri=") + stream_uri, "", camera_id);
         if (!capture.open(stream_uri)) {
             std::cerr << "[service] Failed to open " << camera_id << " stream: "
                       << stream_uri << std::endl;
+            log("error", std::string("failed to open stream uri=") + stream_uri, "", camera_id);
             return false;
         }
         return true;
@@ -1123,6 +1197,7 @@ struct VisionService::Impl {
         if (!captures[camera_id].read(image) || image.empty()) {
             captures[camera_id].release();
             std::cerr << "[service] Failed to read frame from " << camera_id << std::endl;
+            log("error", "failed to read frame", match_id, camera_id);
             return false;
         }
         if (image.channels() == 1) {
@@ -1153,6 +1228,34 @@ struct VisionService::Impl {
 
     std::string event_candidates_path(const std::string& match_id) const {
         return metadata_root + "/" + match_id + "/event_candidates.json";
+    }
+
+    std::string log_path() const {
+        return log_root + "/vision-event-module_" + date_yyyymmdd() + ".log";
+    }
+
+    void log(const std::string& level,
+             const std::string& message,
+             const std::string& match_id = "",
+             const std::string& camera_id = "",
+             const std::string& recommended_camera_id = "",
+             const std::string& reason = "") const {
+        const std::string path = log_path();
+        create_directory_recursive(directory_name(path));
+        std::ofstream output(path.c_str(), std::ios::out | std::ios::app);
+        if (!output) {
+            return;
+        }
+        output << time_hhmmss()
+               << " level=" << level
+               << " module=vision-event-module";
+        if (!match_id.empty()) output << " match_id=" << match_id;
+        if (!camera_id.empty()) output << " camera_id=" << camera_id;
+        if (!recommended_camera_id.empty()) {
+            output << " recommended_camera_id=" << recommended_camera_id;
+        }
+        if (!reason.empty()) output << " reason=" << reason;
+        output << " message=\"" << json_escape(message) << "\"\n";
     }
 
     FrameSignal estimate_signal_from_frame(const InputFrame& frame) {
@@ -1360,11 +1463,15 @@ struct VisionService::Impl {
         const FrameSignal main = latest_or_default(match, "cam_01");
         const FrameSignal aux = latest_or_default(match, "cam_02");
         const int64_t timestamp_ms = std::max(main.timestamp_ms, aux.timestamp_ms);
-        if (match.match_start_timestamp_ms <= 0) {
-            match.match_start_timestamp_ms = timestamp_ms;
+        if (match.record_start_timestamp_ms <= 0) {
+            match.record_start_timestamp_ms = timestamp_ms;
+            match.record_time_base_configured = false;
+            log("warning",
+                "record_start_timestamp_ms missing, using first processed frame timestamp as fallback",
+                match.match_id);
         }
         const double event_sec =
-            std::max(0.0, (timestamp_ms - match.match_start_timestamp_ms) / 1000.0);
+            std::max(0.0, (timestamp_ms - match.record_start_timestamp_ms) / 1000.0);
 
         const double goal_score = clamp01(main.goal_activity * 0.45 + aux.goal_activity * 0.55);
         const double shot_score = clamp01(main.activity * 0.35 + aux.box_activity * 0.45 +
@@ -1386,25 +1493,33 @@ struct VisionService::Impl {
             if (event.is_valid()) {
                 match.events.push_back(event);
                 match.events_detected = static_cast<int>(match.events.size());
+                log("info",
+                    std::string("candidate event generated type=") + event_type_to_string(type),
+                    match.match_id,
+                    camera_id);
             }
         };
 
-        if (goal_score >= 0.78 && event_sec - match.last_goal_event_sec >= 10.0) {
+        if (enable_goal_candidate &&
+            goal_score >= 0.78 && event_sec - match.last_goal_event_sec >= 10.0) {
             append_event(EventType::GOAL_CANDIDATE, event_sec - 4.0, event_sec + 5.0,
                          goal_score, aux.goal_activity >= main.goal_activity ? "cam_02" : "cam_01");
             match.last_goal_event_sec = event_sec;
         }
-        if (shot_score >= 0.68 && event_sec - match.last_shot_event_sec >= 6.0) {
+        if (enable_shot_candidate &&
+            shot_score >= 0.68 && event_sec - match.last_shot_event_sec >= 6.0) {
             append_event(EventType::SHOT_CANDIDATE, event_sec - 2.5, event_sec + 3.0,
                          shot_score, aux.box_activity >= main.activity ? "cam_02" : "cam_01");
             match.last_shot_event_sec = event_sec;
         }
-        if (danger_score >= 0.62 && event_sec - match.last_danger_event_sec >= 8.0) {
+        if (enable_danger_attack_candidate &&
+            danger_score >= 0.62 && event_sec - match.last_danger_event_sec >= 8.0) {
             append_event(EventType::DANGER_ATTACK_CANDIDATE, event_sec - 5.0, event_sec + 5.0,
                          danger_score, "cam_01");
             match.last_danger_event_sec = event_sec;
         }
-        if (celebration_score >= 0.74 && goal_score >= 0.70 &&
+        if (enable_celebration_candidate &&
+            celebration_score >= 0.74 && goal_score >= 0.70 &&
             event_sec - match.last_celebration_event_sec >= 12.0) {
             append_event(EventType::CELEBRATION_CANDIDATE, event_sec, event_sec + 12.0,
                          celebration_score, "cam_01");
@@ -1439,8 +1554,7 @@ bool VisionService::initialize() {
         return false;
     }
 
-    delete impl_->http_server;
-    impl_->http_server = new HttpServer(impl_->http_host, impl_->http_port, this);
+    impl_->http_server = std::make_unique<HttpServer>(impl_->http_host, impl_->http_port, this);
     if (!impl_->http_server->start()) {
         impl_->state.store(ModuleState::FAILED);
         return false;
@@ -1674,10 +1788,14 @@ void VisionService::publish_outputs() {
                                      error_message)) {
                     match.error_message = "focus-regions push failed: " + error_message;
                     match.degraded = true;
+                    impl_->log("error", match.error_message, match_id);
+                } else {
+                    impl_->log("info", "focus-regions pushed", match_id);
                 }
             } else {
                 match.error_message = "generated invalid focus-regions";
                 match.degraded = true;
+                impl_->log("error", match.error_message, match_id);
             }
         }
 
@@ -1703,9 +1821,21 @@ void VisionService::publish_outputs() {
                     match.last_pushed_decision_camera = decision.recommended_camera_id;
                     match.last_pushed_decision_reason = decision.reason;
                     match.last_pushed_decision_confidence = decision.confidence;
+                    impl_->log("info",
+                               "program-decision pushed",
+                               match_id,
+                               "",
+                               decision.recommended_camera_id,
+                               decision_reason_to_string(decision.reason));
                 } else {
                     match.error_message = "program-decision push failed: " + error_message;
                     match.degraded = true;
+                    impl_->log("error",
+                               match.error_message,
+                               match_id,
+                               "",
+                               decision.recommended_camera_id,
+                               decision_reason_to_string(decision.reason));
                 }
             }
         }
@@ -1719,13 +1849,13 @@ void VisionService::publish_outputs() {
 bool VisionService::init_match(const std::string& match_id) {
     Impl::MatchState state;
     state.match_id = match_id;
-    state.match_start_timestamp_ms = now_ms();
     state.last_program_decision_camera = "cam_01";
     state.degraded = false;
     impl_->matches[match_id] = state;
     impl_->ball_filters["cam_01"] = Impl::BallKalmanFilter(impl_->ball_kalman_config);
     impl_->ball_filters["cam_02"] = Impl::BallKalmanFilter(impl_->ball_kalman_config);
     std::cout << "[service] Match initialized: " << match_id << std::endl;
+    impl_->log("info", "match initialized", match_id);
     return true;
 }
 
@@ -1735,10 +1865,65 @@ bool VisionService::start_match(const std::string& match_id) {
         return false;
     }
     it->second.running = true;
-    it->second.match_start_timestamp_ms = now_ms();
     it->second.degraded = false;
     it->second.error_message.clear();
     std::cout << "[service] Match started: " << match_id << std::endl;
+    impl_->log("info", "match started", match_id);
+    return true;
+}
+
+bool VisionService::configure_record_time_base(const std::string& match_id, int64_t timestamp_ms) {
+    if (timestamp_ms <= 0) {
+        return false;
+    }
+    auto it = impl_->matches.find(match_id);
+    if (it == impl_->matches.end()) {
+        Impl::MatchState state;
+        state.match_id = match_id;
+        state.last_program_decision_camera = "cam_01";
+        it = impl_->matches.emplace(match_id, state).first;
+    }
+    it->second.record_start_timestamp_ms = timestamp_ms;
+    it->second.record_time_base_configured = true;
+    impl_->log("info", "record time base configured from upstream", match_id);
+    return true;
+}
+
+void VisionService::configure_fusion_runtime(bool enable_dual_focus_regions,
+                                             bool enable_program_decision,
+                                             int update_ms) {
+    impl_->push_dual_regions = enable_dual_focus_regions;
+    impl_->push_program_decision = enable_program_decision;
+    if (update_ms > 0) {
+        impl_->focus_region_update_ms = update_ms;
+    }
+    impl_->log("info", "fusion runtime options configured");
+}
+
+void VisionService::configure_event_runtime(bool enable_goal_candidate,
+                                            bool enable_shot_candidate,
+                                            bool enable_danger_attack_candidate,
+                                            bool enable_celebration_candidate) {
+    impl_->enable_goal_candidate = enable_goal_candidate;
+    impl_->enable_shot_candidate = enable_shot_candidate;
+    impl_->enable_danger_attack_candidate = enable_danger_attack_candidate;
+    impl_->enable_celebration_candidate = enable_celebration_candidate;
+    impl_->log("info", "event runtime options configured");
+}
+
+bool VisionService::configure_default_region_policy(const std::string& camera_id,
+                                                    const std::string& policy) {
+    if (policy.empty()) {
+        return false;
+    }
+    if (camera_id == "cam_01") {
+        impl_->default_region_policy_cam_01 = policy;
+    } else if (camera_id == "cam_02") {
+        impl_->default_region_policy_cam_02 = policy;
+    } else {
+        return false;
+    }
+    impl_->log("info", "default region policy configured", "", camera_id);
     return true;
 }
 
@@ -1771,6 +1956,7 @@ bool VisionService::stop_match(const std::string& match_id) {
     it->second.running = false;
     const bool written = write_event_candidates(match_id);
     std::cout << "[service] Match stopped: " << match_id << std::endl;
+    impl_->log(written ? "info" : "error", "match stopped", match_id);
     return written;
 }
 
@@ -1788,14 +1974,11 @@ bool VisionService::write_event_candidates(const std::string& match_id) {
         return false;
     }
 
-    output << "{";
-    output << "\"match_id\":\"" << json_escape(events.match_id) << "\",";
-    output << "\"events\":[";
-    for (size_t i = 0; i < events.events.size(); ++i) {
-        if (i > 0) output << ",";
-        output << events.events[i].to_json();
+    output << ApiResponse::ok(event_list_data_json(events)).to_json();
+    auto it = impl_->matches.find(match_id);
+    if (it != impl_->matches.end()) {
+        impl_->log("info", "event candidates written", match_id);
     }
-    output << "]}";
     return true;
 }
 
@@ -1815,7 +1998,6 @@ void VisionService::process_frame(const InputFrame& frame) {
         Impl::MatchState state;
         state.match_id = frame.match_id;
         state.running = true;
-        state.match_start_timestamp_ms = frame.timestamp_ms > 0 ? frame.timestamp_ms : now_ms();
         state.last_program_decision_camera = "cam_01";
         match_it = impl_->matches.emplace(frame.match_id, state).first;
     }
