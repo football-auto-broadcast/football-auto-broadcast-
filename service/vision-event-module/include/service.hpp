@@ -96,6 +96,32 @@ public:
     bool configure_stream(const std::string& camera_id, const std::string& stream_uri);
 
     /**
+     * @brief 配置比赛录制时间零点，优先使用 B 模块首帧写入时间
+     */
+    bool configure_record_time_base(const std::string& match_id, int64_t timestamp_ms);
+
+    /**
+     * @brief 配置运行期融合输出选项
+     */
+    void configure_fusion_runtime(bool enable_dual_focus_regions,
+                                  bool enable_program_decision,
+                                  int focus_region_update_ms);
+
+    /**
+     * @brief 配置事件开关
+     */
+    void configure_event_runtime(bool enable_goal_candidate,
+                                 bool enable_shot_candidate,
+                                 bool enable_danger_attack_candidate,
+                                 bool enable_celebration_candidate);
+
+    /**
+     * @brief 记录默认区域策略，用于合同初始化语义追踪
+     */
+    bool configure_default_region_policy(const std::string& camera_id,
+                                         const std::string& policy);
+
+    /**
      * @brief 停止一场比赛的视觉分析
      */
     bool stop_match(const std::string& match_id);
