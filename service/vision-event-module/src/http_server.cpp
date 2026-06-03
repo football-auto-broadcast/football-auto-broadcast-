@@ -8,6 +8,8 @@
 #include "service.hpp"
 
 #include <algorithm>
+#include <cctype>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -67,6 +69,51 @@ std::string extract_json_string(const std::string& body, const std::string& key)
     size_t second_quote = body.find('"', first_quote + 1);
     if (second_quote == std::string::npos) return "";
     return body.substr(first_quote + 1, second_quote - first_quote - 1);
+}
+
+std::string extract_json_string_in_object(const std::string& body,
+                                          const std::string& object_key,
+                                          const std::string& key) {
+    const size_t object_pos = body.find("\"" + object_key + "\"");
+    if (object_pos == std::string::npos) return "";
+    const size_t object_start = body.find('{', object_pos);
+    if (object_start == std::string::npos) return "";
+    const size_t object_end = body.find('}', object_start);
+    if (object_end == std::string::npos) return "";
+    return extract_json_string(body.substr(object_start, object_end - object_start + 1), key);
+}
+
+bool extract_json_bool(const std::string& body, const std::string& key, bool default_value) {
+    const std::string quoted_key = "\"" + key + "\"";
+    const size_t key_pos = body.find(quoted_key);
+    if (key_pos == std::string::npos) return default_value;
+    const size_t colon = body.find(':', key_pos + quoted_key.size());
+    if (colon == std::string::npos) return default_value;
+    size_t value_pos = colon + 1;
+    while (value_pos < body.size() && std::isspace(static_cast<unsigned char>(body[value_pos]))) {
+        ++value_pos;
+    }
+    if (body.find("true", value_pos) == value_pos) return true;
+    if (body.find("false", value_pos) == value_pos) return false;
+    return default_value;
+}
+
+int extract_json_int(const std::string& body, const std::string& key, int default_value) {
+    const std::string quoted_key = "\"" + key + "\"";
+    const size_t key_pos = body.find(quoted_key);
+    if (key_pos == std::string::npos) return default_value;
+    const size_t colon = body.find(':', key_pos + quoted_key.size());
+    if (colon == std::string::npos) return default_value;
+    return std::atoi(body.substr(colon + 1).c_str());
+}
+
+int64_t extract_json_int64(const std::string& body, const std::string& key, int64_t default_value) {
+    const std::string quoted_key = "\"" + key + "\"";
+    const size_t key_pos = body.find(quoted_key);
+    if (key_pos == std::string::npos) return default_value;
+    const size_t colon = body.find(':', key_pos + quoted_key.size());
+    if (colon == std::string::npos) return default_value;
+    return static_cast<int64_t>(std::atoll(body.substr(colon + 1).c_str()));
 }
 
 std::string extract_stream_uri_for_camera(const std::string& body, const std::string& camera_id) {
@@ -185,9 +232,38 @@ struct HttpServer::Impl {
             if (!aux_stream_uri.empty()) {
                 service->configure_stream("cam_02", aux_stream_uri);
             }
-            return service->init_match(match_id)
-                ? ApiResponse::ok("{\"initialized\":true}").to_json()
-                : ApiResponse::error(ErrorCode::ERR_PARAM).to_json();
+            if (!service->init_match(match_id)) {
+                return ApiResponse::error(ErrorCode::ERR_PARAM).to_json();
+            }
+
+            const int64_t record_start_timestamp_ms =
+                extract_json_int64(body, "record_start_timestamp_ms", 0);
+            if (record_start_timestamp_ms > 0) {
+                service->configure_record_time_base(match_id, record_start_timestamp_ms);
+            }
+
+            service->configure_event_runtime(
+                extract_json_bool(body, "enable_goal_candidate", true),
+                extract_json_bool(body, "enable_shot_candidate", true),
+                extract_json_bool(body, "enable_danger_attack_candidate", true),
+                extract_json_bool(body, "enable_celebration_candidate", true));
+            service->configure_fusion_runtime(
+                extract_json_bool(body, "enable_dual_camera_focus_regions", true),
+                extract_json_bool(body, "enable_program_decision", true),
+                extract_json_int(body, "focus_region_update_ms", 200));
+
+            const std::string cam_01_policy =
+                extract_json_string_in_object(body, "default_region_policy", "cam_01");
+            const std::string cam_02_policy =
+                extract_json_string_in_object(body, "default_region_policy", "cam_02");
+            if (!cam_01_policy.empty()) {
+                service->configure_default_region_policy("cam_01", cam_01_policy);
+            }
+            if (!cam_02_policy.empty()) {
+                service->configure_default_region_policy("cam_02", cam_02_policy);
+            }
+
+            return ApiResponse::ok("{\"initialized\":true}").to_json();
         }
 
         const std::string match_id = extract_path_match_id(path);
@@ -196,6 +272,11 @@ struct HttpServer::Impl {
         }
 
         if (method == "POST" && path == "/api/v1/vision/matches/" + match_id + "/start") {
+            const int64_t record_start_timestamp_ms =
+                extract_json_int64(body, "record_start_timestamp_ms", 0);
+            if (record_start_timestamp_ms > 0) {
+                service->configure_record_time_base(match_id, record_start_timestamp_ms);
+            }
             return service->start_match(match_id)
                 ? ApiResponse::ok("{\"started\":true}").to_json()
                 : ApiResponse::error(ErrorCode::ERR_NOT_INITIALIZED).to_json();
