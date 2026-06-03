@@ -73,51 +73,54 @@ fusion:
 # ROI 标定配置
 # 坐标系说明：
 # 1. 所有 ROI 坐标均基于 A 模块输出给视觉模块的单帧图像坐标。
-# 2. 当前冻结输入规格为 1920x1080，因此下面默认值按 1920x1080 像素填写。
-# 3. x/y 表示 ROI 左上角，width/height 表示 ROI 尺寸，单位均为像素。
-# 4. 后续实地标定时，只需要修改本段数值，不需要修改对外 JSON 接口。
-# 5. 当前数值是“半场双机位 MVP 占位值”：cam_01 假设主机位看半场全局且进攻球门在画面右侧；
-#    cam_02 假设底线/角区机位主要覆盖门前和边路。正式部署必须用实拍画面重新标定。
+# 2. 实地 ROI 标定来自 LabelQuick/LabelMe JSON；已标定机位当前标定帧尺寸为 1133x850。
+# 3. x/y 表示矩形 ROI 左上角，width/height 表示矩形 ROI 尺寸，单位均为像素。
+# 4. 当前运行与对外 focus_region JSON 均按“关注区域输出格式说明 v1.1”输出矩形区域，不输出 polygon。
+# 5. 后续实地标定时，只需要修改本段数值，不需要修改对外 JSON 接口。
 roi:
   cam_01:
     # 全场安全关注区：主机位默认裁切/回退区域，保持半场叙事完整。
+    frame_width: 1133
+    frame_height: 850
     field_safe:
-      x: 0
-      y: 0
-      width: 1920
-      height: 1080
+      x: 1
+      y: 5
+      width: 1132
+      height: 827
     # 默认 16:9 裁切区：无球/低置信度时给 B 模块的安全裁切中心区域。
     default_focus:
-      x: 240
-      y: 135
-      width: 1440
-      height: 810
+      x: 5
+      y: 75
+      width: 960
+      height: 555
     # 进攻球门区域：用于 goal_area_activity_boosted、danger_attack_candidate 的主机位信号。
     goal_area:
-      x: 1380
-      y: 220
-      width: 420
-      height: 620
+      x: 112
+      y: 288
+      width: 670
+      height: 135
     # 大禁区区域：用于射门/危险进攻的区域增强，实地应沿禁区线重标。
     penalty_area:
-      x: 1120
-      y: 160
-      width: 720
-      height: 760
+      x: 42
+      y: 279
+      width: 1075
+      height: 396
     # 小禁区区域：主机位远景下的门前高价值区域，占位值偏保守。
     six_yard_box:
-      x: 1480
-      y: 350
-      width: 300
-      height: 360
+      x: 40
+      y: 281
+      width: 944
+      height: 262
     # 边路推进区域：用于后续区分边路进攻，目前作为预留标定数据。
     wing_attack:
-      x: 980
-      y: 0
-      width: 820
-      height: 1080
+      x: 5
+      y: 285
+      width: 625
+      height: 393
   cam_02:
     # 全场安全关注区：辅机位默认可用区域，确保 cam_02 始终可裁切。
+    frame_width: 1133
+    frame_height: 850
     field_safe:
       x: 0
       y: 0
@@ -125,16 +128,16 @@ roi:
       height: 1080
     # 默认 16:9 裁切区：门前近景默认裁切区域，正式部署按球门实际位置调整。
     default_focus:
-      x: 240
-      y: 135
-      width: 1440
-      height: 810
+      x: 0
+      y: 0
+      width: 1920
+      height: 1080
     # 进攻球门区域：辅机位核心 ROI，直接影响是否推荐 cam_02。
     goal_area:
-      x: 360
-      y: 140
-      width: 1120
-      height: 760
+      x: 277
+      y: 233
+      width: 583
+      height: 477
     # 大禁区区域：底线/角区视角下的禁区活动范围，占位覆盖稍大。
     penalty_area:
       x: 260
@@ -143,10 +146,10 @@ roi:
       height: 900
     # 小禁区区域：six_yard_box_highlight 的主要 ROI，正式部署必须重点标定。
     six_yard_box:
-      x: 560
-      y: 260
-      width: 720
-      height: 460
+      x: 264
+      y: 192
+      width: 866
+      height: 657
     # 边路推进区域：辅机位靠近边路时用于后续边路叙事增强。
     wing_attack:
       x: 0
