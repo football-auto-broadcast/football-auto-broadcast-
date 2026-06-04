@@ -1,0 +1,66 @@
+# YOLO football detector training config.
+#
+# This file stores project training metadata. Use yolo_dataset.yaml as the
+# Ultralytics data= file because Ultralytics expects top-level train/val/test
+# keys to be dataset paths.
+#
+# Recommended command from service/vision-event-module/training:
+#   yolo detect train model=weights/pretrained/yolov8s.pt data=configs/yolo_dataset.yaml imgsz=1280 epochs=120 batch=8 project=runs/football name=ball_yolov8s_v1
+
+dataset_yaml: configs/yolo_dataset.yaml
+source_dataset: raw_data/roboflow/football_merged_ball_only.v1i.yolov8
+
+names:
+  0: ball
+
+dataset:
+  task: detect
+  camera_ids:
+    - cam_01
+    - cam_02
+  source_resolution: 1920x1080
+  target_object: football
+  label_format: yolo_det_txt
+
+training:
+  model: weights/trained/ball_detector_yolov8s.pt
+  epochs: 120
+  imgsz: 1280
+  batch: 8
+  workers: 4
+  device: 0
+  optimizer: auto
+  patience: 30
+  cache: false
+  project: runs/football
+  name: ball_yolov8s_v1
+  exist_ok: true
+  seed: 2026
+
+augmentation:
+  hsv_h: 0.015
+  hsv_s: 0.45
+  hsv_v: 0.35
+  degrees: 3.0
+  translate: 0.06
+  scale: 0.35
+  shear: 1.0
+  perspective: 0.0003
+  flipud: 0.0
+  fliplr: 0.5
+  mosaic: 0.6
+  mixup: 0.05
+
+export:
+  format: onnx
+  opset: 12
+  simplify: true
+  dynamic: false
+  output: weights/trained/ball_detector_yolov8s.onnx
+
+metrics:
+  primary: recall
+  target_recall: 0.95
+  target_precision: 0.70
+  confidence_for_runtime: 0.25
+  iou_for_runtime: 0.45
