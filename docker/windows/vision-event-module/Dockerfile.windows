@@ -1,0 +1,19 @@
+# escape=`
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+SHELL ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"]
+
+WORKDIR C:\app
+
+COPY third_party\windows C:\deps
+COPY docker\windows\common\install_runtime.ps1 C:\install_runtime.ps1
+RUN C:\install_runtime.ps1
+
+COPY services\vision-event-module\build\Release\vision_event_service.exe C:\app\
+COPY services\vision-event-module\models C:\app\models
+COPY configs\vision-event-module C:\app\configs
+
+EXPOSE 8083
+
+ENTRYPOINT ["C:\\app\\vision_event_service.exe"]
+CMD ["--config", "C:\\app\\configs\\config.yaml", "--api-port", "8083"]

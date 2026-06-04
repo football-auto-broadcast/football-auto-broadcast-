@@ -1,14 +1,10 @@
-############################
 # Local editor / OS files
-############################
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-############################
 # Build outputs
-############################
 build/
 build*/
 cmake-build-*/
@@ -20,18 +16,22 @@ cmake_install.cmake
 *.dll
 *.exe
 
-############################
-# Python / temporary deps
-############################
+# Python cache / temporary dependencies
 __pycache__/
 *.py[cod]
+*.pyc
+*.pyo
+*.pyd
 .pytest_cache/
 .mypy_cache/
 .tmp_pip/
 
-############################
-# ML datasets, runs, and weights
-############################
+# Logs and temporary files
+*.log
+*.tmp
+*.crdownload
+
+# ML datasets, training outputs, and model weights
 Ultralytics/
 *.pt
 *.onnx
@@ -39,12 +39,14 @@ Ultralytics/
 *.weights
 *.ckpt
 *.pth
+
+# Local media artifacts
 *.mp4
 *.avi
 *.mov
 *.mkv
-*.crdownload
 
+# Vision event module local artifacts - legacy path
 service/vision-event-module/build*/
 service/vision-event-module/logs/
 service/vision-event-module/training/.idea/
@@ -55,6 +57,7 @@ service/vision-event-module/training/Ultralytics/
 service/vision-event-module/training/weights/
 service/vision-event-module/training/detect_test/*.mp4
 
+# Vision event module local artifacts - current path
 services/vision-event-module/build*/
 services/vision-event-module/logs/
 services/vision-event-module/training/.idea/
