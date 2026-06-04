@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="18.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\football\football-auto-broadcast-\services\platform-orchestration-module\build\CMakeFiles\fd4ad59f522027a05e7d2b5d19d24ad7\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{3414E7B9-1973-30EA-9CD6-214EF5913DDD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
