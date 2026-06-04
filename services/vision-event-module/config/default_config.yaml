@@ -1,0 +1,179 @@
+# default_config.yaml - 默认配置文件
+#
+# 包含相机参数、推理阈值、事件规则和 HTTP 端口配置。
+
+# 比赛配置
+match_id: "match_20260405_001"
+
+# 输入配置
+input:
+  # 默认走 A 模块输出的本机 RTSP；无流联调时可关闭实时流或启用模拟兜底。
+  enable_realtime_streams: true
+  fallback_to_simulation: false
+  main_camera:
+    stream_uri: "rtsp://127.0.0.1:8554/main"
+    camera_id: "cam_01"
+    role: "main"
+    resolution:
+      width: 1920
+      height: 1080
+    fps: 25
+  aux_camera:
+    stream_uri: "rtsp://127.0.0.1:8555/aux"
+    camera_id: "cam_02"
+    role: "aux"
+    resolution:
+      width: 1920
+      height: 1080
+    fps: 25
+
+# 推理配置
+inference:
+  ball_detector:
+    model_path: "../training/weights/trained/ball_detector_yolov8s.onnx"
+    confidence_threshold: 0.5
+    nms_threshold: 0.4
+  kalman_filter:
+    # Internal-only C module smoothing. This does not change frozen JSON/API fields.
+    min_update_conf: 0.35
+    gate_base_px: 180.0
+    gate_conf_scale_px: 450.0
+    hard_reset_conf: 0.72
+    max_predict_frames: 6
+    reset_confirm_frames: 2
+    min_missing_before_reset: 3
+    velocity_blend: 0.25
+    max_speed_px_s: 1800.0
+    acceleration_blend: 0.08
+    max_accel_px_s2: 3500.0
+    prediction_lead_s: 0.0
+    max_extra_lead_s: 0.0
+    gate_min_px: 45.0
+    gate_max_px: 260.0
+    gate_speed_scale: 2.2
+  motion_analyzer:
+    bg_subtractor_type: "MOG2"
+    history_frames: 500
+  event_classifier:
+    goal_confidence_threshold: 0.7
+    shot_confidence_threshold: 0.6
+    danger_attack_confidence_threshold: 0.5
+    celebration_confidence_threshold: 0.6
+
+# 融合策略配置
+fusion:
+  enable_dual_camera_fusion: true
+  enable_dual_camera_focus_regions: true
+  enable_program_decision: true
+  goal_candidate_use_aux_boost: true
+  shot_candidate_use_aux_boost: true
+  six_yard_box_enhancement: true
+  aux_camera_role: "goal_line_extension"
+
+# ROI 标定配置
+# 坐标系说明：
+# 1. 所有 ROI 坐标均基于 A 模块输出给视觉模块的单帧图像坐标。
+# 2. 实地 ROI 标定来自 LabelQuick/LabelMe JSON；已标定机位当前标定帧尺寸为 1133x850。
+# 3. x/y 表示矩形 ROI 左上角，width/height 表示矩形 ROI 尺寸，单位均为像素。
+# 4. 当前运行与对外 focus_region JSON 均按“关注区域输出格式说明 v1.1”输出矩形区域，不输出 polygon。
+# 5. 后续实地标定时，只需要修改本段数值，不需要修改对外 JSON 接口。
+roi:
+  cam_01:
+    # 全场安全关注区：主机位默认裁切/回退区域，保持半场叙事完整。
+    frame_width: 1133
+    frame_height: 850
+    field_safe:
+      x: 1
+      y: 5
+      width: 1132
+      height: 827
+    # 默认 16:9 裁切区：无球/低置信度时给 B 模块的安全裁切中心区域。
+    default_focus:
+      x: 5
+      y: 75
+      width: 960
+      height: 555
+    # 进攻球门区域：用于 goal_area_activity_boosted、danger_attack_candidate 的主机位信号。
+    goal_area:
+      x: 112
+      y: 288
+      width: 670
+      height: 135
+    # 大禁区区域：用于射门/危险进攻的区域增强，实地应沿禁区线重标。
+    penalty_area:
+      x: 42
+      y: 279
+      width: 1075
+      height: 396
+    # 小禁区区域：主机位远景下的门前高价值区域，占位值偏保守。
+    six_yard_box:
+      x: 40
+      y: 281
+      width: 944
+      height: 262
+    # 边路推进区域：用于后续区分边路进攻，目前作为预留标定数据。
+    wing_attack:
+      x: 5
+      y: 285
+      width: 625
+      height: 393
+  cam_02:
+    # 全场安全关注区：辅机位默认可用区域，确保 cam_02 始终可裁切。
+    frame_width: 1133
+    frame_height: 850
+    field_safe:
+      x: 0
+      y: 0
+      width: 1920
+      height: 1080
+    # 默认 16:9 裁切区：门前近景默认裁切区域，正式部署按球门实际位置调整。
+    default_focus:
+      x: 0
+      y: 0
+      width: 1920
+      height: 1080
+    # 进攻球门区域：辅机位核心 ROI，直接影响是否推荐 cam_02。
+    goal_area:
+      x: 277
+      y: 233
+      width: 583
+      height: 477
+    # 大禁区区域：底线/角区视角下的禁区活动范围，占位覆盖稍大。
+    penalty_area:
+      x: 260
+      y: 80
+      width: 1360
+      height: 900
+    # 小禁区区域：six_yard_box_highlight 的主要 ROI，正式部署必须重点标定。
+    six_yard_box:
+      x: 264
+      y: 192
+      width: 866
+      height: 657
+    # 边路推进区域：辅机位靠近边路时用于后续边路叙事增强。
+    wing_attack:
+      x: 0
+      y: 120
+      width: 760
+      height: 840
+
+# 输出配置
+output:
+  focus_region_update_ms: 200
+  push_dual_regions: true
+  push_program_decision: true
+  event_push_enabled: true
+  record_host: "127.0.0.1"
+  record_port: 8082
+  stale_stream_timeout_ms: 3000
+  metadata_root: "../data/metadata"
+
+# HTTP 服务器配置
+http:
+  port: 8083
+  host: "127.0.0.1"
+
+# 日志配置
+logging:
+  level: "info"
+  file: "../logs/vision_event.log"

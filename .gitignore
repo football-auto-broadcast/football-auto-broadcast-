@@ -1,0 +1,36 @@
+# Python 缓存文件
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VS Code 配置
+.vscode/
+.idea/
+
+# 数据集、训练输出、模型文件
+service/vision-event-module/training/datasets/
+service/vision-event-module/training/runs/
+service/vision-event-module/training/weights/
+service/vision-event-module/training/raw_data/
+service/vision-event-module/training/Ultralytics/
+services/vision-event-module/training/datasets/
+services/vision-event-module/training/runs/
+services/vision-event-module/training/weights/
+services/vision-event-module/training/raw_data/
+services/vision-event-module/training/Ultralytics/
+Ultralytics/
+# 其他临时文件
+.tmp_pip/
+*.log
+*.tmp
+*.crdownload
+service/vision-event-module/build*/
+services/vision-event-module/build*/
+service/vision-event-module/training/detect_test/*.mp4
+services/vision-event-module/training/detect_test/*.mp4
+
+# 深度学习模型
+*.pt
+*.onnx
+*.engine
