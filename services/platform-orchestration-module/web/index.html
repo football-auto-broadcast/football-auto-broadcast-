@@ -1,25 +1,276 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>足球转播平台</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>足球转播平台 - 控制中心</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        h1 { color: #2c3e50; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 10px 0; }
-        a { text-decoration: none; color: #3498db; font-size: 18px; }
-        a:hover { text-decoration: underline; }
+        /* 核心赛博球场配色：完美适配实景图（经典蓝 + 荧光蓝） */
+        :root {
+            --bg-color: #050e14;             
+            --card-bg: rgba(8, 18, 28, 0.8);  /* 深邃半透明磨砂基底 */
+            
+            /* 边框状态颜色定义 */
+            --border-static: rgba(0, 102, 255, 0.4); /* 核心修改：边框本身为科技蓝色 */
+            --neon-cyan: #00f0ff;                    /* 核心修改：悬浮与点击全转为荧光蓝 */
+            
+            --text-main: #f8fafc;
+            --text-muted: #93c5fd;           /* 副文本调整为冰蓝色 */
+            --neon-green: #00ff87;           /* 绿茵绿：仅保留在呼吸灯等关键足球元素上 */
+            --neon-glow: rgba(0, 240, 255, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            
+            /* 背景图多层复合遮罩 */
+            background: linear-gradient(
+                rgba(6, 15, 25, 0.85) 0%, 
+                rgba(10, 20, 32, 0.78) 100%
+            ), 
+            url('足球场.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        /* 环境流光球 */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: 0;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        body::before {
+            background: var(--neon-cyan);
+            top: -15%; left: -15%;
+        }
+        body::after {
+            background: var(--neon-green);
+            bottom: -15%; right: -15%;
+        }
+
+        /* 中央流光控制舱 */
+        .container {
+            position: relative;
+            z-index: 1;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-static); /* 边框本身为经典蓝 */
+            padding: 45px 40px;
+            border-radius: 24px;
+            box-shadow: 0 25px 60px rgba(0, 5, 15, 0.75), 
+                        0 0 30px rgba(0, 102, 255, 0.15); 
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                        border-color 0.3s ease, 
+                        box-shadow 0.3s ease;
+        }
+
+        /* 大框悬浮时同样亮起荧光蓝 */
+        .container:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-cyan); /* 变为荧光蓝 */
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 
+                        0 0 40px rgba(0, 240, 255, 0.3), 
+                        inset 0 0 15px rgba(0, 240, 255, 0.1); 
+        }
+
+        /* 标题科技渐变 */
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff 40%, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        /* 运行状态呼吸灯组件 */
+        .status-bar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 135, 0.06);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #d1fae5;
+            margin-bottom: 35px;
+            border: 1px solid rgba(0, 255, 135, 0.15);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(0, 255, 135, 0.4);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 135, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 255, 135, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 135, 0); }
+        }
+
+        /* 功能菜单网格化卡片 */
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 35px;
+        }
+
+        /* 按钮基础静态样式：本身显示蓝色 */
+        .menu-item a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            background: rgba(5, 15, 25, 0.5); 
+            border: 1px solid var(--border-static); /* 边框本身为蓝色 */
+            border-radius: 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 1. 鼠标悬浮（Hover）状态：边框变为荧光蓝 */
+        .menu-item a:hover {
+            background: rgba(0, 240, 255, 0.08);
+            border-color: var(--neon-cyan); /* 变为荧光蓝 */
+            color: var(--neon-cyan);        /* 文字同步变荧光蓝 */
+            transform: translateX(4px);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+        }
+
+        /* 2. 鼠标按下（Active）状态：保持荧光蓝，同时增强发光并下沉 */
+        .menu-item a:active {
+            border-color: var(--neon-cyan) !important;       /* 保持荧光蓝 */
+            color: var(--neon-cyan) !important;              
+            background: rgba(0, 240, 255, 0.18) !important;   /* 内部注入更强的荧光蓝光晕 */
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.55) !important; /* 强化荧光蓝外发光 */
+            transform: translateX(2px) scale(0.97);          /* 按下时产生微小的物理回弹下沉 */
+            transition: none;                                 /* 消除延迟，让点击瞬间反馈 */
+        }
+
+        .menu-item a::after {
+            content: '→';
+            font-family: monospace;
+            font-size: 18px;
+            opacity: 0.5;
+            transition: transform 0.25s ease;
+        }
+
+        .menu-item a:hover::after {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+        
+        /* 悬浮和点击时箭头颜色同步变化 */
+        .menu-item a:hover::after,
+        .menu-item a:active::after {
+            color: var(--neon-cyan);
+        }
+
+        .icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* 底部辅助面板 */
+        .api-footer {
+            border-top: 1px solid rgba(0, 102, 255, 0.2);
+            padding-top: 20px;
+        }
+
+        .api-box {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: rgba(5, 15, 25, 0.6);
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: inline-block;
+            max-width: 100%;
+            word-break: break-all;
+            border: 1px dashed rgba(0, 102, 255, 0.3);
+        }
+
+        .api-box a {
+            color: var(--neon-cyan); 
+            text-decoration: none;
+            font-family: 'Courier New', Courier, monospace;
+            margin-left: 4px;
+            transition: color 0.2s;
+        }
+
+        .api-box a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h1>⚽ 足球赛事自动转播系统</h1>
-    <p>平台与调度模块运行中</p>
-    <ul>
-        <li><a href="/matches.html">📋 比赛管理</a></li>
-        <li><a href="/status.html">📊 服务状态</a></li>
-    </ul>
-    <hr>
-    <p><small>API 健康检查: <a href="/api/v1/health">/api/v1/health</a></small></p>
+
+    <div class="container">
+        <h1><span>⚽</span> 足球赛事自动转播系统</h1>
+        
+        <div class="status-bar">
+            <span class="pulse-dot"></span>
+            <span>平台与调度模块已就绪</span>
+        </div>
+        
+        <ul class="menu-list">
+            <li class="menu-item">
+                <a href="/matches.html">
+                    <span><span class="icon">📋</span>比赛管理控制台</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/status.html">
+                    <span><span class="icon">📊</span>微服务运行状态</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="api-footer">
+            <div class="api-box">
+                <span>[ENG] Core API Test Link:</span>
+                <a href="/api/v1/system/status">/api/v1/system/status</a>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

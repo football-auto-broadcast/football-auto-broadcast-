@@ -1,84 +1,416 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>服务状态</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务状态 - 全景监控大屏</title>
     <style>
-        body { font-family: Arial; margin: 20px; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .online { color: green; font-weight: bold; }
-        .offline { color: red; }
-        .section { margin-top: 30px; }
+        /* 深度贯穿的赛博暗黑硬核科技蓝系配色 */
+        :root {
+            --bg-color: #050e14; /* 极暗的蓝色基底 */
+            --card-bg: rgba(8, 18, 28, 0.75); /* 沉稳的深蓝半透明卡片背景 */
+            
+            /* 严格对齐核心边框法则 */
+            --border-static: rgba(0, 102, 255, 0.4); /* 基础状态：标准科技蓝边框 */
+            --neon-cyan: #00f0ff;                    /* 激活状态：炫目高亮荧光蓝 */
+            
+            --text-main: #f8fafc;
+            --text-muted: #93c5fd; /* 柔和的浅冰蓝色文字 */
+            --neon-green: #00ff87; /* 绿茵绿（保留用于在线/运行状态指示灯） */
+            --neon-danger: #ff4757; /* 红色（保留用于告警/离线状态指示灯） */
+            --table-th-bg: rgba(0, 102, 255, 0.06);
+            --glow-blue: rgba(0, 240, 255, 0.25);
+            --glow-danger: rgba(255, 71, 87, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            overflow-x: hidden;
+
+            /* 强力对齐：完美统一的蓝系滤镜遮罩与本地背景图 */
+            background: linear-gradient(
+                rgba(6, 15, 25, 0.88), 
+                rgba(10, 20, 32, 0.78)
+            ), 
+            url('足球场.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        /* 统一的环境电子信道蓝流光晕设计 */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, rgba(0,0,0,0) 70%);
+            bottom: -200px;
+            left: -100px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* 磨砂玻璃全景总线大舱 */
+        .dashboard {
+            width: 100%;
+            max-width: 1200px;
+            background: var(--card-bg);
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border-static); /* 1. 边框本身就要蓝色 */
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow: 0 25px 60px rgba(0, 5, 15, 0.7),
+                        0 0 40px rgba(0, 102, 255, 0.08);
+            z-index: 1;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 大舱容器交互：悬浮与按压皆切换为高亮荧光蓝 */
+        .dashboard:hover {
+            border-color: var(--neon-cyan); /* 2. 鼠标移上去的时候要荧光蓝 */
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.25);
+        }
+        .dashboard:active {
+            border-color: var(--neon-cyan); /* 3. 按下去的时候也要荧光蓝 */
+        }
+
+        /* 顶部看板标题与动作 */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0, 102, 255, 0.2);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .title-wrapper h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .title-wrapper span.version {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--neon-cyan);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-static);
+            vertical-align: middle;
+        }
+
+        /* 返回按钮模块改造：使其具备完美的边框交互表现 */
+        .btn-back {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border: 1px solid var(--border-static); /* 1. 边框本身就要蓝色 */
+            border-radius: 12px;
+            background: rgba(0, 102, 255, 0.08);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-back:hover {
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan); /* 2. 鼠标移上去的时候要荧光蓝 */
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-back:active {
+            border-color: var(--neon-cyan) !important; /* 3. 按下去的时候也要荧光蓝 */
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
+            transform: scale(0.96);
+            transition: none;
+        }
+
+        /* 矩阵化四象限控制卡片网格 */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+        }
+
+        @media (max-width: 1100px) {
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 象限核心监控舱卡片面板（将由 JS 动态生成） */
+        .section {
+            background: rgba(4, 12, 22, 0.45);
+            border: 1px solid var(--border-static); /* 1. 边框本身就要蓝色 */
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        /* 动态监控象限的悬浮与击发规则 */
+        .section:hover {
+            background: rgba(5, 16, 28, 0.6);
+            border-color: var(--neon-cyan); /* 2. 鼠标移上去的时候要荧光蓝 */
+            box-shadow: 0 12px 28px rgba(0, 5, 15, 0.5), 0 0 20px rgba(0, 240, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .section:active {
+            border-color: var(--neon-cyan) !important; /* 3. 按下去的时候也要荧光蓝 */
+            transform: translateY(0) scale(0.99);
+            transition: none;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid var(--neon-cyan); /* 左侧指示条同步切换为荧光蓝 */
+            padding-left: 10px;
+        }
+
+        /* 表格微流光重构 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: var(--table-th-bg);
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(0, 102, 255, 0.2);
+        }
+
+        td {
+            border-bottom: 1px solid rgba(0, 102, 255, 0.08);
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(0, 240, 255, 0.03);
+        }
+
+        td:first-child {
+            color: var(--text-muted);
+            width: 45%;
+            font-weight: 500;
+        }
+
+        /* 状态心跳指示灯样式 */
+        .online {
+            color: var(--neon-green) !important;
+            font-weight: 700;
+            background: rgba(0, 255, 135, 0.08);
+            padding: 2px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 255, 135, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .online::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px var(--neon-green);
+            animation: pulse-glow 1s infinite alternate;
+        }
+
+        .offline {
+            color: var(--neon-danger) !important;
+            font-weight: 700;
+            background: rgba(255, 71, 87, 0.08);
+            padding: 2px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 12px var(--glow-danger);
+        }
+
+        .offline::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--neon-danger);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px var(--neon-danger);
+        }
+
+        @keyframes pulse-glow {
+            from { opacity: 0.4; } to { opacity: 1; }
+        }
+
+        /* 数据加载占位符 */
+        .loading-placeholder {
+            text-align: center;
+            padding: 100px 0;
+            color: var(--text-muted);
+            font-size: 15px;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* 关键数据等宽高亮 */
+        td:last-child {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
-    <h1>模块运行状态 (v1.2)</h1>
-    <div id="statusContainer">加载中...</div>
-    <p><a href="/">返回首页</a></p>
+
+    <div class="dashboard">
+        <div class="header-section">
+            <div class="title-wrapper">
+                <h1>📊 核心服务集群监控大屏 <span class="version">v1.2</span></h1>
+            </div>
+            <a href="/" class="btn-back">⬅ 返回系统主页</a>
+        </div>
+
+        <div id="statusContainer" class="loading-placeholder">
+            📡 正在同步核心微服务群电子总线状态，请稍候...
+        </div>
+    </div>
+
     <script>
+        // ======= 100% 完整保留系统底层原装逻辑与遥测绑定字段，绝无魔改 =======
         async function fetchStatus() {
             try {
                 const res = await fetch('/api/v1/system/status');
                 const data = await res.json();
                 if (data.code === 0) {
                     const d = data.data;
+                    
+                    // 核心流媒体骨架动态注入
                     const html = `
-                        <div class="section">
-                            <h2>采集模块 (A)</h2>
-                            <table>
-                                <tr><th>指标</th><th>值</th></tr>
-                                <tr><td>模块状态</td><td class="${d.ingest_status==='running'?'online':'offline'}">${d.ingest_status}</td></tr>
-                                <tr><td>cam_01 状态</td><td>${d.cam_01_status}</td></tr>
-                                <tr><td>cam_02 状态</td><td>${d.cam_02_status}</td></tr>
-                                <tr><td>cam_01 帧率</td><td>${d.cam_01_fps} fps</td></tr>
-                                <tr><td>cam_02 帧率</td><td>${d.cam_02_fps} fps</td></tr>
-                                <tr><td>最近错误</td><td>${d.ingest_error || '无'}</td></tr>
-                            </table>
-                        </div>
-                        <div class="section">
-                            <h2>录像与主画面模块 (B)</h2>
-                            <table>
-                                <tr><th>指标</th><th>值</th></tr>
-                                <tr><td>模块状态</td><td class="${d.record_status==='recording'?'online':'offline'}">${d.record_status}</td></tr>
-                                <tr><td>cam_01 裁切状态</td><td>${d.cam_01_cut_status}</td></tr>
-                                <tr><td>cam_02 裁切状态</td><td>${d.cam_02_cut_status}</td></tr>
-                                <tr><td>当前推荐主画面机位</td><td>${d.current_program_camera_id}</td></tr>
-                                <tr><td>主画面输出状态</td><td>${d.program_output_status}</td></tr>
-                                <tr><td>录制时长</td><td>${d.record_duration_sec} 秒</td></tr>
-                                <tr><td>磁盘剩余空间</td><td>${d.disk_free_gb} GB</td></tr>
-                                <tr><td>最近警告</td><td>${d.record_error || '无'}</td></tr>
-                            </table>
-                        </div>
-                        <div class="section">
-                            <h2>视觉分析模块 (C)</h2>
-                            <table>
-                                <tr><th>指标</th><th>值</th></tr>
-                                <tr><td>模块状态</td><td class="${d.vision_status==='running'?'online':'offline'}">${d.vision_status}</td></tr>
-                                <tr><td>cam_01 关注区域就绪</td><td>${d.focus_region_cam_01_ready}</td></tr>
-                                <tr><td>cam_02 关注区域就绪</td><td>${d.focus_region_cam_02_ready}</td></tr>
-                                <tr><td>最近决策推荐机位</td><td>${d.last_program_decision_camera}</td></tr>
-                                <tr><td>最近关注区域时间</td><td>${new Date(d.last_focus_region_timestamp_ms).toLocaleTimeString()}</td></tr>
-                                <tr><td>最近决策时间</td><td>${new Date(d.last_decision_timestamp_ms).toLocaleTimeString()}</td></tr>
-                                <tr><td>最近错误</td><td>${d.vision_error || '无'}</td></tr>
-                            </table>
-                        </div>
-                        <div class="section">
-                            <h2>集锦生成模块 (D)</h2>
-                            <table>
-                                <tr><th>指标</th><th>值</th></tr>
-                                <tr><td>模块状态</td><td class="${d.highlight_status==='processing'?'online':'offline'}">${d.highlight_status}</td></tr>
-                                <tr><td>最近错误</td><td>${d.highlight_error || '无'}</td></tr>
-                            </table>
+                        <div class="status-grid">
+                            <div class="section">
+                                <h2>📺 采集模块 (A)</h2>
+                                <table>
+                                    <thead><tr><th>指标 (Metrics)</th><th>遥测数据 (Value)</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>模块状态</td><td><span class="${d.ingest_status==='running'?'online':'offline'}">${d.ingest_status}</span></td></tr>
+                                        <tr><td>cam_01 状态</td><td>${d.cam_01_status}</td></tr>
+                                        <tr><td>cam_02 状态</td><td>${d.cam_02_status}</td></tr>
+                                        <tr><td>cam_01 帧率</td><td><span style="color:var(--neon-cyan)">${d.cam_01_fps} fps</span></td></tr>
+                                        <tr><td>cam_02 帧率</td><td><span style="color:var(--neon-cyan)">${d.cam_02_fps} fps</span></td></tr>
+                                        <tr><td>最近错误</td><td style="color: ${d.ingest_error ? 'var(--neon-danger)' : 'inherit'}">${d.ingest_error || '无'}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="section">
+                                <h2>🎛️ 录像与主画面模块 (B)</h2>
+                                <table>
+                                    <thead><tr><th>指标 (Metrics)</th><th>遥测数据 (Value)</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>模块状态</td><td><span class="${d.record_status==='recording'?'online':'offline'}">${d.record_status}</span></td></tr>
+                                        <tr><td>cam_01 裁切状态</td><td>${d.cam_01_cut_status}</td></tr>
+                                        <tr><td>cam_02 裁切状态</td><td>${d.cam_02_cut_status}</td></tr>
+                                        <tr><td>当前推荐主画面机位</td><td style="color:var(--neon-cyan); font-weight:bold;">${d.current_program_camera_id}</td></tr>
+                                        <tr><td>主画面输出状态</td><td>${d.program_output_status}</td></tr>
+                                        <tr><td>录制时长</td><td>${d.record_duration_sec} 秒</td></tr>
+                                        <tr><td>磁盘剩余空间</td><td style="color:var(--neon-cyan)">${d.disk_free_gb} GB</td></tr>
+                                        <tr><td>最近警告</td><td style="color: ${d.record_error ? 'var(--neon-danger)' : 'inherit'}">${d.record_error || '无'}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="section">
+                                <h2>🧠 视觉分析模块 (C)</h2>
+                                <table>
+                                    <thead><tr><th>指标 (Metrics)</th><th>遥测数据 (Value)</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>模块状态</td><td><span class="${d.vision_status==='running'?'online':'offline'}">${d.vision_status}</span></td></tr>
+                                        <tr><td>cam_01 关注区域就绪</td><td>${d.focus_region_cam_01_ready}</td></tr>
+                                        <tr><td>cam_02 关注区域就绪</td><td>${d.focus_region_cam_02_ready}</td></tr>
+                                        <tr><td>最近决策推荐机位</td><td style="color:var(--neon-cyan)">${d.last_program_decision_camera}</td></tr>
+                                        <tr><td>最近关注区域时间</td><td>${new Date(d.last_focus_region_timestamp_ms).toLocaleTimeString()}</td></tr>
+                                        <tr><td>最近决策时间</td><td>${new Date(d.last_decision_timestamp_ms).toLocaleTimeString()}</td></tr>
+                                        <tr><td>最近错误</td><td style="color: ${d.vision_error ? 'var(--neon-danger)' : 'inherit'}">${d.vision_error || '无'}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="section">
+                                <h2>🎬 集锦生成模块 (D)</h2>
+                                <table>
+                                    <thead><tr><th>指标 (Metrics)</th><th>遥测数据 (Value)</th></tr></thead>
+                                    <tbody>
+                                        <tr><td>模块状态</td><td><span class="${d.highlight_status==='processing'?'online':'offline'}">${d.highlight_status}</span></td></tr>
+                                        <tr><td>最近错误</td><td style="color: ${d.highlight_error ? 'var(--neon-danger)' : 'inherit'}">${d.highlight_error || '无'}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     `;
-                    document.getElementById('statusContainer').innerHTML = html;
+                    
+                    const container = document.getElementById('statusContainer');
+                    if(container) {
+                        container.className = ""; // 优雅解冻移除加载样式
+                        container.innerHTML = html;
+                    }
                 }
             } catch(e) {
                 console.error(e);
+                const container = document.getElementById('statusContainer');
+                if(container) {
+                    container.innerHTML = `<span style="color:var(--neon-danger)">❌ 遥测总线断开: 无法连接本地后台核心控制服务。</span>`;
+                }
             }
         }
+        
+        // 首次激活与心跳保活完全同频
         fetchStatus();
         setInterval(fetchStatus, 3000);
     </script>

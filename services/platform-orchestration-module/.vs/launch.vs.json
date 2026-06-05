@@ -1,0 +1,12 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "platform_orchestration_service.exe (bin\\platform_orchestration_service.exe)",
+      "name": "platform_orchestration_service.exe (bin\\platform_orchestration_service.exe)"
+    }
+  ]
+}

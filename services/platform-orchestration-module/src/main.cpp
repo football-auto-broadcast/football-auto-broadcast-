@@ -158,6 +158,30 @@ int main(int argc, char* argv[]) {
         res.set_content(json({ {"code", 0}, {"message", "ok"}, {"data", data} }).dump(), "application/json");
         });
 
+    // ---------- 9. 删除指定比赛 API (新增) ----------
+    svr.Delete("/api/v1/matches/:match_id", [&](const httplib::Request& req, httplib::Response& res) {
+        std::string mid = req.path_params.at("match_id");
+        bool found = false;
+        {
+            // 引入线程互斥锁，保证多线程映射表操作安全
+            std::lock_guard<std::mutex> lock(g_matches_mutex);
+            if (g_matches.count(mid)) {
+                g_matches.erase(mid); // 从全局容器中彻底移除
+                found = true;
+                spdlog::info("Match deleted successfully: {}", mid);
+            }
+        }
+
+        if (found) {
+            res.set_content(json({ {"code", 0}, {"message", "Match Deleted"} }).dump(), "application/json");
+        }
+        else {
+            // 如果 ID 不存在，返回全局定义的 1009 Not Found 错误
+            spdlog::warn("Delete match failed: ID {} not found", mid);
+            res.set_content(json({ {"code", 1009}, {"message", g_error_translator[1009]} }).dump(), "application/json");
+        }
+        });
+
     int port = 8080;
     spdlog::info("E-Module Server online at http://localhost:{}", port);
     svr.listen("0.0.0.0", port);
