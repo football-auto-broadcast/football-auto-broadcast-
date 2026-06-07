@@ -1,3 +1,4 @@
+
 # Local editor / OS files
 .vscode/
 .idea/
@@ -69,3 +70,18 @@ services/vision-event-module/training/weights/
 services/vision-event-module/training/detect_test/*.mp4
 .vs/
 *.ipch
+build/
+x64/
+Debug/
+Release/
+.vs/
+*.log
+*.pdb
+*.exe
+*.dll
+*.lib
+data/
+configs/
+# 排除大的静态库文件（超过GitHub 100MB限制）
+third_party/gstreamer/lib/*.a
+third_party/gstreamer/lib/**/*.a
