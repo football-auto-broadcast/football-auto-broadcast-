@@ -3,18 +3,18 @@
 #include <sstream>
 #include <thread>
 #include <atomic>
+#include <mutex>
 
-static bool g_gstInitialized = false;
+static std::once_flag g_gstInitFlag;
 
 GstRtspStreamer::GstRtspStreamer(const std::string& rtspUrl, int width, int height, double fps)
     : m_rtspUrl(rtspUrl), m_width(width), m_height(height), m_fps(fps),
       m_pipeline(nullptr), m_appsrc(nullptr), m_status(Status::idle),
       m_frameCount(0), m_baseTimestamp(0), m_busThreadRunning(false), m_pipelineError(false) {
-    if (!g_gstInitialized) {
+    std::call_once(g_gstInitFlag, []() {
         gst_init(nullptr, nullptr);
-        g_gstInitialized = true;
         std::cout << "[INFO] GStreamer initialized" << std::endl;
-    }
+    });
 }
 
 GstRtspStreamer::~GstRtspStreamer() {
