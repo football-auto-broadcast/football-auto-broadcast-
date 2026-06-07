@@ -39,19 +39,21 @@ xcopy "%THIRD_PARTY%gstreamer\lib\gstreamer-1.0\*.dll" "%OUTPUT_DIR%lib\gstreame
 echo 已复制 GStreamer 插件
 echo.
 
-echo [4/4] 复制配置文件和工具...
+echo [4/4] 复制 MVS SDK DLL...
+if exist "%THIRD_PARTY%mvs_sdk\win64\" (
+    xcopy "%THIRD_PARTY%mvs_sdk\win64\*.dll" "%OUTPUT_DIR%" /Y /Q >nul
+    xcopy "%THIRD_PARTY%mvs_sdk\win64\*.lib" "%OUTPUT_DIR%" /Y /Q >nul
+    echo 已复制 MVS SDK DLL
+) else (
+    echo [WARN] 找不到 MVS SDK DLL: %THIRD_PARTY%mvs_sdk\win64\
+    echo 请确保已安装 MVS SDK
+)
+
+echo [5/5] 复制配置文件和工具...
 if exist "%SOURCE_DIR%bin\" (
     xcopy "%SOURCE_DIR%bin\*.yml" "%OUTPUT_DIR%" /Y /Q >nul
     xcopy "%SOURCE_DIR%bin\*.exe" "%OUTPUT_DIR%" /Y /Q >nul
     echo 已复制配置文件和工具
-)
-
-if not exist "%THIRD_PARTY%mvs_sdk\win64\MvCameraControl.dll" (
-    echo.
-    echo [注意] 缺少 MVS SDK DLL!
-    echo 请手动从 MVS SDK 安装目录复制 MvCameraControl.dll 到:
-    echo   %THIRD_PARTY%mvs_sdk\win64\
-    echo.
 )
 echo.
 
