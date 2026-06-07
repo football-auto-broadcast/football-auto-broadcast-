@@ -3,15 +3,12 @@
   "WorkspaceRootPath": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\football-github-new\\football-auto-broadcast-\\third_party\\gstreamer\\include\\glib-2.0\\glib\\gtypes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\camera_device.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|solutionrelative:src\\camera_device.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\gst_rtsp_streamer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|solutionrelative:src\\gst_rtsp_streamer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\camera_device.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|solutionrelative:src\\camera_device.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\ingest_engine.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -24,10 +21,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\gst_rtsp_streamer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|solutionrelative:include\\gst_rtsp_streamer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\camera_device.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|solutionrelative:include\\camera_device.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{72FF2D92-3800-44B5-9069-E1E80FF38FAB}|ingest-streaming-module.vcxproj|D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\httplib.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -54,39 +47,15 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "gtypes.h",
-              "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\third_party\\gstreamer\\include\\glib-2.0\\glib\\gtypes.h",
-              "RelativeDocumentMoniker": "..\\..\\third_party\\gstreamer\\include\\glib-2.0\\glib\\gtypes.h",
-              "ToolTip": "D:\\football-github-new\\football-auto-broadcast-\\third_party\\gstreamer\\include\\glib-2.0\\glib\\gtypes.h",
-              "RelativeToolTip": "..\\..\\third_party\\gstreamer\\include\\glib-2.0\\glib\\gtypes.h",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAAACEAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-06-04T11:10:59.425Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "camera_device.h",
-              "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\camera_device.h",
-              "RelativeDocumentMoniker": "include\\camera_device.h",
-              "ToolTip": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\camera_device.h",
-              "RelativeToolTip": "include\\camera_device.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAcAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2026-06-04T10:36:56.519Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "camera_device.cpp",
               "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\camera_device.cpp",
               "RelativeDocumentMoniker": "src\\camera_device.cpp",
               "ToolTip": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\camera_device.cpp",
               "RelativeToolTip": "src\\camera_device.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAEAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2026-06-04T10:29:00.518Z"
+              "WhenOpened": "2026-06-04T10:29:00.518Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -102,7 +71,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "main.cpp",
               "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\main.cpp",
               "RelativeDocumentMoniker": "src\\main.cpp",
@@ -114,7 +83,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "ingest_engine.cpp",
               "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\src\\ingest_engine.cpp",
               "RelativeDocumentMoniker": "src\\ingest_engine.cpp",
@@ -126,7 +95,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 4,
               "Title": "gst_rtsp_streamer.h",
               "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\gst_rtsp_streamer.h",
               "RelativeDocumentMoniker": "include\\gst_rtsp_streamer.h",
@@ -138,7 +107,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 5,
               "Title": "httplib.h",
               "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\httplib.h",
               "RelativeDocumentMoniker": "include\\httplib.h",
@@ -150,7 +119,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 6,
               "Title": "ingest_engine.h",
               "DocumentMoniker": "D:\\football-github-new\\football-auto-broadcast-\\services\\ingest-streaming-module\\include\\ingest_engine.h",
               "RelativeDocumentMoniker": "include\\ingest_engine.h",

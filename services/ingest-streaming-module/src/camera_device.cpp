@@ -11,7 +11,7 @@ CameraDevice::~CameraDevice() {
 }
 
 bool CameraDevice::Initialize() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     
     if (m_status != Status::idle) {
         std::cout << "[WARN] Camera " << m_serial << " is not in idle state" << std::endl;
@@ -65,7 +65,7 @@ bool CameraDevice::Initialize() {
 }
 
 bool CameraDevice::Open() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     
     if (m_cameraHandle == nullptr) {
         if (!Initialize()) {
@@ -95,7 +95,7 @@ bool CameraDevice::Open() {
 }
 
 bool CameraDevice::StartGrabbing() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     
     if (m_cameraHandle == nullptr) {
         std::cout << "[ERROR] Camera " << m_serial << " handle is null" << std::endl;
@@ -128,7 +128,7 @@ bool CameraDevice::StartGrabbing() {
 }
 
 void CameraDevice::Stop() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     
     if (m_status != Status::running) {
         return;
@@ -145,7 +145,7 @@ void CameraDevice::Stop() {
 }
 
 void CameraDevice::Close() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     
     if (m_cameraHandle == nullptr) {
         return;
@@ -180,22 +180,22 @@ bool CameraDevice::Reconnect() {
 }
 
 CameraDevice::Status CameraDevice::GetStatus() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_status;
 }
 
 uint64_t CameraDevice::GetFrameCount() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_frameCount;
 }
 
 bool CameraDevice::IsOnline() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_isOnline;
 }
 
 int64_t CameraDevice::GetLastFrameTimeMs() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto now = std::chrono::steady_clock::now();
     return std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastFrameTime).count();
 }
@@ -232,7 +232,7 @@ void CameraDevice::ClearFrameQueue() {
 }
 
 CameraDevice::CameraInfo CameraDevice::GetCameraInfo() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_cameraInfo;
 }
 
@@ -246,7 +246,7 @@ void __stdcall CameraDevice::ImageCallbackEx(unsigned char* pData, MV_FRAME_OUT_
 }
 
 void CameraDevice::OnFrameReceived(unsigned char* pData, MV_FRAME_OUT_INFO_EX* pFrameInfo) {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     m_frameCount++;
     m_isOnline = true;
     m_lastFrameTime = std::chrono::steady_clock::now();

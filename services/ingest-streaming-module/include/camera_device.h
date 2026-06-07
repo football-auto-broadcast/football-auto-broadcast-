@@ -95,7 +95,7 @@ private:
     void* m_cameraHandle = nullptr;
     Status m_status = Status::idle;
     
-    mutable std::mutex m_mutex;
+    mutable std::recursive_mutex m_mutex;
     mutable std::mutex m_queueMutex;
     std::condition_variable m_cv;
     
