@@ -85,3 +85,5 @@ configs/
 # 排除大的静态库文件（超过GitHub 100MB限制）
 third_party/gstreamer/lib/*.a
 third_party/gstreamer/lib/**/*.a
+# 排除 FFmpeg 可执行文件（较大）
+third_party/ffmpeg/bin/*.exe
