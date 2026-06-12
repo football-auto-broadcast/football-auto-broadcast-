@@ -1,6 +1,7 @@
 #include "ingest_engine.h"
 #include <iostream>
 #include <chrono>
+#include <cstdio>
 
 IngestEngine::IngestEngine() {}
 
@@ -9,7 +10,7 @@ IngestEngine::~IngestEngine() {
 }
 
 bool IngestEngine::Initialize(const IngestConfig& config) {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     if (m_status != Status::idle) {
         std::cout << "[ERROR] IngestEngine is not in idle state" << std::endl;
@@ -48,7 +49,7 @@ bool IngestEngine::Initialize(const IngestConfig& config) {
 }
 
 bool IngestEngine::Start() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     if (m_status == Status::running || m_status == Status::degraded) {
         std::cout << "[WARN] IngestEngine is already running" << std::endl;
@@ -64,11 +65,17 @@ bool IngestEngine::Start() {
     size_t startedCount = 0;
     size_t streamerInitializedCount = 0;
 
+    fprintf(stderr, "[ENGINE-DEBUG] Starting cameras...\n");
+    fflush(stderr);
+
     for (size_t i = 0; i < m_cameras.size(); i++) {
         if (m_cameras[i]->IsOnline() && m_cameras[i]->StartGrabbing()) {
             startedCount++;
         }
     }
+
+    fprintf(stderr, "[ENGINE-DEBUG] Cameras started=%zu. Initializing streamers...\n", startedCount);
+    fflush(stderr);
 
     for (size_t i = 0; i < m_streamers.size(); i++) {
         if (m_streamers[i] == nullptr) continue;
@@ -81,16 +88,32 @@ bool IngestEngine::Start() {
         }
     }
 
-    for (size_t i = 0; i < m_streamers.size(); i++) {
-        if (m_streamers[i] == nullptr) continue;
-        if (m_streamers[i]->GetStatus() == GstRtspStreamer::Status::stopped) {
-            m_streamers[i]->Start();
-        }
-    }
+    fprintf(stderr, "[ENGINE-DEBUG] Streamers initialized=%zu. Starting streaming threads...\n", streamerInitializedCount);
+    fflush(stderr);
 
+    // Start streaming threads FIRST, so frames are being pushed into pipeline
+    // before we wait for H.264 data to appear
     for (size_t i = 0; i < m_cameras.size(); i++) {
         m_streamingThreads.emplace_back(&IngestEngine::StreamingThread, this, i);
     }
+
+    fprintf(stderr, "[ENGINE-DEBUG] Streaming threads started. Starting streamers...\n");
+    fflush(stderr);
+
+    // Now start each streamer (pipeline to PLAYING)
+    for (size_t i = 0; i < m_streamers.size(); i++) {
+        if (m_streamers[i] == nullptr) continue;
+        fprintf(stderr, "[ENGINE-DEBUG] Starting streamer[%zu]...\n", i);
+        fflush(stderr);
+        if (m_streamers[i]->GetStatus() == GstRtspStreamer::Status::stopped) {
+            m_streamers[i]->Start();
+        }
+        fprintf(stderr, "[ENGINE-DEBUG] Streamer[%zu] Start() returned.\n", i);
+        fflush(stderr);
+    }
+
+    fprintf(stderr, "[ENGINE-DEBUG] All streamers started. Running final checks...\n");
+    fflush(stderr);
 
     if (startedCount == 0) {
         std::cout << "[ERROR] No cameras started successfully" << std::endl;
@@ -99,8 +122,25 @@ bool IngestEngine::Start() {
         return false;
     }
 
+    fprintf(stderr, "[ENGINE-DEBUG] Calling GetOnlineCameraCount()...\n");
+    fflush(stderr);
+
+    size_t onlineCount = 0;
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        for (const auto& cam : m_cameras) {
+            if (cam->IsOnline()) onlineCount++;
+        }
+    }
+
+    fprintf(stderr, "[ENGINE-DEBUG] onlineCount=%zu\n", onlineCount);
+    fflush(stderr);
+
     bool allStreaming = (streamerInitializedCount > 0) && 
-                        (streamerInitializedCount == GetOnlineCameraCount());
+                        (streamerInitializedCount == onlineCount);
+
+    fprintf(stderr, "[ENGINE-DEBUG] allStreaming=%d. Setting status...\n", allStreaming ? 1 : 0);
+    fflush(stderr);
 
     if (startedCount == m_cameras.size() && allStreaming) {
         m_status = Status::running;
@@ -108,14 +148,20 @@ bool IngestEngine::Start() {
         m_status = Status::degraded;
     }
 
+    fprintf(stderr, "[ENGINE-DEBUG] Start() about to print summary, startedCount=%zu, streamerInitializedCount=%zu, onlineCount=%zu\n", startedCount, streamerInitializedCount, onlineCount);
+    fflush(stderr);
+
     std::cout << "[SUCCESS] IngestEngine started. " << startedCount << "/" << m_cameras.size() 
-              << " cameras running, " << streamerInitializedCount << "/" << GetOnlineCameraCount() 
+              << " cameras running, " << streamerInitializedCount << "/" << onlineCount
               << " streamers initialized" << std::endl;
+    std::cout << std::flush;
+    fprintf(stderr, "[ENGINE-DEBUG] Start() returning true\n");
+    fflush(stderr);
     return true;
 }
 
 void IngestEngine::Stop() {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     if (m_status == Status::stopped || m_status == Status::idle) {
         return;
@@ -181,12 +227,12 @@ void IngestEngine::StreamingThread(size_t cameraIndex) {
 }
 
 IngestEngine::Status IngestEngine::GetStatus() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_status;
 }
 
 std::vector<IngestEngine::CameraStatus> IngestEngine::GetCameraStatuses() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     std::vector<CameraStatus> statuses;
 
@@ -216,7 +262,7 @@ std::vector<IngestEngine::CameraStatus> IngestEngine::GetCameraStatuses() const 
 }
 
 size_t IngestEngine::GetOnlineCameraCount() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     size_t count = 0;
     for (const auto& camera : m_cameras) {
@@ -229,7 +275,7 @@ size_t IngestEngine::GetOnlineCameraCount() const {
 }
 
 size_t IngestEngine::GetTotalCameraCount() const {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_cameras.size();
 }
 
@@ -237,7 +283,7 @@ void IngestEngine::CheckAndReconnect() {
     std::vector<size_t> offlineIndices;
 
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         for (size_t i = 0; i < m_cameras.size(); i++) {
             if (!m_cameras[i]->IsOnline()) {
                 offlineIndices.push_back(i);
@@ -261,7 +307,7 @@ void IngestEngine::CheckAndReconnect() {
     }
 
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         size_t onlineCount = 0;
         for (const auto& camera : m_cameras) {
             if (camera->IsOnline()) onlineCount++;

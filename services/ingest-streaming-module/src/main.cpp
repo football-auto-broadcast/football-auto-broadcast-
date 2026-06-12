@@ -4,6 +4,8 @@
 #include <thread>
 #include <iomanip>
 #include <sstream>
+#include <chrono>
+#include <cstdio>
 #include "ingest_engine.h"
 #include "httplib.h"
 
@@ -67,6 +69,8 @@ int main() {
 #endif
 
     std::cout << "===== Ingest Streaming Service Started =====" << std::endl;
+    fprintf(stderr, "[MAIN-DEBUG] Creating IngestEngine...\n");
+    fflush(stderr);
 
     IngestConfig config;
     config.data_root = "./data";
@@ -89,12 +93,14 @@ int main() {
     cam02.width = 2592;
     cam02.height = 1944;
     cam02.fps = 25.0;
-    cam02.rtsp_url = "rtsp://127.0.0.1:8554/aux";
+    cam02.rtsp_url = "rtsp://127.0.0.1:8555/aux";
     config.cameras.push_back(cam02);
 
     IngestEngine engine;
     
     bool initOk = engine.Initialize(config);
+    fprintf(stderr, "[MAIN-DEBUG] IngestEngine.Initialize returned %d\n", initOk ? 1 : 0);
+    fflush(stderr);
     if (!initOk) {
         std::cout << "[WARN] IngestEngine initialize returned false" << std::endl;
     }
@@ -102,14 +108,20 @@ int main() {
     bool startOk = false;
     if (initOk) {
         startOk = engine.Start();
+        fprintf(stderr, "[MAIN-DEBUG] IngestEngine.Start returned %d\n", startOk ? 1 : 0);
+        fflush(stderr);
         if (!startOk) {
             std::cout << "[WARN] IngestEngine start returned false" << std::endl;
         }
     }
 
+    fprintf(stderr, "[MAIN-DEBUG] Starting threads...\n");
+    fflush(stderr);
     std::thread statusThread(StatusPrinter, std::ref(engine));
     std::thread reconnectThread(ReconnectChecker, std::ref(engine));
 
+    fprintf(stderr, "[MAIN-DEBUG] Starting HTTP server on port 8081...\n");
+    fflush(stderr);
     const int httpPort = 8081;
     httplib::Server httpServer;
     
@@ -153,15 +165,31 @@ int main() {
     });
 
     std::thread httpThread([&httpServer, httpPort]() {
+        fprintf(stderr, "[MAIN-DEBUG] HTTP thread starting listen on port %d...\n", httpPort);
+        fflush(stderr);
         std::cout << "[SUCCESS] HTTP server started on port: " << httpPort << std::endl;
         std::cout << "Access: http://127.0.0.1:" << httpPort << "/api/v1/ingest/status" << std::endl;
         std::cout << "Press Ctrl+C to exit" << std::endl;
         httpServer.listen("0.0.0.0", httpPort);
+        fprintf(stderr, "[MAIN-DEBUG] HTTP thread listen returned!\n");
+        fflush(stderr);
     });
 
+    fprintf(stderr, "[MAIN-DEBUG] Entering main loop (g_running=%d)...\n", (int)g_running.load());
+    fflush(stderr);
+
+    int loopIter = 0;
     while (g_running) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        loopIter++;
+        if (loopIter % 50 == 0) {  // every 5 seconds
+            fprintf(stderr, "[MAIN-DEBUG] Main loop alive, iter=%d, g_running=%d\n", loopIter, (int)g_running.load());
+            fflush(stderr);
+        }
     }
+
+    fprintf(stderr, "[MAIN-DEBUG] Main loop exited, g_running=%d\n", (int)g_running.load());
+    fflush(stderr);
 
     std::cout << "[INFO] Stopping HTTP server..." << std::endl;
     httpServer.stop();

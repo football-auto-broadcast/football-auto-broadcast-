@@ -26,8 +26,13 @@ echo Dependencies OK
 echo.
 
 echo [2/2] Starting services...
-echo Starting MediaMTX (RTSP Server)...
-start "MediaMTX" mediamtx.exe mediamtx.yml
+echo Starting MediaMTX Instance 1 (Port 8554 - main)...
+start "MediaMTX-8554" mediamtx.exe mediamtx_8554.yml
+
+timeout /t 1 /nobreak >nul
+
+echo Starting MediaMTX Instance 2 (Port 8555 - aux)...
+start "MediaMTX-8555" mediamtx.exe mediamtx_8555.yml
 
 timeout /t 2 /nobreak >nul
 
@@ -41,7 +46,7 @@ echo ========================================
 echo.
 echo RTSP Stream URLs:
 echo   Main Camera: rtsp://127.0.0.1:8554/main
-echo   Aux Camera: rtsp://127.0.0.1:8554/aux
+echo   Aux Camera: rtsp://127.0.0.1:8555/aux
 echo.
 echo HTTP Status API:
 echo   http://127.0.0.1:8081/api/v1/ingest/status

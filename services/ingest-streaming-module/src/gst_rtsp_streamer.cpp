@@ -4,16 +4,49 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <chrono>
+#include <string>
+#include <cstdlib>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 static std::once_flag g_gstInitFlag;
+
+static void InitGstreamerEnv() {
+#ifdef _WIN32
+    // Get executable directory (e.g. "D:\..\bin\")
+    char exePath[MAX_PATH];
+    DWORD len = GetModuleFileNameA(NULL, exePath, MAX_PATH);
+    if (len > 0) {
+        std::string exeDir(exePath, len);
+        size_t pos = exeDir.find_last_of("\\/");
+        if (pos != std::string::npos) {
+            exeDir = exeDir.substr(0, pos);
+            // GST_PLUGIN_PATH = <exeDir>\lib\gstreamer-1.0
+            std::string pluginPath = exeDir + "\\lib\\gstreamer-1.0";
+            _putenv_s("GST_PLUGIN_PATH", pluginPath.c_str());
+            // Also make sure bin directory is in PATH for DLL loading
+            std::string currentPath;
+            char* existingPath = std::getenv("PATH");
+            if (existingPath) currentPath = existingPath;
+            if (currentPath.find(exeDir) == std::string::npos) {
+                std::string newPath = exeDir + ";" + currentPath;
+                _putenv_s("PATH", newPath.c_str());
+            }
+        }
+    }
+#endif
+}
 
 GstRtspStreamer::GstRtspStreamer(const std::string& rtspUrl, int width, int height, double fps)
     : m_rtspUrl(rtspUrl), m_width(width), m_height(height), m_fps(fps),
       m_pipeline(nullptr), m_appsrc(nullptr), m_status(Status::idle),
       m_frameCount(0), m_baseTimestamp(0), m_busThreadRunning(false), m_pipelineError(false) {
     std::call_once(g_gstInitFlag, []() {
+        InitGstreamerEnv();
         gst_init(nullptr, nullptr);
-        std::cout << "[INFO] GStreamer initialized" << std::endl;
+        std::cout << "[INFO] GStreamer initialized (GST_PLUGIN_PATH set from exe dir)" << std::endl;
     });
 }
 
@@ -82,8 +115,18 @@ bool GstRtspStreamer::Start() {
         return false;
     }
 
+    // Wait for pipeline to reach PLAYING state
+    GstState state;
+    gst_element_get_state(m_pipeline, &state, nullptr, 2 * GST_SECOND);
+
+    m_status = Status::running;
+    std::cout << "[SUCCESS] GstRtspStreamer " << m_rtspUrl << " pipeline started" << std::endl;
+
     m_busThreadRunning = true;
     lock.unlock();
+
+    // rtspclientsink handles the RTSP connection directly to MediaMTX
+    // No separate FFmpeg process needed - GStreamer pushes H.264 directly
 
     m_busThread = std::thread([this]() {
         GstBus* bus = gst_element_get_bus(m_pipeline);
@@ -111,8 +154,6 @@ bool GstRtspStreamer::Start() {
         gst_object_unref(bus);
     });
 
-    lock.lock();
-    m_status = Status::running;
     std::cout << "[SUCCESS] GstRtspStreamer " << m_rtspUrl << " started" << std::endl;
     return true;
 }
@@ -166,18 +207,30 @@ GstFlowReturn GstRtspStreamer::PushFrame(unsigned char* data, size_t size) {
     }
 
     if (m_pipelineError) {
-        std::cout << "[ERROR] GstRtspStreamer " << m_rtspUrl << " pipeline has error" << std::endl;
         return GST_FLOW_ERROR;
     }
 
     if (m_appsrc == nullptr) {
-        std::cout << "[ERROR] GstRtspStreamer " << m_rtspUrl << " appsrc is null" << std::endl;
         return GST_FLOW_ERROR;
+    }
+
+    if (data == nullptr || size == 0) {
+        return GST_FLOW_ERROR;
+    }
+
+    // Validate buffer size matches expected RGB24 frame size
+    // width * height * 3 (bytes per pixel for RGB)
+    size_t expectedSize = static_cast<size_t>(m_width) * static_cast<size_t>(m_height) * 3;
+    if (size != expectedSize) {
+        std::cout << "[WARN] GstRtspStreamer " << m_rtspUrl
+                  << " frame size mismatch: got " << size << " bytes, expected " << expectedSize
+                  << " bytes (RGB24 " << m_width << "x" << m_height << ")" << std::endl;
+        // Skip frames that don't match expected size - pixel format conversion needed upstream
+        return GST_FLOW_OK;
     }
 
     GstBuffer* buffer = gst_buffer_new_allocate(nullptr, size, nullptr);
     if (buffer == nullptr) {
-        std::cout << "[ERROR] GstRtspStreamer " << m_rtspUrl << " failed to allocate buffer" << std::endl;
         return GST_FLOW_ERROR;
     }
 
@@ -193,7 +246,6 @@ GstFlowReturn GstRtspStreamer::PushFrame(unsigned char* data, size_t size) {
         memcpy(map.data, data, size);
         gst_buffer_unmap(buffer, &map);
     } else {
-        std::cout << "[ERROR] GstRtspStreamer " << m_rtspUrl << " failed to map buffer" << std::endl;
         gst_buffer_unref(buffer);
         return GST_FLOW_ERROR;
     }
@@ -201,9 +253,15 @@ GstFlowReturn GstRtspStreamer::PushFrame(unsigned char* data, size_t size) {
     GstFlowReturn ret = gst_app_src_push_buffer(GST_APP_SRC(m_appsrc), buffer);
 
     if (ret != GST_FLOW_OK) {
-        std::cout << "[ERROR] GstRtspStreamer " << m_rtspUrl 
-                  << " PushFrame failed, flow return: " << ret << std::endl;
+        std::cout << "[WARN] GstRtspStreamer " << m_rtspUrl
+                  << " push_buffer returned " << ret << " (frame " << m_frameCount << ")" << std::endl;
         return GST_FLOW_ERROR;
+    }
+
+    // Log first push, then every 250 frames to avoid spam
+    if (m_frameCount == 1 || m_frameCount % 250 == 0) {
+        std::cout << "[INFO] " << m_rtspUrl << " pushed " << m_frameCount
+                  << " frames (" << (size / 1024) << "KB each) to pipeline" << std::endl;
     }
 
     return GST_FLOW_OK;
@@ -234,26 +292,46 @@ bool GstRtspStreamer::CreatePipeline() {
 
     m_appsrc = gst_bin_get_by_name(GST_BIN(m_pipeline), "mysrc");
     if (m_appsrc == nullptr) {
-        std::cout << "[ERROR] GstRtspStreamer " << m_rtspUrl 
+        std::cout << "[ERROR] GstRtspStreamer "
                   << " failed to get appsrc element" << std::endl;
         gst_object_unref(m_pipeline);
         m_pipeline = nullptr;
         return false;
     }
 
+    // Configure appsrc for live mode with camera input
+    // do-timestamp=true: timestamps are assigned based on arrival time
+    // block=false: push() never blocks; if queue is full, buffers are dropped
+    // This is correct for live camera streaming where we want latest frames
+    g_object_set(G_OBJECT(m_appsrc),
+        "is-live", TRUE,
+        "format", GST_FORMAT_TIME,
+        "do-timestamp", TRUE,
+        "block", FALSE,
+        nullptr);
+
     return true;
 }
 
 std::string GstRtspStreamer::BuildPipelineString() {
     std::ostringstream oss;
-    oss << "appsrc name=mysrc caps=video/x-raw,format=RGB,width=" << m_width 
+
+    // Pipeline: appsrc -> videoconvert -> videoscale -> x264enc -> rtspclientsink
+    // Key quality improvements:
+    //   - bitrate=20000: 20 Mbps (good for 1920x1080)
+    //   - speed-preset=medium: better quality than ultrafast
+    //   - qp-min=10 / qp-max=30: constrain quality range
+    //   - tune=zerolatency: keep low latency for live streaming
+    //   - config-interval=1: send SPS/PPS with every IDR frame
+    oss << "appsrc name=mysrc caps=video/x-raw,format=RGB,width=" << m_width
         << ",height=" << m_height << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
         << "videoconvert ! "
-        << "videoscale ! "
+        << "videoscale method=1 ! "  // Lanczos scaling for better quality
         << "video/x-raw,format=I420,width=1920,height=1080,framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
-        << "x264enc tune=zerolatency speed-preset=ultrafast bitrate=8000 key-int-max=" << static_cast<int>(m_fps + 0.5) << " ! "
-        << "h264parse ! "
-        << "rtspclientsink location=" << m_rtspUrl;
+        << "x264enc tune=zerolatency speed-preset=medium bitrate=20000 qp-min=10 qp-max=30 key-int-max=" << static_cast<int>(m_fps + 0.5) << " ! "
+        << "h264parse config-interval=1 ! "
+        << "video/x-h264,stream-format=byte-stream ! "
+        << "rtspclientsink protocols=tcp latency=0 location=" << m_rtspUrl;
 
     return oss.str();
 }

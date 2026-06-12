@@ -70,5 +70,5 @@ private:
     std::vector<std::thread> m_streamingThreads;
     std::atomic<bool> m_running{false};
     Status m_status = Status::idle;
-    mutable std::mutex m_mutex;
+    mutable std::recursive_mutex m_mutex;
 };
