@@ -10,12 +10,12 @@
 
 ### 步骤 1：编译项目
 
-在 Visual Studio 2022 中打开 `ingest-streaming-module.slnx`，选择 **Release | x64** 配置，点击**生成** (Build)。
+在 Visual Studio 2022 中打开 `services/ingest-streaming-module/ingest-streaming-module.vcxproj`（注意：不是 .slnx，是 .vcxproj 单工程文件），选择 **Release | x64** 配置，点击**生成** (Build)。
 
 ### 步骤 2：复制编译输出到 bin 目录
 
 ```batch
-copy /y "x64\Release\ingest-streaming-module.exe" "bin\ingest-streaming-module.exe"
+copy /y "x64\Release\ingest_streaming_service.exe" "bin\ingest_streaming_service.exe"
 ```
 
 ### 步骤 3：部署依赖文件
@@ -37,7 +37,7 @@ cd services\ingest-streaming-module\bin
 dir *.exe
 ```
 
-应包含：`ingest-streaming-module.exe`, `mediamtx.exe`, `ffmpeg.exe`, `*.dll`
+应包含：`ingest_streaming_service.exe`, `mediamtx.exe`, `ffmpeg.exe`, `*.dll`
 
 ### 步骤 5：启动相机推流
 
@@ -93,7 +93,7 @@ http://127.0.0.1:8889/aux
 - 部署完成后的正式启动
 
 **执行操作**：
-1. 检查所有必需文件（mediamtx.exe / ingest-streaming-module.exe / ffmpeg.exe 以及相应配置文件）
+1. 检查所有必需文件（mediamtx.exe / ingest_streaming_service.exe / ffmpeg.exe 以及相应配置文件）
 2. 启动 MediaMTX 实例 1（监听 :8554，路径 /main）
 3. 启动 MediaMTX 实例 2（监听 :8555，路径 /aux）
 4. 启动 Ingest 采集模块（连接两台 GigE 相机进行 H.264 编码推流）
@@ -108,33 +108,42 @@ http://127.0.0.1:8889/aux
 
 **注意事项**：
 - 确保相机已连接并上电（PoE 交换机或 GigE 供电）
-- 确保相机序列号与 main.cpp 中配置一致
-- 确保端口 8554、8555、8000-8003、8081 未被占用
+- 确保相机序列号与 `configs/ingest_streaming/config.json` 中配置一致
+- 确保端口 8554、8555、8081 未被占用
 
 ---
 
-### `test-local-video.bat - 本地视频测试脚本
+### `launch_ingest.bat - 快速启动采集模块（单独）
 
-**作用**：无需连接相机，使用 `test.mp4` 视频文件验证整个推流管道是否正常工作。
+**作用**：在 bin 目录快速启动采集模块（不含 MediaMTX）。
 
 **使用时机**：
-- 验证部署是否正确
-- 在没有相机的环境下测试
-- 测试 ffplay 播放能力
+- MediaMTX 已运行，快速重启采集模块
+- 开发调试时快速重载
 
 **执行操作**：
-1. 启动双实例 MediaMTX（与生产配置相同）
-2. ffmpeg 转码 test.mp4 → H.264，推送两个实例
-3. 循环播放 test.mp4 (stream_loop -1)
+1. 检查 `ingest_streaming_service.exe` 是否存在
+2. 启动采集模块
 
-**验证步骤**：
-```batch
-cd bin
-test-local-video.bat
-:: 另开窗口:
-ffplay rtsp://127.0.0.1:8554/main
-ffplay rtsp://127.0.0.1:8555/aux
-```
+**注意事项**：
+- 确保 MediaMTX 双实例（8554/8555）已先启动
+- 确保相机已连接
+
+---
+
+### `full_test.ps1 - 完整集成测试
+
+**作用**：一键验证全链路（MediaMTX + 采集 + ffplay播放）。
+
+**使用时机**：
+- 每次部署后完整验证
+- 联调前快速自检
+
+**执行操作**：
+1. 启动 MediaMTX 双实例
+2. 启动采集模块
+3. 启动 ffplay 两个窗口
+4. 等待并报告状态
 
 ---
 
@@ -142,15 +151,14 @@ ffplay rtsp://127.0.0.1:8555/aux
 
 ```
 bin/
-├── ingest-streaming-module.exe  # 主程序 (编译后复制)
+├── ingest_streaming_service.exe  # 主程序 (编译后复制)
 ├── mediamtx.exe                 # RTSP 服务器 (自带)
-├── ffmpeg.exe                   # FFmpeg 工具 (自带)
-├── mediamtx_8554.yml           # 实例 1 配置
-├── mediamtx_8555.yml           # 实例 2 配置
-├── test.mp4                   # 测试视频 (自带)
-├── start.bat                    # 启动脚本 (新建)
-├── deploy.bat                   # 部署脚本 (新建)
-├── test-local-video.bat         # 测试脚本 (新建)
+├── ffplay.exe                   # ffplay 播放工具 (自带)
+├── ffmpeg.exe                   # ffmpeg 工具 (自带)
+├── mediamtx_8554.yml           # MediaMTX 实例1配置（8554端口，/main路径）
+├── mediamtx_8555.yml           # MediaMTX 实例2配置（8555端口，/aux路径）
+├── start.bat                    # 双实例启动脚本
+├── deploy.bat                   # 部署依赖脚本
 ├── *.dll                        # GStreamer + MVS SDK DLL (deploy.bat 复制)
 └── lib/
     └── gstreamer-1.0/         # GStreamer 插件 (deploy.bat 复制)
@@ -162,11 +170,11 @@ bin/
 
 | 依赖 | 源路径 | 用途 | 数量 |
 |------|---------|------|------|
-| GStreamer | `third_party/gstreamer/bin/` | 视频编码、格式转换 | ~150 DLL |
+| GStreamer | `third_party/gstreamer/bin/` | 视频编码、格式转换、RTSP推流管道 | ~150 DLL |
 | GStreamer 插件 | `third_party/gstreamer/lib/gstreamer-1.0/` | H.264 编码器、解析器等 | ~200 DLL |
 | MVS SDK | `third_party/mvs_sdk/win64/` | 海康威视 GigE 相机 SDK | ~10 DLL |
-| FFmpeg | `bin/ffmpeg.exe` | 从 GStreamer 读取并推送 RTSP | 1 EXE |
-| MediaMTX | `bin/mediamtx.exe` | RTSP 流媒体服务器 | 1 EXE |
+| FFmpeg | `bin/ffmpeg.exe` | 辅助测试用（播放RTSP流） | 1 EXE |
+| MediaMTX | `bin/mediamtx.exe` | RTSP 流媒体服务器（双实例） | 1 EXE |
 
 ---
 
@@ -176,11 +184,11 @@ bin/
 
 **检查清单**：
 1. `mediamtx.exe` 两个窗口是否在运行
-2. `ingest-streaming-module.exe` 窗口是否有错误信息
+2. `ingest_streaming_service.exe` 窗口是否有错误信息
 3. 相机是否已连接（在 MVS 客户端能否看到相机）
 4. 防火墙是否阻止了本地端口
 
-### Q2: ingest-streaming-module.exe 启动时提示找不到相机
+### Q2: ingest_streaming_service.exe 启动时提示找不到相机
 
 - 确认 MVS SDK DLL 是否正确复制到了 bin 目录
 - 确认相机通过网线连接到电脑
@@ -198,9 +206,9 @@ taskkill /F /PID <进程ID>
 
 ### Q4: 视频画面花屏或卡顿
 
-- 检查 CPU 使用率（x264 编码为 CPU 密集型）
-- 尝试降低分辨率或帧率（修改 main.cpp 中的相机配置）
-- 检查网络带宽是否足够（双路 1080p@25fps 约需 4-8 Mbps）
+- 检查 CPU 使用率（x264 编码为 CPU 密集型，高分辨率下占用高）
+- 当前输出分辨率 2592x1944（4:3），若需降低可修改 `configs/ingest_streaming/config.json` 中的 `width`/`height`
+- 检查网络带宽（GigE 相机需千兆网络，双路约需 50-100 Mbps）
 
 ### Q5: deploy.bat 找不到文件
 

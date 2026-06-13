@@ -15,8 +15,8 @@ if not exist "mediamtx.exe" (
     exit /b 1
 )
 
-if not exist "ingest-streaming-module.exe" (
-    echo [ERROR] Cannot find ingest-streaming-module.exe
+if not exist "ingest_streaming_service.exe" (
+    echo [ERROR] Cannot find ingest_streaming_service.exe
     echo Please build the project first (Release + x64)
     pause
     exit /b 1
@@ -37,7 +37,7 @@ start "MediaMTX-8555" mediamtx.exe mediamtx_8555.yml
 timeout /t 2 /nobreak >nul
 
 echo Starting Ingest Module...
-start "Ingest Module" ingest-streaming-module.exe
+start "Ingest Module" ingest_streaming_service.exe
 
 echo.
 echo ========================================

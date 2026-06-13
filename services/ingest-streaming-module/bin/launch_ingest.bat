@@ -10,10 +10,10 @@ set "PATH=%~dp0;%PATH%"
 
 echo GST_PLUGIN_PATH=%GST_PLUGIN_PATH%
 echo.
-echo Launching ingest-streaming-module.exe ...
+echo Launching ingest_streaming_service.exe ...
 echo.
 
-ingest-streaming-module.exe
+ingest_streaming_service.exe
 
 echo.
 echo Exit code: %ERRORLEVEL%

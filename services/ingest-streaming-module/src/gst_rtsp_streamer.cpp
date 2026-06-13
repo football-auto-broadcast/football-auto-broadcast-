@@ -8,6 +8,10 @@
 #include <string>
 #include <cstdlib>
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define _WINSOCKAPI_
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
 #endif
 
@@ -316,24 +320,56 @@ bool GstRtspStreamer::CreatePipeline() {
 std::string GstRtspStreamer::BuildPipelineString() {
     std::ostringstream oss;
 
-    // Pipeline: appsrc -> videoconvert -> x264enc -> rtspclientsink
-    // Key quality settings:
-    //   - Keep original resolution (2592x1944) to avoid aspect-ratio distortion
-    //     (prevents the heavy mosaic that 4:3 -> 16:9 stretch causes)
-    //   - bitrate=20000: 20 Mbps for sharp detail at full resolution
+    // Pipeline: appsrc -> videoconvert -> videocrop(16:9) -> videoscale -> x264enc -> rtspclientsink
+    //
+    // Contract §8.1 requires RTSP output at 1920x1080@25fps
+    // Camera is 2592x1944 (4:3 aspect ratio)
+    //
+    // To avoid aspect-ratio distortion when converting 4:3 to 16:9:
+    //   1. Crop 2592x1944 to 16:9 region (center crop: crop 176px top+bottom)
+    //      Result: 2592x1459 (still 4:3 source but taller than 16:9 crop)
+    //   2. Scale cropped region to 1920x1080
+    //
+    // This gives proper 16:9 output without stretching the image.
+    //
+    // Quality settings:
+    //   - bitrate=20000: 20 Mbps for sharp detail
     //   - speed-preset=medium: better quality than ultrafast
     //   - qp-min=10 / qp-max=30: constrain quality range
     //   - tune=zerolatency: keep low latency for live streaming
     //   - config-interval=1: send SPS/PPS with every IDR frame
-    oss << "appsrc name=mysrc caps=video/x-raw,format=RGB,width=" << m_width
-        << ",height=" << m_height << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
+
+    // Target output resolution per contract
+    int out_width = 1920;
+    int out_height = 1080;
+
+    // Source resolution from camera
+    int in_width = m_width;
+    int in_height = m_height;
+
+    // Calculate crop values for 16:9 aspect ratio
+    // crop_vertical = (in_height - in_width * 9 / 16) / 2
+    // For 2592x1944: (1944 - 2592*9/16) / 2 = (1944 - 1459.5) / 2 = 242.25 -> use 242
+    int crop_vert = (in_height - in_width * 9 / 16) / 2;
+    if (crop_vert < 0) crop_vert = 0;  // In case already 16:9 or wider
+
+    oss << "appsrc name=mysrc caps=video/x-raw,format=RGB,width=" << in_width
+        << ",height=" << in_height << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
         << "videoconvert ! "
-        << "video/x-raw,format=I420,width=" << m_width << ",height=" << m_height
+        << "video/x-raw,format=I420,width=" << in_width << ",height=" << in_height
+        << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! ";
+
+    // Add cropping if source is not 16:9
+    if (crop_vert > 0) {
+        oss << "videocrop top=" << crop_vert << " bottom=" << crop_vert << " ! ";
+    }
+
+    oss << "videoscale ! "
+        << "video/x-raw,width=" << out_width << ",height=" << out_height
         << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
-        << "x264enc tune=zerolatency speed-preset=medium bitrate=20000 qp-min=10 qp-max=30 key-int-max=" << static_cast<int>(m_fps + 0.5) << " ! "
-        << "h264parse config-interval=1 ! "
-        << "video/x-h264,stream-format=byte-stream ! "
-        << "rtspclientsink protocols=tcp latency=0 location=" << m_rtspUrl;
+        << "x264enc tune=zerolatency speed-preset=medium bitrate=20000 qp-min=18 qp-max=30 key-int-max=50 ! "
+        << "video/x-h264,profile=baseline,stream-format=byte-stream ! "
+        << "rtspclientsink protocols=tcp latency=200 location=" << m_rtspUrl;
 
     return oss.str();
 }

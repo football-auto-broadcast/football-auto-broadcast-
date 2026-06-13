@@ -433,7 +433,7 @@ football-auto-broadcast-/
 │       │   ├── httplib.h                          # 内嵌 HTTP 客户端库（C++ header-only）
 │       │   └── ingest_engine.h
 │       ├── bin/                                   # 运行目录（所有可执行文件与 .dll 都在这里）
-│       │   ├── ingest-streaming-module.exe        # 编译产物（构建后生成）
+│       │   ├── ingest_streaming_service.exe        # 编译产物（构建后生成）
 │       │   ├── mediamtx.exe                       # MediaMTX v1.8.2 RTSP 服务器
 │       │   ├── mediamtx_8554.yml                  # 主相机 MediaMTX 实例配置（端口 8554）
 │       │   ├── mediamtx_8555.yml                  # 辅相机 MediaMTX 实例配置（端口 8555）
@@ -477,22 +477,22 @@ football-auto-broadcast-/
 1. 双击打开 `services/ingest-streaming-module/ingest-streaming-module.slnx`
 2. 在顶部工具栏选择 **Release + x64**
 3. 菜单 → **生成** → **生成解决方案**（快捷键 F7）
-4. 编译产物：`services/ingest-streaming-module/x64/Release/ingest-streaming-module.exe`
+4. 编译产物：`services/ingest-streaming-module/x64/Release/ingest_streaming_service.exe`
 5. 将编译产物复制到运行目录：
    ```
-   复制 x64\Release\ingest-streaming-module.exe → bin\ingest-streaming-module.exe
+   复制 x64\Release\ingest_streaming_service.exe → bin\ingest_streaming_service.exe
    ```
 
 **方式 B：命令行（MSBuild）**
 ```bat
 cd services\ingest-streaming-module
 "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe" ingest-streaming-module.slnx /p:Configuration=Release /p:Platform=x64 /t:Rebuild /v:minimal
-copy x64\Release\ingest-streaming-module.exe bin\ingest-streaming-module.exe
+copy x64\Release\ingest_streaming_service.exe bin\ingest_streaming_service.exe
 ```
 
 ### 构建成功验证
 
-- `x64\Release\ingest-streaming-module.exe` 文件存在
+- `x64\Release\ingest_streaming_service.exe` 文件存在
 - 无编译错误（Build: 1 succeeded, 0 failed）
 
 **说明**：项目已配置好所有第三方依赖的相对路径（`include/`、`lib/`），**无需修改任何项目属性或设置环境变量**。
@@ -507,7 +507,7 @@ copy x64\Release\ingest-streaming-module.exe bin\ingest-streaming-module.exe
 
 ```
 ┌────────────────────────────────────────────────────────────────────┐
-│                       ingest-streaming-module.exe                   │
+│                       ingest_streaming_service.exe                   │
 │                                                                    │
 │   ┌──────────────────┐          ┌──────────────────┐              │
 │   │ 相机 1 (Cam0)    │  帧      │ GStreamer 推流 1  │ appsrc      │
@@ -539,12 +539,12 @@ copy x64\Release\ingest-streaming-module.exe bin\ingest-streaming-module.exe
 
 ### 启动步骤
 
-1. **确保构建完成**：`bin/ingest-streaming-module.exe` 已存在
+1. **确保构建完成**：`bin/ingest_streaming_service.exe` 已存在
 2. **确保两台 GigE 相机已上电并连接到同一台主机的千兆网卡**
 3. **进入 bin 目录，启动主程序**：
    ```bat
    cd services\ingest-streaming-module\bin
-   .\ingest-streaming-module.exe
+   .\ingest_streaming_service.exe
    ```
 4. **在另一个终端（或 ffplay GUI）播放主相机画面**：
    ```bat
@@ -644,7 +644,7 @@ appsrc name=mysrc caps=video/x-raw,format=RGB,width=2592,height=1944,framerate=2
 
 ```
 bin/
-├── ingest-streaming-module.exe     # 主程序（构建后复制）
+├── ingest_streaming_service.exe     # 主程序（构建后复制）
 ├── mediamtx.exe                    # MediaMTX v1.8.2
 ├── mediamtx_8554.yml               # 主相机 RTSP 配置（端口 8554）
 ├── mediamtx_8555.yml               # 辅相机 RTSP 配置（端口 8555）

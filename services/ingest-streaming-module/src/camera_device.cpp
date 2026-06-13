@@ -36,6 +36,7 @@ bool CameraDevice::Initialize() {
     
     m_status = Status::initializing;
     
+    // Refresh device list by enumerating twice - sometimes first enumeration may miss devices
     MV_CC_DEVICE_INFO_LIST devList = { 0 };
     int ret = MV_CC_EnumDevices(MV_GIGE_DEVICE | MV_USB_DEVICE, &devList);
     if (ret != MV_OK) {
@@ -44,9 +45,22 @@ bool CameraDevice::Initialize() {
         return false;
     }
     
+    // Force re-enumerate to get fresh device list
+    MV_CC_EnumDevices(MV_GIGE_DEVICE | MV_USB_DEVICE, &devList);
+    
+    std::cout << "[DEBUG] Camera " << m_serial << " enumerating, found " << devList.nDeviceNum << " devices" << std::endl;
+    
     for (unsigned int i = 0; i < devList.nDeviceNum; i++) {
         MV_CC_DEVICE_INFO* devInfo = devList.pDeviceInfo[i];
+        
+        // Only check GigE devices (camera connected via network cable)
+        if (devInfo->nTLayerType != MV_GIGE_DEVICE) {
+            continue;
+        }
+        
         std::string devSerial = (char*)devInfo->SpecialInfo.stGigEInfo.chSerialNumber;
+        
+        std::cout << "[DEBUG] Found GigE camera: serial=" << devSerial << std::endl;
         
         if (devSerial == m_serial) {
             ret = MV_CC_CreateHandle(&m_cameraHandle, devInfo);
@@ -65,6 +79,15 @@ bool CameraDevice::Initialize() {
                 return false;
             }
             
+            // Configure camera parameters for proper exposure
+            MV_CC_SetEnumValueByString(m_cameraHandle, "ExposureAuto", "Off"); // Manual exposure
+            MV_CC_SetFloatValue(m_cameraHandle, "ExposureTime", 30000.0f); // 30ms exposure
+            MV_CC_SetEnumValueByString(m_cameraHandle, "GainAuto", "Off"); // Manual gain
+            MV_CC_SetFloatValue(m_cameraHandle, "Gain", 8.0f); // 8dB gain
+            MV_CC_SetEnumValueByString(m_cameraHandle, "TriggerMode", "Off"); // Free run (no trigger)
+            MV_CC_SetEnumValueByString(m_cameraHandle, "AcquisitionMode", "Continuous"); // Continuous acquisition
+            std::cout << "[INFO] Camera " << m_serial << " parameters configured: Exposure=30ms, Gain=8dB" << std::endl;
+
             if (!GetCameraInfoFromSDK()) {
                 std::cout << "[WARN] Camera " << m_serial << " failed to get camera info" << std::endl;
             }
@@ -528,13 +551,11 @@ static inline void Bayer8ToRGB24_BlockWithStretch(const unsigned char* src, unsi
 
 // Pattern selector per camera
 static inline BayerPattern DetectBayerPattern(unsigned int pixelType, const std::string& serial) {
-    // Try GR first (most common for Hikvision CMOS sensors)
     // Camera-specific patterns
-    // F92514845 (Bayer8): GR (verified - produces normal color image)
-    // D91363830 (Bayer12): try BG first (most sensors use GR/BG based on
-    //                       how the first read-out pixel is interpreted)
+    // F92514845 (Bayer8): GR (verified)
+    // D91363830 (Bayer12): GR (most Hikvision sensors use GR)
     if (serial == "F92514845") return BayerPattern::GR;
-    if (serial == "D91363830") return BayerPattern::BG;
+    if (serial == "D91363830") return BayerPattern::GR;  // Changed from BG to GR
     return BayerPattern::GR;
 }
 

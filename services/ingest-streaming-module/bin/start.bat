@@ -14,8 +14,8 @@ if not exist "mediamtx.exe" (
     exit /b 1
 )
 
-if not exist "ingest-streaming-module.exe" (
-    echo [ERROR] 找不到 ingest-streaming-module.exe
+if not exist "ingest_streaming_service.exe" (
+    echo [ERROR] 找不到 ingest_streaming_service.exe
     echo 请先编译项目(Release + x64)后复制exe到bin目录
     pause
     exit /b 1
@@ -64,7 +64,7 @@ echo   - 通过 GStreamer 编码为 H.264
 echo   - 推送到各自的 MediaMTX 实例
 echo.
 
-start "Ingest Module" ingest-streaming-module.exe
+start "Ingest Module" ingest_streaming_service.exe
 
 echo.
 echo ========================================

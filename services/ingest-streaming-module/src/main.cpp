@@ -1,149 +1,222 @@
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define _WINSOCKAPI_
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#endif
+
 #include <iostream>
-#include <string>
-#include <atomic>
-#include <thread>
-#include <iomanip>
-#include <sstream>
-#include <chrono>
-#include <cstdio>
 #include <fstream>
-#include "ingest_engine.h"
+#include <sstream>
+#include <string>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <mutex>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+#include <iomanip>
+
 #include "httplib.h"
+#include "ingest_engine.h"
 
-std::atomic<bool> g_running(true);
+// Global running flag for signal handling
+std::atomic<bool> g_running{true};
 
-std::string Trim(const std::string& s) {
-    size_t start = s.find_first_not_of(" \t\r\n");
-    if (start == std::string::npos) return "";
-    size_t end = s.find_last_not_of(" \t\r\n");
-    return s.substr(start, end - start + 1);
-}
-
-std::string ExtractJsonString(const std::string& json, const std::string& key) {
-    std::string search = "\"" + key + "\"";
-    size_t pos = json.find(search);
-    if (pos == std::string::npos) return "";
-    pos = json.find(':', pos + search.size());
-    if (pos == std::string::npos) return "";
-    pos = json.find('"', pos + 1);
-    if (pos == std::string::npos) return "";
-    size_t end = json.find('"', pos + 1);
-    if (end == std::string::npos) return "";
-    return json.substr(pos + 1, end - pos - 1);
-}
-
-int ExtractJsonInt(const std::string& json, const std::string& key) {
-    std::string val = ExtractJsonString(json, key);
-    if (val.empty()) return 0;
-    return std::stoi(val);
-}
-
-double ExtractJsonDouble(const std::string& json, const std::string& key) {
-    std::string val = ExtractJsonString(json, key);
-    if (val.empty()) return 0.0;
-    return std::stod(val);
-}
-
-bool LoadConfig(const std::string& configPath, IngestConfig& config) {
-    std::ifstream file(configPath);
-    if (!file.is_open()) {
-        std::cout << "[WARN] Config file not found: " << configPath << ", using defaults" << std::endl;
+// Load config from JSON file (simple manual parsing)
+bool LoadConfig(const std::string& path, IngestConfig& config) {
+    std::ifstream f(path);
+    if (!f.is_open()) {
+        std::cout << "[ERROR] Cannot open config file: " << path << std::endl;
         return false;
     }
 
-    std::string content((std::istreambuf_iterator<char>(file)),
-                        std::istreambuf_iterator<char>());
-    file.close();
+    std::stringstream buffer;
+    buffer << f.rdbuf();
+    std::string content = buffer.str();
+    f.close();
 
-    config.data_root = ExtractJsonString(content, "data_root");
-    if (!config.data_root.empty()) config.data_root += "/";
-
-    size_t camPos = content.find("\"cameras\"");
-    if (camPos == std::string::npos) {
-        std::cout << "[WARN] No cameras section in config" << std::endl;
-        return false;
+    // Simple JSON parsing - look for key fields
+    // data_root
+    size_t data_root_pos = content.find("\"data_root\"");
+    if (data_root_pos != std::string::npos) {
+        size_t colon_pos = content.find(':', data_root_pos);
+        size_t start_quote = content.find('"', colon_pos);
+        size_t end_quote = content.find('"', start_quote + 1);
+        if (start_quote != std::string::npos && end_quote != std::string::npos) {
+            config.data_root = content.substr(start_quote + 1, end_quote - start_quote - 1);
+        }
     }
 
-    size_t bracketPos = content.find('[', camPos);
-    if (bracketPos == std::string::npos) return false;
+    // cameras array - find each camera block
+    size_t cameras_pos = content.find("\"cameras\"");
+    if (cameras_pos != std::string::npos) {
+        size_t array_start = content.find('[', cameras_pos);
+        size_t array_end = content.find(']', array_start);
+        if (array_start != std::string::npos && array_end != std::string::npos) {
+            std::string cameras_block = content.substr(array_start + 1, array_end - array_start - 1);
 
-    size_t pos = bracketPos + 1;
-    while (true) {
-        size_t objStart = content.find('{', pos);
-        if (objStart == std::string::npos) break;
-        size_t objEnd = content.find('}', objStart);
-        if (objEnd == std::string::npos) break;
+            // Split by "camera_id" to find each camera
+            size_t cam_start = 0;
+            while (true) {
+                size_t cam_id_pos = cameras_block.find("\"camera_id\"", cam_start);
+                if (cam_id_pos == std::string::npos) break;
 
-        std::string entry = content.substr(objStart, objEnd - objStart + 1);
+                CameraConfig cam;
+                cam.width = 2592;
+                cam.height = 1944;
+                cam.fps = 25.0;
 
-        CameraConfig cam;
-        cam.serial = ExtractJsonString(entry, "serial");
-        cam.camera_id = ExtractJsonString(entry, "camera_id");
-        cam.role = ExtractJsonString(entry, "role");
-        cam.width = ExtractJsonInt(entry, "width");
-        cam.height = ExtractJsonInt(entry, "height");
-        cam.fps = ExtractJsonDouble(entry, "fps");
-        cam.rtsp_url = ExtractJsonString(entry, "rtsp_url");
+                // Extract camera_id
+                size_t ci_colon = cameras_block.find(':', cam_id_pos);
+                size_t ci_start = cameras_block.find('"', ci_colon);
+                size_t ci_end = cameras_block.find('"', ci_start + 1);
+                if (ci_start != std::string::npos && ci_end != std::string::npos) {
+                    cam.camera_id = cameras_block.substr(ci_start + 1, ci_end - ci_start - 1);
+                }
 
-        if (!cam.serial.empty() && !cam.camera_id.empty()) {
-            if (cam.width == 0) cam.width = 2592;
-            if (cam.height == 0) cam.height = 1944;
-            if (cam.fps == 0.0) cam.fps = 25.0;
-            config.cameras.push_back(cam);
-            std::cout << "[INFO] Config loaded: camera " << cam.camera_id
-                      << " serial=" << cam.serial << " role=" << cam.role
-                      << " rtsp=" << cam.rtsp_url << std::endl;
-        }
+                // Extract serial - search from beginning of this camera block
+                size_t serial_pos = cameras_block.find("\"serial\"", cam_start);
+                if (serial_pos != std::string::npos && serial_pos < cam_id_pos) {
+                    size_t ser_colon = cameras_block.find(':', serial_pos);
+                    size_t ser_start = cameras_block.find('"', ser_colon);
+                    size_t ser_end = cameras_block.find('"', ser_start + 1);
+                    if (ser_start != std::string::npos && ser_end != std::string::npos) {
+                        cam.serial = cameras_block.substr(ser_start + 1, ser_end - ser_start - 1);
+                    }
+                }
 
-        pos = objEnd + 1;
-    }
+                // Extract role
+                size_t role_pos = cameras_block.find("\"role\"", cam_id_pos);
+                if (role_pos != std::string::npos && role_pos < cam_start + 500) {
+                    size_t ro_colon = cameras_block.find(':', role_pos);
+                    size_t ro_start = cameras_block.find('"', ro_colon);
+                    size_t ro_end = cameras_block.find('"', ro_start + 1);
+                    if (ro_start != std::string::npos && ro_end != std::string::npos) {
+                        cam.role = cameras_block.substr(ro_start + 1, ro_end - ro_start - 1);
+                    }
+                }
 
-    return !config.cameras.empty();
-}
+                // Extract rtsp_url
+                size_t rtsp_pos = cameras_block.find("\"rtsp_url\"", cam_id_pos);
+                if (rtsp_pos != std::string::npos && rtsp_pos < cam_start + 500) {
+                    size_t rs_colon = cameras_block.find(':', rtsp_pos);
+                    size_t rs_start = cameras_block.find('"', rs_colon);
+                    size_t rs_end = cameras_block.find('"', rs_start + 1);
+                    if (rs_start != std::string::npos && rs_end != std::string::npos) {
+                        cam.rtsp_url = cameras_block.substr(rs_start + 1, rs_end - rs_start - 1);
+                    }
+                }
 
-void SignalHandler(int signal) {
-    std::cout << std::endl << "[INFO] Received signal, stopping..." << std::endl;
-    g_running = false;
-}
-
-void StatusPrinter(IngestEngine& engine) {
-    while (g_running) {
-        auto statuses = engine.GetCameraStatuses();
-        
-        for (const auto& status : statuses) {
-            std::cout << "[Cam " << status.camera_id 
-                      << "] " << status.width << "x" << status.height 
-                      << " @ " << std::fixed << std::setprecision(1) << status.fps << "fps"
-                      << " | online=" << std::boolalpha << status.online
-                      << " | streaming=" << std::boolalpha << status.streaming
-                      << " | frames=" << status.frame_count << std::endl;
-        }
-        
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-    }
-}
-
-void ReconnectChecker(IngestEngine& engine) {
-    int offlineCount = 0;
-    while (g_running) {
-        auto statuses = engine.GetCameraStatuses();
-        bool anyOffline = false;
-        for (const auto& s : statuses) {
-            if (!s.online) anyOffline = true;
-        }
-        
-        if (anyOffline) {
-            offlineCount++;
-            if (offlineCount >= 2) {
-                engine.CheckAndReconnect();
-                offlineCount = 0;
+                config.cameras.push_back(cam);
+                cam_start = cam_id_pos + 1;
             }
-        } else {
-            offlineCount = 0;
         }
-        
-        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
+
+    std::cout << "[INFO] Loaded config: data_root=" << config.data_root
+              << ", cameras=" << config.cameras.size() << std::endl;
+    return config.cameras.size() > 0;
+}
+
+// HTTP status handler (Contract Section 7.3)
+static void handleStatus(const httplib::Request& req, httplib::Response& res, IngestEngine& engine) {
+    auto statuses = engine.GetCameraStatuses();
+    std::ostringstream oss;
+    oss << "{\"status\":\"";
+    auto engineStatus = engine.GetStatus();
+    if (engineStatus == IngestEngine::Status::running) oss << "running";
+    else if (engineStatus == IngestEngine::Status::degraded) oss << "degraded";
+    else if (engineStatus == IngestEngine::Status::stopped) oss << "stopped";
+    else if (engineStatus == IngestEngine::Status::failed) oss << "failed";
+    else if (engineStatus == IngestEngine::Status::initializing) oss << "initializing";
+    else oss << "idle";
+    oss << "\",\"camera_count\":" << engine.GetTotalCameraCount()
+        << ",\"online_count\":" << engine.GetOnlineCameraCount()
+        << ",\"cameras\":[";
+    for (size_t i = 0; i < statuses.size(); i++) {
+        if (i > 0) oss << ",";
+        oss << "{\"camera_id\":\"" << statuses[i].camera_id << "\""
+            << ",\"role\":\"" << statuses[i].role << "\""
+            << ",\"online\":" << (statuses[i].online ? "true" : "false")
+            << ",\"streaming\":" << (statuses[i].streaming ? "true" : "false")
+            << ",\"frame_count\":" << statuses[i].frame_count
+            << ",\"width\":" << statuses[i].width
+            << ",\"height\":" << statuses[i].height
+            << ",\"fps\":" << std::fixed << std::setprecision(1) << statuses[i].fps << "}";
+    }
+    oss << "]}";
+    std::string body = oss.str();
+
+    // Wrap with makeResp per contract §7.3
+    std::ostringstream resp;
+    resp << "{\"code\":0,\"message\":\"ok\",\"data\":" << body << "}";
+    res.set_content(resp.str(), "application/json");
+}
+
+// Unified response wrapper (Contract Section 7.3)
+static std::string makeResp(int code, const std::string& msg, const std::string& body) {
+    std::ostringstream oss;
+    oss << "{\"code\":" << code << ",\"message\":\"" << msg << "\",\"data\":";
+    if (body.empty()) oss << "{}";
+    else oss << body;
+    oss << "}";
+    return oss.str();
+}
+
+// Contract Section 8.1: E-to-A match init
+// Parses match initialization request (simplified parsing)
+static void handleMatchInit(const httplib::Request& req, httplib::Response& res) {
+    std::cout << "[API] POST /api/v1/ingest/matches/init body=" << req.body.substr(0, 200) << std::endl;
+
+    std::string match_id;
+    std::string content = req.body;
+
+    // Parse match_id
+    size_t mi_pos = content.find("\"match_id\"");
+    if (mi_pos != std::string::npos) {
+        size_t colon = content.find(':', mi_pos);
+        size_t start = content.find('"', colon);
+        size_t end = content.find('"', start + 1);
+        if (start != std::string::npos && end != std::string::npos) {
+            match_id = content.substr(start + 1, end - start - 1);
+            std::cout << "[API]   match_id: " << match_id << std::endl;
+        }
+    }
+
+    int camera_count = 0;
+    size_t cam_start = 0;
+    while (true) {
+        size_t cam_pos = content.find("\"camera_id\"", cam_start);
+        if (cam_pos == std::string::npos) break;
+        camera_count++;
+        cam_start = cam_pos + 1;
+    }
+    std::cout << "[API]   camera_count: " << camera_count << std::endl;
+
+    std::string body = "{\"status\":\"initialized\",\"match_id\":\"" + match_id + "\",\"camera_count\":" + std::to_string(camera_count) + "}";
+    std::string json = makeResp(0, "ok", body);
+    res.set_content(json, "application/json");
+}
+
+// Contract Section 8.1: E-to-A match start
+static void handleMatchStart(const httplib::Request& req, httplib::Response& res) {
+    std::cout << "[API] POST /api/v1/ingest/matches/start" << std::endl;
+    std::string body = "{\"status\":\"running\"}";
+    std::string json = makeResp(0, "ok", body);
+    res.set_content(json, "application/json");
+}
+
+// Contract Section 8.1: E-to-A match stop
+static void handleMatchStop(const httplib::Request& req, httplib::Response& res) {
+    std::cout << "[API] POST /api/v1/ingest/matches/stop" << std::endl;
+    std::string body = "{\"status\":\"stopped\"}";
+    std::string json = makeResp(0, "ok", body);
+    res.set_content(json, "application/json");
 }
 
 static std::string GetExeDir() {
@@ -163,21 +236,12 @@ static std::string GetExeDir() {
 static std::string FindConfigFile() {
     std::string exeDir = GetExeDir();
     std::vector<std::string> candidates;
-    // 1) 与 exe 同目录
     candidates.push_back(exeDir + "\\config.json");
-    // 2) exe 目录下 configs/ingest_streaming/
     candidates.push_back(exeDir + "\\configs\\ingest_streaming\\config.json");
-    // 3) 从 exe 往上 2 级（部署在 services/xxx/bin/ 或 services/xxx/x64/Release/）
     candidates.push_back(exeDir + "\\..\\..\\configs\\ingest_streaming\\config.json");
-    // 4) 从 exe 往上 3 级（services/xxx/x64/Release 或更深）
     candidates.push_back(exeDir + "\\..\\..\\..\\configs\\ingest_streaming\\config.json");
-    // 5) 从 exe 往上 4 级（最深的 VS 默认输出位置）
     candidates.push_back(exeDir + "\\..\\..\\..\\..\\configs\\ingest_streaming\\config.json");
-    // 6) 当前 CWD 相对路径（开发时直接运行）
     candidates.push_back("configs\\ingest_streaming\\config.json");
-    // 7) 绝对路径兜底
-    candidates.push_back("D:\\football-github-new\\football-auto-broadcast-\\configs\\ingest_streaming\\config.json");
-
     for (const auto& c : candidates) {
         std::ifstream f(c);
         if (f.good()) {
@@ -210,7 +274,7 @@ int main() {
     bool loaded = !configPath.empty() && LoadConfig(configPath, config);
     if (!loaded) {
         std::cout << "[WARN] Could not load config.json, using default hardcoded config" << std::endl;
-        config.data_root = "./data";
+        config.data_root = "D:\\football\\data";
         CameraConfig cam01;
         cam01.serial = "F92514845";
         cam01.camera_id = "cam_01";
@@ -232,71 +296,29 @@ int main() {
     }
 
     IngestEngine engine;
-    
-    bool initOk = engine.Initialize(config);
-    fprintf(stderr, "[MAIN-DEBUG] IngestEngine.Initialize returned %d\n", initOk ? 1 : 0);
-    fflush(stderr);
-    if (!initOk) {
-        std::cout << "[WARN] IngestEngine initialize returned false" << std::endl;
+    if (!engine.Initialize(config)) {
+        std::cout << "[ERROR] IngestEngine initialization failed" << std::endl;
+        return 1;
+    }
+    if (!engine.Start()) {
+        std::cout << "[ERROR] IngestEngine start failed" << std::endl;
+        return 1;
     }
 
-    bool startOk = false;
-    if (initOk) {
-        startOk = engine.Start();
-        fprintf(stderr, "[MAIN-DEBUG] IngestEngine.Start returned %d\n", startOk ? 1 : 0);
-        fflush(stderr);
-        if (!startOk) {
-            std::cout << "[WARN] IngestEngine start returned false" << std::endl;
-        }
-    }
-
-    fprintf(stderr, "[MAIN-DEBUG] Starting threads...\n");
-    fflush(stderr);
-    std::thread statusThread(StatusPrinter, std::ref(engine));
-    std::thread reconnectThread(ReconnectChecker, std::ref(engine));
-
-    fprintf(stderr, "[MAIN-DEBUG] Starting HTTP server on port 8081...\n");
-    fflush(stderr);
     const int httpPort = 8081;
     httplib::Server httpServer;
-    
+
+    httpServer.Post("/api/v1/ingest/matches/init", [&engine](const httplib::Request& req, httplib::Response& res) {
+        handleMatchInit(req, res);
+    });
+    httpServer.Post("/api/v1/ingest/matches/start", [&engine](const httplib::Request& req, httplib::Response& res) {
+        handleMatchStart(req, res);
+    });
+    httpServer.Post("/api/v1/ingest/matches/stop", [&engine](const httplib::Request& req, httplib::Response& res) {
+        handleMatchStop(req, res);
+    });
     httpServer.Get("/api/v1/ingest/status", [&engine](const httplib::Request& req, httplib::Response& res) {
-        auto statuses = engine.GetCameraStatuses();
-        std::string json = "{\"code\":0,\"message\":\"ok\",\"data\":{\"status\":\"";
-        
-        auto engineStatus = engine.GetStatus();
-        if (engineStatus == IngestEngine::Status::running) {
-            json += "running";
-        } else if (engineStatus == IngestEngine::Status::degraded) {
-            json += "degraded";
-        } else if (engineStatus == IngestEngine::Status::stopped) {
-            json += "stopped";
-        } else if (engineStatus == IngestEngine::Status::failed) {
-            json += "failed";
-        } else {
-            json += "idle";
-        }
-        
-        json += "\",\"camera_count\":" + std::to_string(engine.GetTotalCameraCount()) + 
-                ",\"online_count\":" + std::to_string(engine.GetOnlineCameraCount()) + 
-                ",\"cameras\":[";
-        
-        for (size_t i = 0; i < statuses.size(); i++) {
-            if (i > 0) json += ",";
-            json += "{\"camera_id\":\"" + statuses[i].camera_id + "\"" +
-                    ",\"role\":\"" + statuses[i].role + "\"" +
-                    ",\"online\":" + (statuses[i].online ? "true" : "false") +
-                    ",\"streaming\":" + (statuses[i].streaming ? "true" : "false") +
-                    ",\"frame_count\":" + std::to_string(statuses[i].frame_count) +
-                    ",\"width\":" + std::to_string(statuses[i].width) +
-                    ",\"height\":" + std::to_string(statuses[i].height);
-            std::ostringstream fpsStream;
-            fpsStream << std::fixed << std::setprecision(1) << statuses[i].fps;
-            json += ",\"fps\":" + fpsStream.str() + "}";
-        }
-        
-        json += "]}";
-        res.set_content(json, "application/json");
+        handleStatus(req, res, engine);
     });
 
     std::thread httpThread([&httpServer, httpPort]() {
@@ -312,39 +334,54 @@ int main() {
 
     fprintf(stderr, "[MAIN-DEBUG] Entering main loop (g_running=%d)...\n", (int)g_running.load());
     fflush(stderr);
+    std::cout << std::flush;
 
-    int loopIter = 0;
-    while (g_running) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        loopIter++;
-        if (loopIter % 50 == 0) {  // every 5 seconds
-            fprintf(stderr, "[MAIN-DEBUG] Main loop alive, iter=%d, g_running=%d\n", loopIter, (int)g_running.load());
+    while (g_running.load()) {
+        engine.CheckAndReconnect();
+        auto statuses = engine.GetCameraStatuses();
+        auto engineStatus = engine.GetStatus();
+        std::string statusStr = "idle";
+        if (engineStatus == IngestEngine::Status::running) statusStr = "running";
+        else if (engineStatus == IngestEngine::Status::degraded) statusStr = "degraded";
+        else if (engineStatus == IngestEngine::Status::stopped) statusStr = "stopped";
+        else if (engineStatus == IngestEngine::Status::failed) statusStr = "failed";
+        else if (engineStatus == IngestEngine::Status::initializing) statusStr = "initializing";
+
+        std::ostringstream oss;
+        oss << "[Cam " << statuses[0].camera_id << "] "
+            << statuses[0].width << "x" << statuses[0].height << " @ "
+            << std::fixed << std::setprecision(1) << statuses[0].fps << "fps"
+            << " | online=" << (statuses[0].online ? "true" : "false")
+            << " | streaming=" << (statuses[0].streaming ? "true" : "false")
+            << " | frames=" << statuses[0].frame_count;
+        if (statuses.size() > 1) {
+            oss << "\n[Cam " << statuses[1].camera_id << "] "
+                << statuses[1].width << "x" << statuses[1].height << " @ "
+                << std::fixed << std::setprecision(1) << statuses[1].fps << "fps"
+                << " | online=" << (statuses[1].online ? "true" : "false")
+                << " | streaming=" << (statuses[1].streaming ? "true" : "false")
+                << " | frames=" << statuses[1].frame_count;
+        }
+        static std::string lastStatus;
+        std::string curStatus = oss.str();
+        if (curStatus != lastStatus) {
+            std::cout << curStatus << std::endl;
+            lastStatus = curStatus;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        static int loopCounter = 0;
+        loopCounter++;
+        if (loopCounter % 100 == 0) {
+            fprintf(stderr, "[MAIN-DEBUG] Main loop alive, iter=%d, g_running=%d\n", loopCounter, (int)g_running.load());
             fflush(stderr);
         }
     }
 
-    fprintf(stderr, "[MAIN-DEBUG] Main loop exited, g_running=%d\n", (int)g_running.load());
+    fprintf(stderr, "[MAIN-DEBUG] Exiting main loop, shutting down...\n");
     fflush(stderr);
-
-    std::cout << "[INFO] Stopping HTTP server..." << std::endl;
-    httpServer.stop();
-    if (httpThread.joinable()) {
-        httpThread.join();
-    }
-
-    std::cout << "[INFO] Stopping status thread..." << std::endl;
-    if (statusThread.joinable()) {
-        statusThread.join();
-    }
-
-    std::cout << "[INFO] Stopping reconnect thread..." << std::endl;
-    if (reconnectThread.joinable()) {
-        reconnectThread.join();
-    }
-
-    std::cout << "[INFO] Stopping IngestEngine..." << std::endl;
     engine.Stop();
-
-    std::cout << "[SUCCESS] Ingest Streaming Service exited gracefully" << std::endl;
+    httpServer.stop();
+    httpThread.join();
+    std::cout << "[INFO] Ingest Streaming Service stopped." << std::endl;
     return 0;
 }

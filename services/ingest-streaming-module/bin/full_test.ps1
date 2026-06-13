@@ -50,7 +50,7 @@ foreach ($p in $ports) { Write-Host "  $p" }
 Write-Host ""
 Write-Host "=== Step 7: Starting ingest-streaming-module (camera capture) ==="
 Write-Host "  This will connect to cameras and produce H.264 output"
-$ingest = Start-Process -FilePath "$bin\ingest-streaming-module.exe" -NoNewWindow -PassThru -RedirectStandardError "$bin\ingest_err.log" -RedirectStandardOutput "$bin\ingest_out.log"
+$ingest = Start-Process -FilePath "$bin\ingest_streaming_service.exe" -NoNewWindow -PassThru -RedirectStandardError "$bin\ingest_err.log" -RedirectStandardOutput "$bin\ingest_out.log"
 Write-Host "  Started PID=$($ingest.Id)"
 
 Write-Host ""

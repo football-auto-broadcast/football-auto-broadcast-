@@ -9,10 +9,10 @@ Write-Host "=== Environment ==="
 Write-Host "GST_PLUGIN_PATH:" $env:GST_PLUGIN_PATH
 Write-Host "Current dir:" (Get-Location).Path
 Write-Host ""
-Write-Host "=== Starting ingest-streaming-module.exe ==="
+Write-Host "=== Starting ingest_streaming_service.exe ==="
 Write-Host ""
 
-& ".\ingest-streaming-module.exe"
+& ".\ingest_streaming_service.exe"
 
 Write-Host ""
 Write-Host "Process exited."

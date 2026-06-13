@@ -144,12 +144,14 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)..\..\third_party\mvs_sdk\Includes;$(ProjectDir)..\..\third_party\gstreamer\include\gstreamer-1.0;$(ProjectDir)..\..\third_party\gstreamer\include\glib-2.0;$(ProjectDir)..\..\third_party\gstreamer\lib\glib-2.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/source-charset:utf-8 /execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>MvCameraControl.lib;gstreamer-1.0.lib;gstapp-1.0.lib;gstrtsp-1.0.lib;gstbase-1.0.lib;gobject-2.0.lib;glib-2.0.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)..\..\third_party\mvs_sdk\win64;$(ProjectDir)..\..\third_party\gstreamer\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFileName>$(OutDir)ingest_streaming_service.exe</OutputFileName>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -55,7 +55,7 @@ if (Test-Path $pluginDir) {
 }
 Write-Host ""
 Write-Host "验证关键文件:"
-$checks = @("ingest-streaming-module.exe", "mediamtx.exe", "ffmpeg.exe", "mediamtx_8554.yml", "mediamtx_8555.yml")
+$checks = @("ingest_streaming_service.exe", "mediamtx.exe", "ffmpeg.exe", "mediamtx_8554.yml", "mediamtx_8555.yml")
 foreach ($c in $checks) {
     $exists = Test-Path "$binDir\$c"
     Write-Host "  $c - $(if ($exists) { '[OK]' } else { '[MISSING]' })"

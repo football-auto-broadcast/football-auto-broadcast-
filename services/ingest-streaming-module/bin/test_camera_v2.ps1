@@ -2,9 +2,9 @@ $bin = "D:\football-github-new\football-auto-broadcast-\services\ingest-streamin
 Set-Location $bin
 
 Write-Host "=== Step 1: Copy new .exe ==="
-Copy-Item "$bin\..\x64\Release\ingest-streaming-module.exe" "$bin\ingest-streaming-module.exe" -Force
-$fi = Get-Item "$bin\ingest-streaming-module.exe"
-Write-Host "  ingest-streaming-module.exe: $($fi.Length) bytes, modified: $($fi.LastWriteTime)"
+Copy-Item "$bin\..\x64\Release\ingest_streaming_service.exe" "$bin\ingest_streaming_service.exe" -Force
+$fi = Get-Item "$bin\ingest_streaming_service.exe"
+Write-Host "  ingest_streaming_service.exe: $($fi.Length) bytes, modified: $($fi.LastWriteTime)"
 
 Write-Host ""
 Write-Host "=== Step 2: Kill existing processes ==="
@@ -44,7 +44,7 @@ foreach ($p in $ports) { Write-Host "  $p" }
 Write-Host ""
 Write-Host "=== Step 7: Starting ingest-streaming-module (camera capture) ==="
 Write-Host "  GStreamer uses rtspclientsink to push directly to MediaMTX (no FFmpeg)"
-$ingest = Start-Process -FilePath "$bin\ingest-streaming-module.exe" -NoNewWindow -PassThru -RedirectStandardError "$bin\ingest_err.log" -RedirectStandardOutput "$bin\ingest_out.log"
+$ingest = Start-Process -FilePath "$bin\ingest_streaming_service.exe" -NoNewWindow -PassThru -RedirectStandardError "$bin\ingest_err.log" -RedirectStandardOutput "$bin\ingest_out.log"
 Write-Host "  Started PID=$($ingest.Id)"
 
 Write-Host ""
