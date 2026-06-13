@@ -11,7 +11,7 @@
 
 struct CameraConfig {
     std::string serial;
-    int camera_id;
+    std::string camera_id;
     std::string role;
     int width = 2592;
     int height = 1944;
@@ -46,7 +46,7 @@ public:
     Status GetStatus() const;
     
     struct CameraStatus {
-        int camera_id;
+        std::string camera_id;
         std::string role;
         bool online;
         bool streaming;
@@ -70,5 +70,6 @@ private:
     std::vector<std::thread> m_streamingThreads;
     std::atomic<bool> m_running{false};
     Status m_status = Status::idle;
+    IngestConfig m_config;
     mutable std::recursive_mutex m_mutex;
 };

@@ -56,7 +56,7 @@ public:
         failed
     };
 
-    CameraDevice(const std::string& serial, int cameraId, const std::string& role);
+    CameraDevice(const std::string& serial, const std::string& cameraId, const std::string& role);
     ~CameraDevice();
 
     bool Initialize();
@@ -68,7 +68,7 @@ public:
     
     Status GetStatus() const;
     const std::string& GetSerial() const { return m_serial; }
-    int GetCameraId() const { return m_cameraId; }
+    const std::string& GetCameraId() const { return m_cameraId; }
     const std::string& GetRole() const { return m_role; }
     uint64_t GetFrameCount() const;
     bool IsOnline() const;
@@ -89,7 +89,7 @@ private:
     void OnFrameReceived(unsigned char* pData, MV_FRAME_OUT_INFO_EX* pFrameInfo);
     
     std::string m_serial;
-    int m_cameraId;
+    std::string m_cameraId;
     std::string m_role;
     
     void* m_cameraHandle = nullptr;

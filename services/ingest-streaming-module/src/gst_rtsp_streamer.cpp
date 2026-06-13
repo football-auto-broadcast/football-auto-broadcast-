@@ -316,9 +316,11 @@ bool GstRtspStreamer::CreatePipeline() {
 std::string GstRtspStreamer::BuildPipelineString() {
     std::ostringstream oss;
 
-    // Pipeline: appsrc -> videoconvert -> videoscale -> x264enc -> rtspclientsink
-    // Key quality improvements:
-    //   - bitrate=20000: 20 Mbps (good for 1920x1080)
+    // Pipeline: appsrc -> videoconvert -> x264enc -> rtspclientsink
+    // Key quality settings:
+    //   - Keep original resolution (2592x1944) to avoid aspect-ratio distortion
+    //     (prevents the heavy mosaic that 4:3 -> 16:9 stretch causes)
+    //   - bitrate=20000: 20 Mbps for sharp detail at full resolution
     //   - speed-preset=medium: better quality than ultrafast
     //   - qp-min=10 / qp-max=30: constrain quality range
     //   - tune=zerolatency: keep low latency for live streaming
@@ -326,8 +328,8 @@ std::string GstRtspStreamer::BuildPipelineString() {
     oss << "appsrc name=mysrc caps=video/x-raw,format=RGB,width=" << m_width
         << ",height=" << m_height << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
         << "videoconvert ! "
-        << "videoscale method=1 ! "  // Lanczos scaling for better quality
-        << "video/x-raw,format=I420,width=1920,height=1080,framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
+        << "video/x-raw,format=I420,width=" << m_width << ",height=" << m_height
+        << ",framerate=" << static_cast<int>(m_fps + 0.5) << "/1 ! "
         << "x264enc tune=zerolatency speed-preset=medium bitrate=20000 qp-min=10 qp-max=30 key-int-max=" << static_cast<int>(m_fps + 0.5) << " ! "
         << "h264parse config-interval=1 ! "
         << "video/x-h264,stream-format=byte-stream ! "

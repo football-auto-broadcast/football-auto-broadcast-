@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <vector>
 
-CameraDevice::CameraDevice(const std::string& serial, int cameraId, const std::string& role)
+CameraDevice::CameraDevice(const std::string& serial, const std::string& cameraId, const std::string& role)
     : m_serial(serial), m_cameraId(cameraId), m_role(role) {}
 
 CameraDevice::~CameraDevice() {

@@ -17,6 +17,7 @@ bool IngestEngine::Initialize(const IngestConfig& config) {
         return false;
     }
 
+    m_config = config;
     m_status = Status::initializing;
 
     for (const auto& camConfig : config.cameras) {
@@ -296,6 +297,16 @@ void IngestEngine::CheckAndReconnect() {
 
         if (m_cameras[i]->Reconnect()) {
             std::cout << "[INFO] Camera " << i << " reconnected, restarting streamer..." << std::endl;
+
+            // Re-create streamer if missing (e.g. camera init failed on first run)
+            bool needFresh = (i >= m_streamers.size()) || (m_streamers[i] == nullptr);
+            if (needFresh && i < m_config.cameras.size()) {
+                const auto& cc = m_config.cameras[i];
+                m_streamers[i] = std::make_unique<GstRtspStreamer>(
+                    cc.rtsp_url, cc.width, cc.height, cc.fps);
+                std::cout << "[INFO] Created new streamer for camera " << i
+                          << " -> " << cc.rtsp_url << std::endl;
+            }
 
             if (i < m_streamers.size() && m_streamers[i] != nullptr) {
                 m_streamers[i]->Stop();
