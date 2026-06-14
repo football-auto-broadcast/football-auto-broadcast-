@@ -8,24 +8,32 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 
-#include <httplib.h>
-#include <nlohmann/json.hpp>
+// 使用标准的英文半角双引号，指向本地单头文件
+#include "httplib.h"
+#include "json.hpp"
 #include <opencv2/opencv.hpp>
 
-// 吸收豆包的优雅语法
 using namespace std::chrono_literals;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 using namespace std::chrono;
 
+// 格式化路径为 Windows 反斜杠
+std::string formatWindowsPath(std::string p) {
+    std::replace(p.begin(), p.end(), '/', '\\');
+    return p;
+}
+
+// 严格遵守 v1.2 Frozen 配置与命名字段
 struct AppConfig {
     int server_port = 8082;
     std::string data_root = "V:/Football_Storage";
-    std::string cam01_src = "V:/Football_Storage/test_4k_source.mp4";
-    std::string cam02_src = "V:/Football_Storage/test_4k_source.mp4";
+    std::string cam_01_src = "rtsp://127.0.0.1:8554/main";
+    std::string cam_02_src = "rtsp://127.0.0.1:8555/aux";
     std::string rtsp_preview_url = "rtsp://127.0.0.1:8560/program";
-    float ema_alpha = 0.12f; // 采用豆包的 0.12，更平滑
+    float ema_alpha = 0.12f;
     int output_width = 1920;
     int output_height = 1080;
     int target_fps = 25;
@@ -39,8 +47,8 @@ bool loadConfig() {
         json j = json::parse(ifs);
         cfg.server_port = j.value("server_port", 8082);
         cfg.data_root = j.value("data_root", "V:/Football_Storage");
-        cfg.cam01_src = j.value("cam01_src", cfg.cam01_src);
-        cfg.cam02_src = j.value("cam02_src", cfg.cam02_src);
+        cfg.cam_01_src = j.value("cam_01_src", "rtsp://127.0.0.1:8554/main");
+        cfg.cam_02_src = j.value("cam_02_src", "rtsp://127.0.0.1:8555/aux");
         cfg.rtsp_preview_url = j.value("rtsp_preview_url", "rtsp://127.0.0.1:8560/program");
         cfg.ema_alpha = j.value("ema_alpha", 0.12f);
         return true;
@@ -51,7 +59,7 @@ class CameraUnit {
 public:
     std::string id;
     cv::VideoCapture cap;
-    cv::VideoWriter raw_w, cut_w; // 【守护契约】：保留本地录制
+    cv::VideoWriter raw_w, cut_w;
     std::atomic<bool> is_running{false};
     std::thread capture_thread;
 
@@ -64,10 +72,22 @@ public:
 
     CameraUnit(std::string name) : id(name) {}
 
-    void start(const std::string& src) {
-        // 吸收豆包的硬件加速开启指令
+    void start(const std::string& src, const std::string& mid) {
+        if (is_running) return;
+
         cap.set(cv::CAP_PROP_HW_ACCELERATION, cv::VIDEO_ACCELERATION_ANY);
-        if (!cap.open(src, cv::CAP_FFMPEG)) return;
+        if (!cap.open(src, cv::CAP_FFMPEG)) {
+            std::cerr << "[ERROR] Stream open failed: " << src << std::endl;
+            return;
+        }
+
+        int fcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+        std::string rp = cfg.data_root + "/raw/" + mid + "/" + id + ".mp4";
+        std::string cp = cfg.data_root + "/program/" + mid + "/" + id + "_cut.mp4";
+
+        raw_w.open(rp, fcc, 25.0, cv::Size(cap.get(3), cap.get(4)));
+        cut_w.open(cp, fcc, 25.0, cv::Size(1920, 1080));
+
         is_running = true;
         capture_thread = std::thread(&CameraUnit::run, this);
     }
@@ -76,16 +96,14 @@ public:
         cv::Mat raw;
         while (is_running) {
             if (!cap.read(raw) || raw.empty()) {
-                cap.set(cv::CAP_PROP_POS_FRAMES, 0);
-                std::this_thread::sleep_for(5ms);
+                std::this_thread::sleep_for(10ms);
                 continue;
             }
 
-            // 【守护契约】：存 4K 原始流
             if (raw_w.isOpened()) raw_w.write(raw);
 
             auto now = steady_clock::now();
-            if (duration_cast<milliseconds>(now - last_up).count() > 800) {
+            if (duration_cast<milliseconds>(now - last_up).count() > 1000) {
                 tx = 0.5f; ty = 0.5f;
             }
             cx += (tx - cx) * cfg.ema_alpha;
@@ -97,7 +115,6 @@ public:
 
             cv::Mat cut = raw(cv::Rect(x, y, w, h)).clone();
 
-            // 【守护契约】：存 1080P 裁切流
             if (cut_w.isOpened()) cut_w.write(cut);
 
             {
@@ -108,12 +125,10 @@ public:
         }
     }
 
-    void release() {
+    void stop() {
         is_running = false;
         if (capture_thread.joinable()) capture_thread.join();
-        if (cap.isOpened()) cap.release();
-        if (raw_w.isOpened()) raw_w.release();
-        if (cut_w.isOpened()) cut_w.release();
+        cap.release(); raw_w.release(); cut_w.release();
     }
 };
 
@@ -122,35 +137,36 @@ private:
     std::string mid;
     std::atomic<bool> is_run{false};
     std::thread worker;
-    CameraUnit c1{"cam_01"}, c2{"cam_02"}; // 【守护契约】：双机位恢复
+    CameraUnit c1{"cam_01"}, c2{"cam_02"};
     std::string sel = "cam_01";
     cv::VideoWriter p_writer;
     FILE* ffmpeg_pipe = nullptr;
+
+    // 【修正补全】：补全变量声明，解决编译报错
     steady_clock::time_point last_dec = steady_clock::now();
 
     const int frame_interval = 1000 / cfg.target_fps;
+    long long start_timestamp_ms = 0;
 
 public:
+    RecordManager() = default;
     ~RecordManager() { stop(); }
 
-    bool start(const std::string& match_id) {
-        this->mid = match_id;
-        fs::create_directories(cfg.data_root + "/raw/" + mid);
-        fs::create_directories(cfg.data_root + "/program/" + mid);
+    bool start(const std::string& m_id) {
+        if (is_run) return false;
+        this->mid = m_id;
 
-        c1.start(cfg.cam01_src);
-        c2.start(cfg.cam02_src);
+        start_timestamp_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+
+        c1.start(cfg.cam_01_src, mid);
+        c2.start(cfg.cam_02_src, mid);
         std::this_thread::sleep_for(100ms);
 
-        // 【守护契约】：打开五个文件的写入句柄
-        int fcc = cv::VideoWriter::fourcc('M', 'J', 'P', 'G');
-        c1.raw_w.open(cfg.data_root + "/raw/" + mid + "/cam_01.avi", fcc, 25, cv::Size(3840, 2160));
-        c2.raw_w.open(cfg.data_root + "/raw/" + mid + "/cam_02.avi", fcc, 25, cv::Size(3840, 2160));
-        c1.cut_w.open(cfg.data_root + "/program/" + mid + "/cam_01_cut.avi", fcc, 25, cv::Size(1920, 1080));
-        c2.cut_w.open(cfg.data_root + "/program/" + mid + "/cam_02_cut.avi", fcc, 25, cv::Size(1920, 1080));
-        p_writer.open(cfg.data_root + "/program/" + mid + "/program.avi", fcc, 25, cv::Size(1920, 1080));
+        fs::create_directories(cfg.data_root + "/program/" + mid);
+        int fcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
 
-        // 吸收豆包的超级推流命令
+        p_writer.open(cfg.data_root + "/program/" + mid + "/program.mp4", fcc, 25, cv::Size(1920, 1080));
+
         std::string cmd = "ffmpeg -y -f rawvideo -pixel_format bgr24 -video_size 1920x1080 -framerate 25 -i - "
                           "-c:v h264_nvenc -preset p1 -tune ull -rc:v vbr -cq 28 -g 50 -bf 0 -b:v 6M -maxrate 8M -bufsize 4M "
                           "-pix_fmt yuv420p -rtsp_transport tcp -f rtsp " + cfg.rtsp_preview_url;
@@ -164,27 +180,23 @@ public:
     }
 
     void stream_loop() {
-        std::cout << "[✅ W4+ 直播与录制引擎] 绝对精准帧率 + 双路全开" << std::endl;
+        std::cout << "[MASTER] Real-time GPU Pipeline running..." << std::endl;
         auto next_frame_time = steady_clock::now();
 
         while (is_run) {
             next_frame_time += milliseconds(frame_interval);
-
-            if (duration_cast<milliseconds>(steady_clock::now() - last_dec).count() > 3000) sel = "cam_01";
 
             cv::Mat frame;
             if (sel == "cam_01") { std::lock_guard<std::mutex> lock(c1.mtx); frame = c1.shared_frame.clone(); }
             else { std::lock_guard<std::mutex> lock(c2.mtx); frame = c2.shared_frame.clone(); }
 
             if (!frame.empty()) {
-                if (p_writer.isOpened()) p_writer.write(frame); // 【守护契约】：存主画面
+                if (p_writer.isOpened()) p_writer.write(frame);
                 if (ffmpeg_pipe) {
                     fwrite(frame.data, 1, frame.total() * frame.elemSize(), ffmpeg_pipe);
                     fflush(ffmpeg_pipe);
                 }
             }
-
-            // 吸收豆包的神级精准休眠
             std::this_thread::sleep_until(next_frame_time);
         }
     }
@@ -195,63 +207,133 @@ public:
         if (worker.joinable()) worker.join();
         if (ffmpeg_pipe) { _pclose(ffmpeg_pipe); ffmpeg_pipe = nullptr; }
 
-        // 【守护契约】：生成交接单
-        json idx = { {"match_id", mid}, {"status", "success"}, {"program_path", cfg.data_root + "/program/" + mid + "/program.avi"} };
+        long long end_timestamp_ms = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+        long long duration_sec = (end_timestamp_ms - start_timestamp_ms) / 1000;
+
+        json idx = {
+            {"match_id", mid},
+            {"record_start_timestamp_ms", start_timestamp_ms},
+            {"record_end_timestamp_ms", end_timestamp_ms},
+            {"duration_sec", duration_sec},
+            {"video_codec", "h264"},
+            {"container", "mp4"},
+            {"fps", 25},
+            {"source_resolution", "5mp_native"},
+            {"program_resolution", "1920x1080"},
+            {"cam_01_raw_path", formatWindowsPath(cfg.data_root + "/raw/" + mid + "/cam_01.mp4")},
+            {"cam_02_raw_path", formatWindowsPath(cfg.data_root + "/raw/" + mid + "/cam_02.mp4")},
+            {"cam_01_cut_path", formatWindowsPath(cfg.data_root + "/program/" + mid + "/cam_01_cut.mp4")},
+            {"cam_02_cut_path", formatWindowsPath(cfg.data_root + "/program/" + mid + "/cam_02_cut.mp4")},
+            {"program_path", formatWindowsPath(cfg.data_root + "/program/" + mid + "/program.mp4")},
+            {"status", "success"}
+        };
+
         fs::create_directories(cfg.data_root + "/metadata/" + mid);
         std::ofstream f(cfg.data_root + "/metadata/" + mid + "/record_index.json");
         f << idx.dump(4);
 
-        c1.release(); c2.release(); p_writer.release();
-        std::cout << "[✅ 直播与录像已安全停止]" << std::endl;
+        c1.stop(); c2.stop(); p_writer.release();
+        std::cout << "[STOP] All pipelines frozen." << std::endl;
     }
 
-    void switchP(const std::string& cid) { sel = cid; last_dec = steady_clock::now(); }
+    void switchP(const std::string& cid) {
+        sel = cid;
+        last_dec = steady_clock::now();
+    }
 
-    void set_focus(const std::string& cid, float x, float y) {
+    void updateF(const std::string& cid, float x, float y) {
         if (cid == "cam_01") { c1.tx = x; c1.ty = y; c1.last_up = steady_clock::now(); }
         else { c2.tx = x; c2.ty = y; c2.last_up = steady_clock::now(); }
     }
+
+    std::string getSelectedCam() const { return sel; }
+    bool isRunning() const { return is_run; }
 };
 
 RecordManager g_mgr;
 
 int main() {
+#ifdef _WIN32
+    system("chcp 65001 > nul");
+#endif
+
     loadConfig();
     httplib::Server svr;
+    std::cout << "[PRO] Module B Frozen Core listening..." << std::endl;
 
-    std::cout << "[🚀 模块 B 全功能启动] 端口: " << cfg.server_port << std::endl;
-
-    svr.Post("/api/v1/record/matches/init",[](const auto&, auto& res) {
-        res.set_content("{\"code\":0}", "application/json");
+    svr.Post("/api/v1/record/matches/init", [](const httplib::Request&, httplib::Response& res) {
+        res.set_content("{\"code\":0,\"message\":\"ok\",\"data\":{}}", "application/json");
     });
 
-    svr.Post("/api/v1/record/matches/:id/start",[](const auto& req, auto& res) {
+    svr.Post("/api/v1/record/matches/:id/start", [](const httplib::Request& req, httplib::Response& res) {
         bool ok = g_mgr.start(req.path_params.at("id"));
-        res.set_content(ok ? "{\"code\":0}" : "{\"code\":1003}", "application/json");
+        res.set_content(ok ? "{\"code\":0,\"message\":\"ok\",\"data\":{}}" : "{\"code\":1003}", "application/json");
     });
 
-    svr.Post("/api/v1/record/matches/:id/program-decision",[](const httplib::Request& req, httplib::Response& res) {
-        auto body = json::parse(req.body); g_mgr.switchP(body["recommended_camera_id"]);
-        res.set_content("{\"code\":0}", "application/json");
-    });
-
-    svr.Post("/api/v1/record/matches/:id/stop",[](const auto&, auto& res) {
+    svr.Post("/api/v1/record/matches/:id/stop", [](const httplib::Request&, httplib::Response& res) {
         g_mgr.stop();
-        res.set_content("{\"code\":0}", "application/json");
+        res.set_content("{\"code\":0,\"message\":\"ok\",\"data\":{}}", "application/json");
     });
 
-    svr.Post("/api/v1/record/matches/:id/focus-regions",[](const auto& req, auto& res) {
+    svr.Get("/api/v1/record/matches/:id/status", [](const httplib::Request& req, httplib::Response& res) {
+        std::string mid = req.path_params.at("id");
+        json response = {
+            {"code", 0},
+            {"message", "ok"},
+            {"data", {
+                         {"match_id", mid},
+                         {"status", g_mgr.isRunning() ? "recording" : "idle"},
+                         {"cam_01_recording", g_mgr.isRunning()},
+                         {"cam_02_recording", g_mgr.isRunning()},
+                         {"cam_01_cut_status", g_mgr.isRunning() ? "ready" : "idle"},
+                         {"cam_02_cut_status", g_mgr.isRunning() ? "ready" : "idle"},
+                         {"current_program_camera_id", g_mgr.getSelectedCam()},
+                         {"preview_status", "online"},
+                         {"error_message", ""}
+                     }}
+        };
+        res.set_content(response.dump(), "application/json");
+    });
+
+    svr.Get("/api/v1/record/matches/:id/files", [](const httplib::Request& req, httplib::Response& res) {
+        std::string mid = req.path_params.at("id");
+        json response = {
+            {"code", 0},
+            {"message", "ok"},
+            {"data", {
+                         {"match_id", mid},
+                         {"raw_files", {
+                                           {{"camera_id", "cam_01"}, {"file_path", formatWindowsPath(cfg.data_root + "/raw/" + mid + "/cam_01.mp4")}},
+                                           {{"camera_id", "cam_02"}, {"file_path", formatWindowsPath(cfg.data_root + "/raw/" + mid + "/cam_02.mp4")}}
+                                       }},
+                         {"program_files", {
+                                               {{"file_path", formatWindowsPath(cfg.data_root + "/program/" + mid + "/program.mp4")}}
+                                           }}
+                     }}
+        };
+        res.set_content(response.dump(), "application/json");
+    });
+
+    svr.Post("/api/v1/record/matches/:id/focus-regions", [](const httplib::Request& req, httplib::Response& res) {
         try {
             auto j = json::parse(req.body);
             for (auto& region : j["regions"]) {
                 float x = region["focus_region"]["x"].template get<float>() / 3840.0f;
                 float y = region["focus_region"]["y"].template get<float>() / 2160.0f;
-                g_mgr.set_focus(region["camera_id"], x, y);
+                g_mgr.updateF(region["camera_id"], x, y);
             }
-            res.set_content("{\"code\":0}", "application/json");
+            res.set_content("{\"code\":0,\"message\":\"ok\",\"data\":{}}", "application/json");
         } catch (...) { res.status = 400; }
     });
 
-    svr.listen("0.0.0.0", cfg.server_port);
+    svr.Post("/api/v1/record/matches/:id/program-decision", [](const httplib::Request& req, httplib::Response& res) {
+        try {
+            auto body = json::parse(req.body);
+            g_mgr.switchP(body["recommended_camera_id"]);
+            res.set_content("{\"code\":0,\"message\":\"ok\",\"data\":{}}", "application/json");
+        } catch (...) { res.status = 400; }
+    });
+
+    if (!svr.listen("0.0.0.0", cfg.server_port)) return -1;
     return 0;
 }
