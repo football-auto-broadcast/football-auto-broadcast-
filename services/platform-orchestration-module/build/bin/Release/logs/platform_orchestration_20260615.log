@@ -1,26 +1,13 @@
-[2026-06-15 17:09:38.358] [platform] [info] ========== Platform Orchestration Service Starting ==========
-[2026-06-15 17:09:38.358] [platform] [info] Platform port: 8080, Ingest: 8081, Record: 8082, Vision: 8083, Highlight: 8084
-[2026-06-15 17:09:38.358] [platform] [info] Data root: D:\\football\\data, Min free disk: 50 GB
-[2026-06-15 17:09:38.358] [platform] [info] Platform Orchestration Service listening on http://0.0.0.0:8080
-[2026-06-15 17:09:38.358] [platform] [info] Web UI: http://localhost:8080
-[2026-06-15 17:09:38.358] [platform] [info] Health: http://localhost:8080/api/v1/health
-[2026-06-15 17:09:43.396] [platform] [info] [Match:match_1781514583396] Created: "111"
-[2026-06-15 17:09:48.588] [platform] [info] [Match:match_1781514583396] Start requested
-[2026-06-15 17:09:48.589] [platform] [info] Disk free space: 344.55 GB (min required: 50 GB)
-[2026-06-15 17:09:48.589] [platform] [info] [Match:match_1781514583396] State -> initializing
-[2026-06-15 17:09:48.589] [platform] [info] [E->A] POST http://127.0.0.1:8081/api/v1/ingest/matches/init  match_id=match_1781514583396
-[2026-06-15 17:09:50.627] [platform] [error] [E->A] Ingest init failed: no response from http://127.0.0.1:8081
-[2026-06-15 17:09:50.627] [platform] [error] [Match:match_1781514583396] Ingest init failed: code=1008 msg=Ingest module (A) unreachable
-[2026-06-15 17:09:50.627] [platform] [error] [Match:match_1781514583396] State -> failed (module init error)
-[2026-06-15 17:09:55.303] [platform] [info] [Match:match_1781514583396] Delete requested
-[2026-06-15 17:09:55.303] [platform] [info] [Match:match_1781514583396] Deleted from registry
-[2026-06-15 17:12:03.532] [platform] [info] [Match:match_1781514723532] Created: "1"
-[2026-06-15 17:12:07.515] [platform] [info] [Match:match_1781514723532] Start requested
-[2026-06-15 17:12:07.515] [platform] [info] Disk free space: 344.55 GB (min required: 50 GB)
-[2026-06-15 17:12:07.515] [platform] [info] [Match:match_1781514723532] State -> initializing
-[2026-06-15 17:12:07.515] [platform] [info] [E->A] POST http://127.0.0.1:8081/api/v1/ingest/matches/init  match_id=match_1781514723532
-[2026-06-15 17:12:09.524] [platform] [error] [E->A] Ingest init failed: no response from http://127.0.0.1:8081
-[2026-06-15 17:12:09.525] [platform] [error] [Match:match_1781514723532] Ingest init failed: code=1008 msg=Ingest module (A) unreachable
-[2026-06-15 17:12:09.525] [platform] [error] [Match:match_1781514723532] State -> failed (module init error)
-[2026-06-15 17:12:13.533] [platform] [info] [Match:match_1781514723532] Delete requested
-[2026-06-15 17:12:13.533] [platform] [info] [Match:match_1781514723532] Deleted from registry
+[2026-06-15 17:45:36.452] [platform] [info] ========== Platform Orchestration Service Starting ==========
+[2026-06-15 17:45:36.452] [platform] [info] Platform port: 8080, Ingest: 8081, Record: 8082, Vision: 8083, Highlight: 8084
+[2026-06-15 17:45:36.452] [platform] [info] Data root: D:\\football\\data, Min free disk: 50 GB
+[2026-06-15 17:45:36.452] [platform] [info] Platform Orchestration Service listening on http://0.0.0.0:8080
+[2026-06-15 17:45:36.452] [platform] [info] Web UI: http://localhost:8080
+[2026-06-15 17:45:36.452] [platform] [info] Health: http://localhost:8080/api/v1/health
+[2026-06-15 17:45:41.256] [platform] [info] [Match:match_1781516741256] Created: "1"
+[2026-06-15 17:45:43.634] [platform] [info] [Match:match_1781516741256] Delete requested
+[2026-06-15 17:45:43.634] [platform] [info] [Match:match_1781516741256] Deleted from registry
+[2026-06-15 17:45:49.951] [platform] [info] [Match:match_1781516741256] Delete requested
+[2026-06-15 17:45:56.090] [platform] [info] [Match:match_1781516756090] Created: "1"
+[2026-06-15 17:46:00.165] [platform] [info] [Match:match_1781516756090] Delete requested
+[2026-06-15 17:46:00.165] [platform] [info] [Match:match_1781516756090] Deleted from registry
