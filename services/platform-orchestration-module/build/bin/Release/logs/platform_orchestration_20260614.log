@@ -1,0 +1,28 @@
+[2026-06-14 21:48:36.909] [platform] [info] ========== Platform Orchestration Service Starting ==========
+[2026-06-14 21:48:36.909] [platform] [info] Platform port: 8080, Ingest: 8081, Record: 8082, Vision: 8083, Highlight: 8084
+[2026-06-14 21:48:36.909] [platform] [info] Data root: D:\\football\\data, Min free disk: 50 GB
+[2026-06-14 21:48:36.910] [platform] [info] Platform Orchestration Service listening on http://0.0.0.0:8080
+[2026-06-14 21:48:36.910] [platform] [info] Web UI: http://localhost:8080
+[2026-06-14 21:48:36.910] [platform] [info] Health: http://localhost:8080/api/v1/health
+[2026-06-14 21:48:43.095] [platform] [info] [Match:match_1781444923095] Created: "111"
+[2026-06-14 21:48:46.404] [platform] [info] [Match:match_1781444923095] Start requested
+[2026-06-14 21:48:46.404] [platform] [info] Disk free space: 344.38 GB (min required: 50 GB)
+[2026-06-14 21:48:46.404] [platform] [info] [Match:match_1781444923095] State -> initializing
+[2026-06-14 21:48:46.404] [platform] [info] [E->A] POST http://127.0.0.1:8081/api/v1/ingest/matches/init  match_id=match_1781444923095
+[2026-06-14 21:48:48.176] [platform] [info] [Match:match_1781444923095] Start requested
+[2026-06-14 21:48:48.176] [platform] [warning] [Match:match_1781444923095] Cannot start: current state is initializing
+[2026-06-14 21:48:48.440] [platform] [error] [E->A] Ingest init failed: no response from http://127.0.0.1:8081
+[2026-06-14 21:48:48.440] [platform] [error] [Match:match_1781444923095] Ingest init failed: code=1008 msg=Ingest module (A) unreachable
+[2026-06-14 21:48:48.441] [platform] [error] [Match:match_1781444923095] State -> failed (module init error)
+[2026-06-14 21:48:52.855] [platform] [info] [Match:match_1781444923095] Delete requested
+[2026-06-14 21:48:52.855] [platform] [info] [Match:match_1781444923095] Deleted from registry
+[2026-06-14 21:48:56.546] [platform] [info] [Match:match_1781444936546] Created: "111"
+[2026-06-14 21:49:00.790] [platform] [info] [Match:match_1781444936546] Start requested
+[2026-06-14 21:49:00.790] [platform] [info] Disk free space: 344.38 GB (min required: 50 GB)
+[2026-06-14 21:49:00.790] [platform] [info] [Match:match_1781444936546] State -> initializing
+[2026-06-14 21:49:00.790] [platform] [info] [E->A] POST http://127.0.0.1:8081/api/v1/ingest/matches/init  match_id=match_1781444936546
+[2026-06-14 21:49:02.145] [platform] [info] [Match:match_1781444936546] Start requested
+[2026-06-14 21:49:02.145] [platform] [warning] [Match:match_1781444936546] Cannot start: current state is initializing
+[2026-06-14 21:49:02.855] [platform] [error] [E->A] Ingest init failed: no response from http://127.0.0.1:8081
+[2026-06-14 21:49:02.855] [platform] [error] [Match:match_1781444936546] Ingest init failed: code=1008 msg=Ingest module (A) unreachable
+[2026-06-14 21:49:02.855] [platform] [error] [Match:match_1781444936546] State -> failed (module init error)
