@@ -7,18 +7,17 @@
     <style>
         /* 深度贯穿系统的赛博球场硬核蓝系配色 */
         :root {
-            --bg-color: #050e14;             
-            --card-bg: rgba(8, 18, 28, 0.8);  /* 极具质感的深蓝半透明卡片背景 */
-            
-            /* 严格对齐核心边框规则 */
-            --border-static: rgba(0, 102, 255, 0.4); /* 基础状态：稳重的经典科技蓝 */
-            --neon-cyan: #00f0ff;                    /* 激活状态：炫目的跑道荧光蓝 */
-            
+            --bg-color: #050e14;
+            --card-bg: rgba(8, 18, 28, 0.8);
+            --border-static: rgba(0, 102, 255, 0.4);
+            --neon-cyan: #00f0ff;
             --text-main: #f8fafc;
-            --text-muted: #93c5fd;           /* 冰蓝色副文本 */
-            --neon-green: #00ff87;           /* 绿茵绿（保留用于正在直播等关键状态指示点） */
-            --neon-orange: #ff9f43;          /* 未开始状态 */
-            --neon-danger: #ff4757;          /* 结束与删除按钮背景点缀 */
+            --text-muted: #93c5fd;
+            --neon-green: #00ff87;
+            --neon-orange: #ff9f43;
+            --neon-danger: #ff4757;
+            --neon-purple: #a18cd1;
+            --neon-blue: #2980b9;
         }
 
         * {
@@ -37,17 +36,14 @@
             align-items: flex-start;
             position: relative;
             overflow-x: hidden;
-
-            /* 强力对齐：完美统一的主页复合滤镜遮罩与本地背景图 */
             background: linear-gradient(
-                rgba(6, 15, 25, 0.85) 0%, 
+                rgba(6, 15, 25, 0.85) 0%,
                 rgba(10, 20, 32, 0.78) 100%
-            ), 
+            ),
             url('足球场.jpg') no-repeat center center fixed;
             background-size: cover;
         }
 
-        /* 统一的环境蓝绿流光晕设计 */
         body::before {
             content: '';
             position: absolute;
@@ -61,14 +57,13 @@
             pointer-events: none;
         }
 
-        /* 磨砂玻璃控制大舱 */
         .container {
             width: 100%;
             max-width: 800px;
             background: var(--card-bg);
-            backdrop-filter: blur(24px); 
+            backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--border-static); /* 容器本身为蓝色边框 */
+            border: 1px solid var(--border-static);
             border-radius: 24px;
             padding: 35px;
             box-shadow: 0 25px 60px rgba(0, 5, 15, 0.75),
@@ -77,11 +72,10 @@
             transition: border-color 0.3s, box-shadow 0.3s;
         }
         .container:hover {
-            border-color: var(--neon-cyan); /* 大舱悬浮同步变荧光蓝 */
+            border-color: var(--neon-cyan);
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 240, 255, 0.25);
         }
 
-        /* 标题和头部排版 */
         .header {
             display: flex;
             justify-content: space-between;
@@ -115,10 +109,9 @@
             transform: translateX(-2px);
         }
 
-        /* 创建比赛控制面板 */
         .create-panel {
             background: rgba(5, 15, 25, 0.4);
-            border: 1px solid var(--border-static); /* 本身蓝色边框 */
+            border: 1px solid var(--border-static);
             padding: 24px;
             border-radius: 16px;
             margin-bottom: 35px;
@@ -141,7 +134,6 @@
             gap: 6px;
         }
 
-        /* 数据流列表副标题微调 */
         .list-title {
             margin-bottom: 18px;
             color: #fff;
@@ -153,11 +145,10 @@
             gap: 12px;
         }
 
-        /* 赛博风霓虹输入框 */
         input[type="text"] {
             flex: 1;
             background: rgba(4, 11, 18, 0.6);
-            border: 1px solid var(--border-static); /* 本身蓝色边框 */
+            border: 1px solid var(--border-static);
             padding: 14px 18px;
             border-radius: 12px;
             color: #fff;
@@ -166,7 +157,6 @@
             transition: all 0.2s ease;
         }
 
-        /* 输入框悬浮与聚焦：切换为荧光蓝 */
         input[type="text"]:hover,
         input[type="text"]:focus {
             border-color: var(--neon-cyan);
@@ -174,9 +164,8 @@
             background: rgba(0, 0, 0, 0.7);
         }
 
-        /* ================= 核心：按钮边框逻辑重构 ================= */
         button {
-            border: 1px solid var(--border-static); /* 1. 边框本身就要蓝色 */
+            border: 1px solid var(--border-static);
             padding: 12px 24px;
             border-radius: 12px;
             font-size: 14px;
@@ -185,39 +174,34 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* 2. 鼠标移上去的时候：边框变荧光蓝，亮起光晕 */
         button:hover {
-            border-color: var(--neon-cyan) !important; 
+            border-color: var(--neon-cyan) !important;
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.45) !important;
             transform: translateY(-2px);
             filter: brightness(1.15);
         }
 
-        /* 3. 按下去的时候：保持荧光蓝，强化内透光并模拟下沉物理反馈 */
         button:active {
-            border-color: var(--neon-cyan) !important; 
+            border-color: var(--neon-cyan) !important;
             box-shadow: 0 0 25px rgba(0, 240, 255, 0.65) !important;
             transform: translateY(0) scale(0.96) !important;
             transition: none;
         }
 
-        /* 创建确认按钮个性化背景 */
         .input-group button {
             background: rgba(0, 102, 255, 0.2);
             color: #fff;
         }
 
-        /* 比赛列表容器及动态卡片 */
         #matchList {
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
 
-        /* 动态生成的信道卡片 */
         .card {
             background: rgba(5, 15, 25, 0.4);
-            border: 1px solid var(--border-static); /* 边框本身为蓝色 */
+            border: 1px solid var(--border-static);
             padding: 22px;
             border-radius: 16px;
             display: grid;
@@ -227,10 +211,9 @@
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* 卡片悬浮：激活荧光蓝边缘 */
         .card:hover {
             background: rgba(5, 15, 25, 0.6);
-            border-color: var(--neon-cyan); /* 鼠标移上去变荧光蓝 */
+            border-color: var(--neon-cyan);
             transform: translateX(4px);
             box-shadow: 0 8px 25px rgba(0, 240, 255, 0.15);
         }
@@ -255,7 +238,12 @@
             color: #fff;
         }
 
-        /* 电子标签群样式微调 */
+        .match-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -267,25 +255,16 @@
             width: fit-content;
         }
 
-        .status-idle {
-            background: rgba(255, 159, 67, 0.08);
-            color: var(--neon-orange);
-            border: 1px solid rgba(255, 159, 67, 0.2);
-        }
+        .status-idle          { background: rgba(255, 159, 67, 0.08);   color: var(--neon-orange);  border: 1px solid rgba(255, 159, 67, 0.2); }
+        .status-initializing  { background: rgba(0, 240, 255, 0.08);   color: var(--neon-cyan);    border: 1px solid rgba(0, 240, 255, 0.2); }
+        .status-running       { background: rgba(0, 255, 135, 0.08);   color: var(--neon-green);   border: 1px solid rgba(0, 255, 135, 0.2); }
+        .status-recording     { background: rgba(0, 255, 135, 0.08);   color: var(--neon-green);   border: 1px solid rgba(0, 255, 135, 0.2); }
+        .status-processing    { background: rgba(161, 140, 209, 0.08); color: var(--neon-purple);  border: 1px solid rgba(161, 140, 209, 0.2); }
+        .status-success       { background: rgba(41, 128, 185, 0.08);  color: var(--neon-blue);    border: 1px solid rgba(41, 128, 185, 0.2); }
+        .status-failed        { background: rgba(255, 71, 87, 0.08);   color: var(--neon-danger);  border: 1px solid rgba(255, 71, 87, 0.2); }
+        .status-stopped       { background: rgba(255, 71, 87, 0.08);   color: var(--neon-danger);  border: 1px solid rgba(255, 71, 87, 0.2); }
+        .status-degraded      { background: rgba(255, 71, 87, 0.08);   color: var(--neon-danger);  border: 1px solid rgba(255, 71, 87, 0.2); }
 
-        .status-running {
-            background: rgba(0, 255, 135, 0.08);
-            color: var(--neon-green);
-            border: 1px solid rgba(0, 255, 135, 0.2);
-        }
-
-        .status-finished {
-            background: rgba(255, 255, 255, 0.04);
-            color: #94a3b8;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* 直播流光点动画 */
         .live-dot {
             width: 6px;
             height: 6px;
@@ -296,41 +275,25 @@
         }
         @keyframes blink { from { opacity: 0.2; } to { opacity: 1; } }
 
-        /* 卡片右侧功能操作组（新增：支持按钮水平合理间距） */
         .match-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        /* 卡片右侧功能按钮尺寸覆写 */
         .card button {
-            padding: 10px 20px;
-            font-size: 13px;
+            padding: 8px 16px;
+            font-size: 12px;
             font-weight: 700;
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
-        /* 操作动作流基底调配（通过边框继承 hover/active 的荧光蓝规则） */
-        .btn-start {
-            background: rgba(0, 255, 135, 0.12);
-            color: var(--neon-green);
-        }
-        .btn-stop {
-            background: rgba(255, 71, 87, 0.15);
-            color: #ff4757;
-        }
-        .btn-highlight {
-            background: rgba(161, 140, 209, 0.15);
-            color: #fbc2eb;
-        }
-        
-        /* 新增：删除按钮特制样式，完美融入硬核暗黑科技风格 */
-        .btn-delete {
-            background: rgba(255, 71, 87, 0.06);
-            color: var(--neon-danger);
-            border: 1px solid rgba(255, 71, 87, 0.3) !important;
-        }
+        .btn-start     { background: rgba(0, 255, 135, 0.12);   color: var(--neon-green); }
+        .btn-stop      { background: rgba(255, 71, 87, 0.15);   color: #ff4757; }
+        .btn-highlight { background: rgba(161, 140, 209, 0.15); color: #fbc2eb; }
+        .btn-download  { background: rgba(41, 128, 185, 0.15);  color: #74b9ff; }
+        .btn-delete    { background: rgba(255, 71, 87, 0.05);   color: #ff4757; border-color: rgba(255, 71, 87, 0.3) !important; }
     </style>
 </head>
 <body>
@@ -354,125 +317,127 @@
     </div>
 
     <script>
-        // ======= 100% 完整保留系统底层原装逻辑与API字段，绝无魔改 =======
+        var STATE_MAP = {
+            'idle':          { label: '⏳ 待开始',     cls: 'status-idle' },
+            'initializing':  { label: '🔄 初始化中',   cls: 'status-initializing' },
+            'running':       { label: '● 运行中',      cls: 'status-running' },
+            'recording':     { label: '● 录制中',      cls: 'status-recording' },
+            'processing':    { label: '🎬 集锦生成中', cls: 'status-processing' },
+            'success':       { label: '✅ 已完成',     cls: 'status-success' },
+            'failed':        { label: '❌ 失败',       cls: 'status-failed' },
+            'stopped':       { label: '⏹ 已结束',     cls: 'status-stopped' },
+            'degraded':      { label: '⚠ 降级运行',   cls: 'status-degraded' }
+        };
+
+        function stateInfo(s) {
+            return STATE_MAP[s] || { label: s, cls: 'status-idle' };
+        }
+
+        function fmtTime(ms) {
+            if (!ms || ms <= 0) return '';
+            try { return new Date(ms).toLocaleString(); } catch(e) { return ''; }
+        }
+
+        function buildActions(m) {
+            var s = m.status, btns = '';
+            if (s === 'idle' || s === 'stopped' || s === 'failed')
+                btns += '<button class="btn-start" onclick="startMatch(\'' + m.match_id + '\')">🚀 开始</button>';
+            if (s === 'running' || s === 'recording' || s === 'degraded')
+                btns += '<button class="btn-stop" onclick="stopMatch(\'' + m.match_id + '\')">🛑 结束</button>';
+            if (s === 'stopped' || s === 'success')
+                btns += '<button class="btn-highlight" onclick="generateHighlight(\'' + m.match_id + '\')">🎬 集锦</button>';
+            if (s === 'success' || s === 'processing')
+                btns += '<button class="btn-download" onclick="downloadHighlight(\'' + m.match_id + '\')">⬇ 下载</button>';
+            if (s === 'idle' || s === 'stopped' || s === 'failed' || s === 'success')
+                btns += '<button class="btn-delete" onclick="deleteMatch(\'' + m.match_id + '\')">🗑️ 删除</button>';
+            return btns;
+        }
+
         async function loadMatches() {
             try {
-                const res = await fetch('/api/v1/matches');
-                const data = await res.json();
+                var res = await fetch('/api/v1/matches');
+                var data = await res.json();
                 if (data.code === 0) {
-                    const listDiv = document.getElementById('matchList');
+                    var listDiv = document.getElementById('matchList');
+                    if (!data.data || data.data.length === 0) {
+                        listDiv.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px;">暂无活跃信道，请创建新比赛</div>';
+                        return;
+                    }
                     listDiv.innerHTML = '';
-                    for (const match of data.data) {
-                        const card = document.createElement('div');
+                    for (var i = 0; i < data.data.length; i++) {
+                        var m = data.data[i];
+                        var si = stateInfo(m.status);
+                        var card = document.createElement('div');
                         card.className = 'card';
-                        
-                        let statusHTML = '';
-                        let buttonHTML = '';
-                        
-                        if (match.status === 'idle') {
-                            statusHTML = `<span class="status-badge status-idle">⏳ 未开始 (Idle)</span>`;
-                            buttonHTML = `<button class="btn-start" onclick="startMatch('${match.match_id}')">🚀 开始比赛</button>`;
-                        } else if (match.status === 'running') {
-                            statusHTML = `<span class="status-badge status-running"><span class="live-dot"></span> 正在自动转播 (Live)</span>`;
-                            buttonHTML = `<button class="btn-stop" onclick="stopMatch('${match.match_id}')">🛑 结束比赛</button>`;
-                        } else if (match.status === 'finished') {
-                            statusHTML = `<span class="status-badge status-finished">🏁 已结束 (Finished)</span>`;
-                            buttonHTML = `<button class="btn-highlight" onclick="generateHighlight('${match.match_id}')">🎬 生成AI集锦</button>`;
-                        } else {
-                            statusHTML = `<span class="status-badge status-finished">${match.status}</span>`;
-                        }
-
-                        // 新增：在原本的按钮旁边并列添加一个【🗑️ 删除比赛】按钮
-                        card.innerHTML = `
-                            <div class="match-info">
-                                <span class="match-id">CHANNEL ID: #${match.match_id}</span>
-                                <div class="match-title">${match.match_name}</div>
-                                <div style="margin-top: 4px;">${statusHTML}</div>
-                            </div>
-                            <div class="match-actions">
-                                ${buttonHTML}
-                                <button class="btn-delete" onclick="deleteMatch('${match.match_id}', '${match.match_name}')">🗑️ 删除</button>
-                            </div>
-                        `;
+                        var meta = fmtTime(m.created_at) ? '<div class="match-meta">创建: ' + fmtTime(m.created_at) + '</div>' : '';
+                        var dot = (m.status === 'running' || m.status === 'recording') ? '<span class="live-dot"></span>' : '';
+                        card.innerHTML =
+                            '<div class="match-info">' +
+                                '<span class="match-id">CHANNEL ID: #' + m.match_id + '</span>' +
+                                '<div class="match-title">' + m.match_name + '</div>' +
+                                meta +
+                                '<div style="margin-top:4px;"><span class="status-badge ' + si.cls + '">' + dot + si.label + '</span></div>' +
+                            '</div>' +
+                            '<div class="match-actions">' + buildActions(m) + '</div>';
                         listDiv.appendChild(card);
                     }
                 }
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         }
 
         async function createMatch() {
-            const name = document.getElementById('matchName').value;
+            var name = document.getElementById('matchName').value.trim();
             if (!name) return alert('请输入比赛名称');
-            const res = await fetch('/api/v1/matches', {
+            var res = await fetch('/api/v1/matches', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({match_name: name})
             });
-            const data = await res.json();
+            var data = await res.json();
             if (data.code === 0) {
-                alert('创建成功！');
-                document.getElementById('matchName').value = ''; 
+                document.getElementById('matchName').value = '';
                 loadMatches();
             } else {
-                alert('创建失败: ' + data.message);
+                alert('创建失败: [' + data.code + '] ' + data.message);
             }
         }
 
         async function startMatch(id) {
-            const res = await fetch(`/api/v1/matches/${id}/start`, {method: 'POST'});
-            const data = await res.json();
-            if (data.code === 0) {
-                alert('比赛已开始');
-                loadMatches();
-            } else {
-                alert('开始失败: ' + data.message);
-            }
+            if (!confirm('确定要开始吗？将依次初始化采集、录像和视觉模块。')) return;
+            var res = await fetch('/api/v1/matches/' + id + '/start', {method: 'POST'});
+            var data = await res.json();
+            if (data.code !== 0) alert('失败: [' + data.code + '] ' + data.message);
+            loadMatches();
         }
 
         async function stopMatch(id) {
-            const res = await fetch(`/api/v1/matches/${id}/stop`, {method: 'POST'});
-            const data = await res.json();
-            if (data.code === 0) {
-                alert('比赛已结束');
-                loadMatches();
-            } else {
-                alert('结束失败: ' + data.message);
-            }
+            if (!confirm('确定要结束吗？')) return;
+            var res = await fetch('/api/v1/matches/' + id + '/stop', {method: 'POST'});
+            var data = await res.json();
+            if (data.code !== 0) alert('失败: [' + data.code + '] ' + data.message);
+            loadMatches();
         }
 
         async function generateHighlight(id) {
-            const res = await fetch(`/api/v1/matches/${id}/highlight`, {method: 'POST'});
-            const data = await res.json();
-            if (data.code === 0) {
-                alert('集锦任务已触发');
-            } else {
-                alert('集锦生成失败: ' + data.message);
-            }
+            if (!confirm('确定要生成全场精彩集锦吗？')) return;
+            var res = await fetch('/api/v1/matches/' + id + '/highlight', {method: 'POST'});
+            var data = await res.json();
+            if (data.code === 0) { alert('集锦任务已提交'); loadMatches(); }
+            else alert('失败: [' + data.code + '] ' + data.message);
         }
 
-        // ======= 新增：调用后端 API 删除比赛通道的 JavaScript 逻辑 =======
-        async function deleteMatch(id, name) {
-            if (!confirm(`安全警告⚠️\n您确定要彻底删除比赛信道 [${name}] 吗？\n此操作不可逆！`)) {
-                return;
-            }
-            try {
-                const res = await fetch(`/api/v1/matches/${id}`, { method: 'DELETE' });
-                const data = await res.json();
-                if (data.code === 0) {
-                    alert('比赛信道已成功销毁');
-                    loadMatches(); // 重新加载列表更新界面
-                } else {
-                    alert('删除失败: ' + data.message);
-                }
-            } catch(e) {
-                console.error(e);
-                alert('网络或服务连接异常，删除请求未完成');
-            }
+        function downloadHighlight(id) {
+            window.open('/api/v1/matches/' + id + '/highlight/download', '_blank');
         }
 
-        // 初始化加载与高频安全轮询
+        async function deleteMatch(id) {
+            if (!confirm('确定要删除吗？此操作不可撤销。')) return;
+            var res = await fetch('/api/v1/matches/' + id, {method: 'DELETE'});
+            var data = await res.json();
+            if (data.code !== 0) alert('失败: [' + data.code + '] ' + data.message);
+            loadMatches();
+        }
+
         loadMatches();
         setInterval(loadMatches, 5000);
     </script>

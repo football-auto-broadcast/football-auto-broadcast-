@@ -67,3 +67,5 @@ services/vision-event-module/training/runs/
 services/vision-event-module/training/Ultralytics/
 services/vision-event-module/training/weights/
 services/vision-event-module/training/detect_test/*.mp4
+.vs/
+*.ipch
