@@ -1,0 +1,3588 @@
+<?xml version="1.0"?>
+<!-- This file was automatically generated from C sources - DO NOT EDIT!
+To affect the contents of this file, edit the original C definitions,
+and/or use gtk-doc annotations.  -->
+<repository version="1.2"
+            xmlns="http://www.gtk.org/introspection/core/1.0"
+            xmlns:c="http://www.gtk.org/introspection/c/1.0"
+            xmlns:doc="http://www.gtk.org/introspection/doc/1.0"
+            xmlns:glib="http://www.gtk.org/introspection/glib/1.0">
+  <include name="Gst" version="1.0"/>
+  <include name="GstBase" version="1.0"/>
+  <include name="GstVideo" version="1.0"/>
+  <package name="gstreamer-d3d11-1.0"/>
+  <doc:format name="unknown"/>
+  <namespace name="GstD3D11"
+             version="1.0"
+             shared-library="gstd3d11-1.0-0.dll"
+             c:identifier-prefixes="Gst"
+             c:symbol-prefixes="gst">
+    <constant name="CAPS_FEATURE_MEMORY_D3D11_MEMORY"
+              value="memory:D3D11Memory"
+              c:type="GST_CAPS_FEATURE_MEMORY_D3D11_MEMORY"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="60">Name of the caps feature for indicating the use of #GstD3D11Memory</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="67"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <bitfield name="D3D11AllocationFlags"
+              version="1.22"
+              glib:type-name="GstD3D11AllocationFlags"
+              glib:get-type="gst_d3d11_allocation_flags_get_type"
+              c:type="GstD3D11AllocationFlags">
+      <member name="default"
+              value="0"
+              c:identifier="GST_D3D11_ALLOCATION_FLAG_DEFAULT"
+              glib:nick="default"
+              glib:name="GST_D3D11_ALLOCATION_FLAG_DEFAULT">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+             line="80">Default allocation behavior</doc>
+      </member>
+    </bitfield>
+    <record name="D3D11AllocationParams"
+            c:type="GstD3D11AllocationParams"
+            opaque="1"
+            version="1.22"
+            glib:type-name="GstD3D11AllocationParams"
+            glib:get-type="gst_d3d11_allocation_params_get_type"
+            c:symbol-prefix="d3d11_allocation_params">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="131">Contains set of parameters for #GstD3D11Memory allocation</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="40"/>
+      <constructor name="new"
+                   c:identifier="gst_d3d11_allocation_params_new"
+                   version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="119">Create #GstD3D11AllocationParams object which is used by #GstD3D11BufferPool
+and #GstD3D11Allocator in order to allocate new ID3D11Texture2D
+object with given configuration</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="143"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="131">a #GstD3D11AllocationParams or %NULL if @info is not supported</doc>
+          <type name="D3D11AllocationParams"
+                c:type="GstD3D11AllocationParams*"/>
+        </return-value>
+        <parameters>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="121">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+          <parameter name="info" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="122">a #GstVideoInfo</doc>
+            <type name="GstVideo.VideoInfo" c:type="const GstVideoInfo*"/>
+          </parameter>
+          <parameter name="flags" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="123">a #GstD3D11AllocationFlags</doc>
+            <type name="D3D11AllocationFlags"
+                  c:type="GstD3D11AllocationFlags"/>
+          </parameter>
+          <parameter name="bind_flags" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="124">D3D11_BIND_FLAG value used for creating texture</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="misc_flags" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="125">D3D11_RESOURCE_MISC_FLAG value used for creating texture</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="alignment"
+              c:identifier="gst_d3d11_allocation_params_alignment"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="167">Adjust Width and Height fields of D3D11_TEXTURE2D_DESC with given
+@align</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="156"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="175">%TRUE if alignment could be applied</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="parms" transfer-ownership="none">
+            <type name="D3D11AllocationParams"
+                  c:type="GstD3D11AllocationParams*"/>
+          </instance-parameter>
+          <parameter name="align" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="170">a #GstVideoAlignment</doc>
+            <type name="GstVideo.VideoAlignment"
+                  c:type="const GstVideoAlignment*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="copy"
+              c:identifier="gst_d3d11_allocation_params_copy"
+              version="1.22">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="150"/>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="212">a copy of @src</doc>
+          <type name="D3D11AllocationParams"
+                c:type="GstD3D11AllocationParams*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="src" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="210">a #GstD3D11AllocationParams</doc>
+            <type name="D3D11AllocationParams"
+                  c:type="GstD3D11AllocationParams*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="free"
+              c:identifier="gst_d3d11_allocation_params_free"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="229">Free @params</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="153"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="params" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="231">a #GstD3D11AllocationParams</doc>
+            <type name="D3D11AllocationParams"
+                  c:type="GstD3D11AllocationParams*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="set_array_size"
+              c:identifier="gst_d3d11_allocation_params_set_array_size"
+              version="1.24">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="265">Set texture array size. @size must be non-zero value</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="164"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="272">%TRUE if successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="params" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="267">a #GstD3D11AllocationParams</doc>
+            <type name="D3D11AllocationParams"
+                  c:type="GstD3D11AllocationParams*"/>
+          </instance-parameter>
+          <parameter name="size" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="268">texture array size</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_bind_flags"
+              c:identifier="gst_d3d11_allocation_params_set_bind_flags"
+              version="1.24">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="243">Appends @bind_flags</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="160"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="250">%TRUE if successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="params" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="245">a #GstD3D11AllocationParams</doc>
+            <type name="D3D11AllocationParams"
+                  c:type="GstD3D11AllocationParams*"/>
+          </instance-parameter>
+          <parameter name="bind_flags" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="246">D3D11_BIND_FLAG</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_sample_desc"
+              c:identifier="gst_d3d11_allocation_params_set_sample_desc"
+              version="1.24">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="288">Set sample description</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="168"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="296">%TRUE if successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="params" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="290">a #GstD3D11AllocationParams</doc>
+            <type name="D3D11AllocationParams"
+                  c:type="GstD3D11AllocationParams*"/>
+          </instance-parameter>
+          <parameter name="sample_count" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="291">sample count</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="sample_quality" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="292">sample quality</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </method>
+    </record>
+    <class name="D3D11Allocator"
+           c:symbol-prefix="d3d11_allocator"
+           c:type="GstD3D11Allocator"
+           version="1.22"
+           parent="Gst.Allocator"
+           glib:type-name="GstD3D11Allocator"
+           glib:get-type="gst_d3d11_allocator_get_type"
+           glib:type-struct="D3D11AllocatorClass">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="262">A Direct3D11 memory allocator</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="292"/>
+      <virtual-method name="set_active" invoker="set_active" version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1930">Controls the active state of @allocator. Default #GstD3D11Allocator is
+stateless and therefore active state is ignored, but subclass implementation
+(e.g., #GstD3D11PoolAllocator) will require explicit active state control
+for its internal resource management.
+
+This method is conceptually identical to gst_buffer_pool_set_active method.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="287"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1942">%TRUE if active state of @allocator was successfully updated.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1932">a #GstD3D11Allocator</doc>
+            <type name="D3D11Allocator" c:type="GstD3D11Allocator*"/>
+          </instance-parameter>
+          <parameter name="active" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1933">the new active state</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </virtual-method>
+      <method name="alloc"
+              c:identifier="gst_d3d11_allocator_alloc"
+              version="1.22"
+              introspectable="0">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="298"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1765">a newly allocated #GstD3D11Memory with given parameters.</doc>
+          <type name="Gst.Memory" c:type="GstMemory*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator"
+                              transfer-ownership="none"
+                              nullable="1"
+                              allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1761">a #GstD3D11Allocator</doc>
+            <type name="D3D11Allocator" c:type="GstD3D11Allocator*"/>
+          </instance-parameter>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1762">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+          <parameter name="desc" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1763">a D3D11_TEXTURE2D_DESC struct</doc>
+            <type c:type="const D3D11_TEXTURE2D_DESC*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="alloc_buffer"
+              c:identifier="gst_d3d11_allocator_alloc_buffer"
+              version="1.22"
+              introspectable="0">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="303"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1803">a newly allocated #GstD3D11Memory with given parameters.</doc>
+          <type name="Gst.Memory" c:type="GstMemory*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator"
+                              transfer-ownership="none"
+                              nullable="1"
+                              allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1799">a #GstD3D11Allocator</doc>
+            <type name="D3D11Allocator" c:type="GstD3D11Allocator*"/>
+          </instance-parameter>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1800">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+          <parameter name="desc" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1801">a D3D11_BUFFER_DESC struct</doc>
+            <type c:type="const D3D11_BUFFER_DESC*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="alloc_wrapped"
+              c:identifier="gst_d3d11_allocator_alloc_wrapped"
+              version="1.22"
+              introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1854">Allocates memory object with @texture. The refcount of @texture
+will be increased by one.
+
+Caller should set valid CPU acessible memory value to @size
+(which is typically calculated by using staging texture and Map/Unmap)
+or zero is allowed. In that case, allocator will create a temporary staging
+texture to get the size and the temporary staging texture will be released.
+
+Caller must not be confused that @size is CPU accessible size, not raw
+texture size.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="308"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1874">a newly allocated #GstD3D11Memory with given @texture
+if successful, or %NULL if @texture is not a valid handle or configuration
+is not supported.</doc>
+          <type name="Gst.Memory" c:type="GstMemory*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator"
+                              transfer-ownership="none"
+                              nullable="1"
+                              allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1856">a #GstD3D11Allocator</doc>
+            <type name="D3D11Allocator" c:type="GstD3D11Allocator*"/>
+          </instance-parameter>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1857">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+          <parameter name="texture" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1858">a ID3D11Texture2D</doc>
+            <type c:type="ID3D11Texture2D*"/>
+          </parameter>
+          <parameter name="size" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1859">CPU accessible memory size</doc>
+            <type name="gsize" c:type="gsize"/>
+          </parameter>
+          <parameter name="user_data"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1860">user data</doc>
+            <type name="gpointer" c:type="gpointer"/>
+          </parameter>
+          <parameter name="notify"
+                     transfer-ownership="none"
+                     nullable="1"
+                     allow-none="1"
+                     scope="async">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1861">called with @user_data when the memory is freed</doc>
+            <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_active"
+              c:identifier="gst_d3d11_allocator_set_active"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1930">Controls the active state of @allocator. Default #GstD3D11Allocator is
+stateless and therefore active state is ignored, but subclass implementation
+(e.g., #GstD3D11PoolAllocator) will require explicit active state control
+for its internal resource management.
+
+This method is conceptually identical to gst_buffer_pool_set_active method.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="316"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1942">%TRUE if active state of @allocator was successfully updated.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1932">a #GstD3D11Allocator</doc>
+            <type name="D3D11Allocator" c:type="GstD3D11Allocator*"/>
+          </instance-parameter>
+          <parameter name="active" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1933">the new active state</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </parameter>
+        </parameters>
+      </method>
+      <field name="parent">
+        <type name="Gst.Allocator" c:type="GstAllocator"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11AllocatorPrivate" c:type="GstD3D11AllocatorPrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </class>
+    <record name="D3D11AllocatorClass"
+            c:type="GstD3D11AllocatorClass"
+            glib:is-gtype-struct-for="D3D11Allocator"
+            version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="292"/>
+      <field name="parent_class">
+        <type name="Gst.AllocatorClass" c:type="GstAllocatorClass"/>
+      </field>
+      <field name="set_active">
+        <callback name="set_active">
+          <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                           line="287"/>
+          <return-value transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="1942">%TRUE if active state of @allocator was successfully updated.</doc>
+            <type name="gboolean" c:type="gboolean"/>
+          </return-value>
+          <parameters>
+            <parameter name="allocator" transfer-ownership="none">
+              <doc xml:space="preserve"
+                   filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                   line="1932">a #GstD3D11Allocator</doc>
+              <type name="D3D11Allocator" c:type="GstD3D11Allocator*"/>
+            </parameter>
+            <parameter name="active" transfer-ownership="none">
+              <doc xml:space="preserve"
+                   filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                   line="1933">the new active state</doc>
+              <type name="gboolean" c:type="gboolean"/>
+            </parameter>
+          </parameters>
+        </callback>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="20">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </record>
+    <record name="D3D11AllocatorPrivate"
+            c:type="GstD3D11AllocatorPrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="46"/>
+    </record>
+    <class name="D3D11BufferPool"
+           c:symbol-prefix="d3d11_buffer_pool"
+           c:type="GstD3D11BufferPool"
+           version="1.22"
+           parent="Gst.BufferPool"
+           glib:type-name="GstD3D11BufferPool"
+           glib:get-type="gst_d3d11_buffer_pool_get_type"
+           glib:type-struct="D3D11BufferPoolClass">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+           line="34">This GstD3D11BufferPool is an object that allocates buffers
+with #GstD3D11Memory</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="68"/>
+      <constructor name="new"
+                   c:identifier="gst_d3d11_buffer_pool_new"
+                   version="1.22">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                         line="74"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+               line="411">a #GstBufferPool that allocates buffers with #GstD3D11Memory</doc>
+          <type name="Gst.BufferPool" c:type="GstBufferPool*"/>
+        </return-value>
+        <parameters>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+                 line="409">a #GstD3D11Device to use</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <field name="parent">
+        <type name="Gst.BufferPool" c:type="GstBufferPool"/>
+      </field>
+      <field name="device">
+        <type name="D3D11Device" c:type="GstD3D11Device*"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11BufferPoolPrivate"
+              c:type="GstD3D11BufferPoolPrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </class>
+    <record name="D3D11BufferPoolClass"
+            c:type="GstD3D11BufferPoolClass"
+            glib:is-gtype-struct-for="D3D11BufferPool"
+            version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+           line="55">Opaque GstD3D11BufferPoolClass struct</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="68"/>
+      <field name="parent_class">
+        <type name="Gst.BufferPoolClass" c:type="GstBufferPoolClass"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </record>
+    <record name="D3D11BufferPoolPrivate"
+            c:type="GstD3D11BufferPoolPrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="54"/>
+    </record>
+    <class name="D3D11Converter"
+           c:symbol-prefix="d3d11_converter"
+           c:type="GstD3D11Converter"
+           version="1.22"
+           parent="Gst.Object"
+           glib:type-name="GstD3D11Converter"
+           glib:get-type="gst_d3d11_converter_get_type"
+           glib:type-struct="D3D11ConverterClass">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+           line="48">This object performs various video conversion operation
+via Direct3D11 API</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="177"/>
+      <constructor name="new"
+                   c:identifier="gst_d3d11_converter_new"
+                   version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+             line="2030">Create a new converter object to convert between @in_info and @out_info
+with @method. When @method is not specified, converter will configure
+conversion path for all available method. Otherwise, converter will configure
+conversion path only for specified method(s) and set @method will be updated
+with supported method.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                         line="183"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+               line="2043">a #GstD3D11Converter or %NULL if conversion is not possible</doc>
+          <type name="D3D11Converter" c:type="GstD3D11Converter*"/>
+        </return-value>
+        <parameters>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="2032">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+          <parameter name="in_info" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="2033">a #GstVideoInfo</doc>
+            <type name="GstVideo.VideoInfo" c:type="const GstVideoInfo*"/>
+          </parameter>
+          <parameter name="out_info" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="2034">a #GstVideoInfo</doc>
+            <type name="GstVideo.VideoInfo" c:type="const GstVideoInfo*"/>
+          </parameter>
+          <parameter name="config"
+                     transfer-ownership="full"
+                     nullable="1"
+                     allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="2035">a #GstStructure containing converter config</doc>
+            <type name="Gst.Structure" c:type="GstStructure*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="convert_buffer"
+              c:identifier="gst_d3d11_converter_convert_buffer"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+             line="3107">Converts @in_buf into @out_buf</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                         line="189"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+               line="3115">%TRUE if conversion is successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="converter" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3109">a #GstD3D11Converter</doc>
+            <type name="D3D11Converter" c:type="GstD3D11Converter*"/>
+          </instance-parameter>
+          <parameter name="in_buf" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3110">a #GstBuffer</doc>
+            <type name="Gst.Buffer" c:type="GstBuffer*"/>
+          </parameter>
+          <parameter name="out_buf" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3111">a #GstBuffer</doc>
+            <type name="Gst.Buffer" c:type="GstBuffer*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="convert_buffer_unlocked"
+              c:identifier="gst_d3d11_converter_convert_buffer_unlocked"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+             line="3133">Converts @in_buf into @out_buf. Caller should take d3d11 device lock
+in case that multiple threads can perform GPU processing using the
+same #GstD3D11Device</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                         line="194"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+               line="3143">%TRUE if conversion is successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="converter" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3135">a #GstD3D11Converter</doc>
+            <type name="D3D11Converter" c:type="GstD3D11Converter*"/>
+          </instance-parameter>
+          <parameter name="in_buf" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3136">a #GstBuffer</doc>
+            <type name="Gst.Buffer" c:type="GstBuffer*"/>
+          </parameter>
+          <parameter name="out_buf" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3137">a #GstBuffer</doc>
+            <type name="Gst.Buffer" c:type="GstBuffer*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="set_transform_matrix"
+              c:identifier="gst_d3d11_converter_set_transform_matrix"
+              version="1.24">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+             line="3159">Apply transform matrix</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                         line="199"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+               line="3166">%TRUE if successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="converter" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3161">a #GstD3D11Converter</doc>
+            <type name="D3D11Converter" c:type="GstD3D11Converter*"/>
+          </instance-parameter>
+          <parameter name="matrix" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11converter.cpp"
+                 line="3162">the row-major 4x4 transform matrix</doc>
+            <type name="gfloat" c:type="const gfloat*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <property name="alpha"
+                writable="1"
+                transfer-ownership="none"
+                default-value="1.000000">
+        <type name="gdouble" c:type="gdouble"/>
+      </property>
+      <property name="blend-factor-alpha"
+                writable="1"
+                transfer-ownership="none"
+                default-value="1.000000">
+        <type name="gfloat" c:type="gfloat"/>
+      </property>
+      <property name="blend-factor-blue"
+                writable="1"
+                transfer-ownership="none"
+                default-value="1.000000">
+        <type name="gfloat" c:type="gfloat"/>
+      </property>
+      <property name="blend-factor-green"
+                writable="1"
+                transfer-ownership="none"
+                default-value="1.000000">
+        <type name="gfloat" c:type="gfloat"/>
+      </property>
+      <property name="blend-factor-red"
+                writable="1"
+                transfer-ownership="none"
+                default-value="1.000000">
+        <type name="gfloat" c:type="gfloat"/>
+      </property>
+      <property name="blend-sample-mask"
+                writable="1"
+                transfer-ownership="none"
+                default-value="4294967295">
+        <type name="guint" c:type="guint"/>
+      </property>
+      <property name="blend-state" writable="1" transfer-ownership="none">
+        <type name="gpointer" c:type="gpointer"/>
+      </property>
+      <property name="border-color"
+                writable="1"
+                transfer-ownership="none"
+                default-value="18446462598732840960">
+        <type name="guint64" c:type="guint64"/>
+      </property>
+      <property name="dest-content-light-level"
+                writable="1"
+                transfer-ownership="none"
+                default-value="NULL">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="dest-height"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="dest-mastering-display-info"
+                writable="1"
+                transfer-ownership="none"
+                default-value="NULL">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="dest-width"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="dest-x"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="dest-y"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="fill-border"
+                writable="1"
+                transfer-ownership="none"
+                default-value="FALSE">
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="src-content-light-level"
+                writable="1"
+                transfer-ownership="none"
+                default-value="NULL">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="src-height"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="src-mastering-display-info"
+                writable="1"
+                transfer-ownership="none"
+                default-value="NULL">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="src-width"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="src-x"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="src-y"
+                writable="1"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="video-direction"
+                writable="1"
+                transfer-ownership="none"
+                default-value="GST_VIDEO_ORIENTATION_IDENTITY">
+        <type name="GstVideo.VideoOrientationMethod"/>
+      </property>
+      <field name="parent">
+        <type name="Gst.Object" c:type="GstObject"/>
+      </field>
+      <field name="device">
+        <type name="D3D11Device" c:type="GstD3D11Device*"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11ConverterPrivate" c:type="GstD3D11ConverterPrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </class>
+    <enumeration name="D3D11ConverterAlphaMode"
+                 version="1.24"
+                 glib:type-name="GstD3D11ConverterAlphaMode"
+                 glib:get-type="gst_d3d11_converter_alpha_mode_get_type"
+                 c:type="GstD3D11ConverterAlphaMode">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="105">Alpha mode. Enum values are idnetical to DXGI_ALPHA_MODE</doc>
+      <member name="unspecified"
+              value="0"
+              c:identifier="GST_D3D11_CONVERTER_ALPHA_MODE_UNSPECIFIED"
+              glib:nick="unspecified"
+              glib:name="GST_D3D11_CONVERTER_ALPHA_MODE_UNSPECIFIED">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+             line="107">Unspecified alpha mode</doc>
+      </member>
+      <member name="premultiplied"
+              value="1"
+              c:identifier="GST_D3D11_CONVERTER_ALPHA_MODE_PREMULTIPLIED"
+              glib:nick="premultiplied"
+              glib:name="GST_D3D11_CONVERTER_ALPHA_MODE_PREMULTIPLIED">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+             line="108">Premultiplied alpha</doc>
+      </member>
+      <member name="straight"
+              value="2"
+              c:identifier="GST_D3D11_CONVERTER_ALPHA_MODE_STRAIGHT"
+              glib:nick="straight"
+              glib:name="GST_D3D11_CONVERTER_ALPHA_MODE_STRAIGHT">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+             line="109">Straight alpha</doc>
+      </member>
+    </enumeration>
+    <bitfield name="D3D11ConverterBackend"
+              version="1.22"
+              glib:type-name="GstD3D11ConverterBackend"
+              glib:get-type="gst_d3d11_converter_backend_get_type"
+              c:type="GstD3D11ConverterBackend">
+      <member name="shader"
+              value="1"
+              c:identifier="GST_D3D11_CONVERTER_BACKEND_SHADER"
+              glib:nick="shader"
+              glib:name="GST_D3D11_CONVERTER_BACKEND_SHADER">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+             line="39">Performs conversion using pixel shader</doc>
+      </member>
+      <member name="video_processor"
+              value="2"
+              c:identifier="GST_D3D11_CONVERTER_BACKEND_VIDEO_PROCESSOR"
+              glib:nick="video-processor"
+              glib:name="GST_D3D11_CONVERTER_BACKEND_VIDEO_PROCESSOR">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+             line="40">Performs conversion using video processor</doc>
+      </member>
+    </bitfield>
+    <record name="D3D11ConverterClass"
+            c:type="GstD3D11ConverterClass"
+            glib:is-gtype-struct-for="D3D11Converter"
+            version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="164">Opaque GstD3D11ConverterClass struct</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="177"/>
+      <field name="parent_class">
+        <type name="Gst.ObjectClass" c:type="GstObjectClass"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </record>
+    <record name="D3D11ConverterPrivate"
+            c:type="GstD3D11ConverterPrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="64"/>
+    </record>
+    <enumeration name="D3D11ConverterSamplerFilter"
+                 glib:type-name="GstD3D11ConverterSamplerFilter"
+                 glib:get-type="gst_d3d11_converter_sampler_filter_get_type"
+                 c:type="GstD3D11ConverterSamplerFilter">
+      <member name="min_mag_mip_point"
+              value="0"
+              c:identifier="D3D11_FILTER_MIN_MAG_MIP_POINT"
+              glib:nick="min-mag-mip-point"
+              glib:name="D3D11_FILTER_MIN_MAG_MIP_POINT">
+      </member>
+      <member name="min_linear_mag_mip_point"
+              value="16"
+              c:identifier="D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT"
+              glib:nick="min-linear-mag-mip-point"
+              glib:name="D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT">
+      </member>
+      <member name="min_mag_linear_mip_point"
+              value="20"
+              c:identifier="D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT"
+              glib:nick="min-mag-linear-mip-point"
+              glib:name="D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT">
+      </member>
+      <member name="anisotropic"
+              value="85"
+              c:identifier="D3D11_FILTER_ANISOTROPIC"
+              glib:nick="anisotropic"
+              glib:name="D3D11_FILTER_ANISOTROPIC">
+      </member>
+    </enumeration>
+    <class name="D3D11Device"
+           c:symbol-prefix="d3d11_device"
+           c:type="GstD3D11Device"
+           version="1.22"
+           parent="Gst.Object"
+           glib:type-name="GstD3D11Device"
+           glib:get-type="gst_d3d11_device_get_type"
+           glib:type-struct="D3D11DeviceClass">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+           line="45">#GstD3D11Device wraps ID3D11Device and ID3D11DeviceContext for GPU resources
+to be able to be shared among various elements. Caller can get native
+Direct3D11 handles via getter method.
+Basically Direct3D11 API doesn't require dedicated thread like that of
+OpenGL context, and ID3D11Device APIs are supposed to be thread-safe.
+But concurrent call for ID3D11DeviceContext and DXGI API are not allowed.
+To protect such object, callers need to make use of gst_d3d11_device_lock()
+and gst_d3d11_device_unlock()</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="80"/>
+      <constructor name="new"
+                   c:identifier="gst_d3d11_device_new"
+                   version="1.22">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="86"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1226">a new #GstD3D11Device for @adapter_index
+or %NULL when failed to create D3D11 device with given adapter index.</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </return-value>
+        <parameters>
+          <parameter name="adapter_index" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1223">the index of adapter for creating d3d11 device</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+          <parameter name="flags" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1224">a D3D11_CREATE_DEVICE_FLAG value used for creating d3d11 device</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <constructor name="new_for_adapter_luid"
+                   c:identifier="gst_d3d11_device_new_for_adapter_luid"
+                   version="1.22">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="90"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1248">a new #GstD3D11Device for @adapter_luid
+or %NULL when failed to create D3D11 device with given adapter luid.</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </return-value>
+        <parameters>
+          <parameter name="adapter_luid" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1245">an int64 representation of the DXGI adapter LUID</doc>
+            <type name="gint64" c:type="gint64"/>
+          </parameter>
+          <parameter name="flags" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1246">a D3D11_CREATE_DEVICE_FLAG value used for creating d3d11 device</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <constructor name="new_wrapped"
+                   c:identifier="gst_d3d11_device_new_wrapped"
+                   version="1.22"
+                   introspectable="0">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="94"/>
+        <return-value transfer-ownership="full" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1269">a new #GstD3D11Device for @device
+or %NULL if an error occurred</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </return-value>
+        <parameters>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1267">an existing ID3D11Device handle</doc>
+            <type c:type="ID3D11Device*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="create_fence"
+              c:identifier="gst_d3d11_device_create_fence"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1523">Creates fence object (i.e., ID3D11Fence) if available, otherwise
+ID3D11Query with D3D11_QUERY_EVENT is created.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="144"/>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1530">a #GstD3D11Fence object</doc>
+          <type name="D3D11Fence" c:type="GstD3D11Fence*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1525">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_device_context_handle"
+              c:identifier="gst_d3d11_device_get_device_context_handle"
+              version="1.22"
+              introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1307">Used for various D3D11 APIs directly. Caller must not destroy returned device
+object. Any ID3D11DeviceContext call needs to be protected by
+gst_d3d11_device_lock() and gst_d3d11_device_unlock() method.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="100"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1315">the immeidate ID3D11DeviceContext handle</doc>
+          <type c:type="ID3D11DeviceContext*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1309">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_device_handle"
+              c:identifier="gst_d3d11_device_get_device_handle"
+              version="1.22"
+              introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1288">Used for various D3D11 APIs directly. Caller must not destroy returned device
+object.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="97"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1295">the ID3D11Device handle</doc>
+          <type c:type="ID3D11Device*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1290">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_dxgi_factory_handle"
+              c:identifier="gst_d3d11_device_get_dxgi_factory_handle"
+              version="1.22"
+              introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1327">Used for various D3D11 APIs directly. Caller must not destroy returned device
+object.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="103"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1334">the IDXGIFactory1 handle</doc>
+          <type c:type="IDXGIFactory1*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1329">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_format"
+              c:identifier="gst_d3d11_device_get_format"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1458">Converts @format to #GstD3D11Format if the @format is supported
+by device</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="118"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1467">%TRUE if @format is supported by @device</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1460">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+          <parameter name="format" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1461">a #GstVideoFormat</doc>
+            <type name="GstVideo.VideoFormat" c:type="GstVideoFormat"/>
+          </parameter>
+          <parameter name="device_format"
+                     direction="out"
+                     caller-allocates="1"
+                     transfer-ownership="none"
+                     nullable="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1462">a #GstD3D11Format</doc>
+            <type name="D3D11Format" c:type="GstD3D11Format*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_video_context_handle"
+              c:identifier="gst_d3d11_device_get_video_context_handle"
+              version="1.22"
+              introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1379">Used for various D3D11 APIs directly. Caller must not destroy returned device
+object.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="109"/>
+        <return-value transfer-ownership="none" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1386">the ID3D11VideoContext handle or %NULL
+if ID3D11VideoContext is unavailable.</doc>
+          <type c:type="ID3D11VideoContext*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1381">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_video_device_handle"
+              c:identifier="gst_d3d11_device_get_video_device_handle"
+              version="1.22"
+              introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1346">Used for various D3D11 APIs directly. Caller must not destroy returned device
+object.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="106"/>
+        <return-value transfer-ownership="none" nullable="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1353">the ID3D11VideoDevice handle or %NULL
+if ID3D11VideoDevice is unavailable.</doc>
+          <type c:type="ID3D11VideoDevice*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1348">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="lock" c:identifier="gst_d3d11_device_lock" version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1412">Take lock for @device. Any thread-unsafe API call needs to be
+protected by this method. This call must be paired with
+gst_d3d11_device_unlock()</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="112"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1414">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="unlock"
+              c:identifier="gst_d3d11_device_unlock"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1436">Release lock for @device. This call must be paired with
+gst_d3d11_device_lock()</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="115"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1438">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <property name="adapter" transfer-ownership="none" default-value="0">
+        <type name="guint" c:type="guint"/>
+      </property>
+      <property name="adapter-luid"
+                transfer-ownership="none"
+                default-value="0">
+        <type name="gint64" c:type="gint64"/>
+      </property>
+      <property name="description"
+                transfer-ownership="none"
+                default-value="NULL">
+        <type name="utf8" c:type="gchar*"/>
+      </property>
+      <property name="device-id" transfer-ownership="none" default-value="0">
+        <type name="guint" c:type="guint"/>
+      </property>
+      <property name="device-removed-reason"
+                version="1.26"
+                transfer-ownership="none"
+                default-value="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="444">Device removed reason HRESULT code</doc>
+        <type name="gint" c:type="gint"/>
+      </property>
+      <property name="hardware" transfer-ownership="none" default-value="TRUE">
+        <type name="gboolean" c:type="gboolean"/>
+      </property>
+      <property name="vendor-id" transfer-ownership="none" default-value="0">
+        <type name="guint" c:type="guint"/>
+      </property>
+      <field name="parent">
+        <type name="Gst.Object" c:type="GstObject"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11DevicePrivate" c:type="GstD3D11DevicePrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </class>
+    <record name="D3D11DeviceClass"
+            c:type="GstD3D11DeviceClass"
+            glib:is-gtype-struct-for="D3D11Device"
+            version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11device.h"
+           line="67">Opaque GstD3D11DeviceClass struct</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="80"/>
+      <field name="parent_class">
+        <type name="Gst.ObjectClass" c:type="GstObjectClass"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </record>
+    <record name="D3D11DevicePrivate"
+            c:type="GstD3D11DevicePrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="38"/>
+    </record>
+    <record name="D3D11Fence"
+            c:type="GstD3D11Fence"
+            version="1.22"
+            glib:type-name="GstD3D11Fence"
+            glib:get-type="gst_d3d11_fence_get_type"
+            c:symbol-prefix="d3d11_fence">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11device.h"
+           line="122">An abstraction of the ID3D11Fence interface</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="138"/>
+      <field name="parent" writable="1">
+        <type name="Gst.MiniObject" c:type="GstMiniObject"/>
+      </field>
+      <field name="device" writable="1">
+        <type name="D3D11Device" c:type="GstD3D11Device*"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11FencePrivate" c:type="GstD3D11FencePrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+      <method name="signal"
+              c:identifier="gst_d3d11_fence_signal"
+              version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1570">Sets sync point to fence for waiting.
+Must be called with gst_d3d11_device_lock() held</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="147"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1577">%TRUE if successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="fence" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1572">a #GstD3D11Fence</doc>
+            <type name="D3D11Fence" c:type="GstD3D11Fence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="wait" c:identifier="gst_d3d11_fence_wait" version="1.22">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+             line="1634">Waits until previously issued GPU commands have been completed
+Must be called with gst_d3d11_device_lock() held</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                         line="150"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+               line="1641">%TRUE if successful</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="fence" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11device.cpp"
+                 line="1636">a #GstD3D11Fence</doc>
+            <type name="D3D11Fence" c:type="GstD3D11Fence*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+    </record>
+    <record name="D3D11FencePrivate"
+            c:type="GstD3D11FencePrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="67"/>
+    </record>
+    <record name="D3D11Format" c:type="GstD3D11Format" version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.h"
+           line="28">Represent video format information in Direct3D11 term.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="56"/>
+      <field name="format" writable="1">
+        <type name="GstVideo.VideoFormat" c:type="GstVideoFormat"/>
+      </field>
+      <field name="dxgi_format" introspectable="0" writable="1">
+        <type c:type="DXGI_FORMAT"/>
+      </field>
+      <field name="resource_format" introspectable="0" writable="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type c:type="DXGI_FORMAT"/>
+        </array>
+      </field>
+      <field name="uav_format" introspectable="0" writable="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type c:type="DXGI_FORMAT"/>
+        </array>
+      </field>
+      <field name="format_support" writable="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="guint" c:type="guint"/>
+        </array>
+      </field>
+      <field name="format_support2" writable="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="guint" c:type="guint"/>
+        </array>
+      </field>
+      <field name="padding" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="20">
+          <type name="guint" c:type="guint"/>
+        </array>
+      </field>
+    </record>
+    <record name="D3D11Memory" c:type="GstD3D11Memory" version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="172">Represents information about a Direct3D11 memory object</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="189"/>
+      <field name="mem" writable="1">
+        <type name="Gst.Memory" c:type="GstMemory"/>
+      </field>
+      <field name="device" writable="1">
+        <type name="D3D11Device" c:type="GstD3D11Device*"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11MemoryPrivate" c:type="GstD3D11MemoryPrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </record>
+    <enumeration name="D3D11MemoryNativeType"
+                 version="1.22"
+                 glib:type-name="GstD3D11MemoryNativeType"
+                 glib:get-type="gst_d3d11_memory_native_type_get_type"
+                 c:type="GstD3D11MemoryNativeType">
+      <member name="invalid"
+              value="0"
+              c:identifier="GST_D3D11_MEMORY_NATIVE_TYPE_INVALID"
+              glib:nick="invalid"
+              glib:name="GST_D3D11_MEMORY_NATIVE_TYPE_INVALID">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+             line="114">not a valid object type</doc>
+      </member>
+      <member name="buffer"
+              value="1"
+              c:identifier="GST_D3D11_MEMORY_NATIVE_TYPE_BUFFER"
+              glib:nick="buffer"
+              glib:name="GST_D3D11_MEMORY_NATIVE_TYPE_BUFFER">
+      </member>
+      <member name="texture_2d"
+              value="2"
+              c:identifier="GST_D3D11_MEMORY_NATIVE_TYPE_TEXTURE_2D"
+              glib:nick="texture-2d"
+              glib:name="GST_D3D11_MEMORY_NATIVE_TYPE_TEXTURE_2D">
+      </member>
+    </enumeration>
+    <record name="D3D11MemoryPrivate"
+            c:type="GstD3D11MemoryPrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="42"/>
+    </record>
+    <bitfield name="D3D11MemoryTransfer"
+              version="1.22"
+              glib:type-name="GstD3D11MemoryTransfer"
+              glib:get-type="gst_d3d11_memory_transfer_get_type"
+              c:type="GstD3D11MemoryTransfer">
+      <member name="need_download"
+              value="1048576"
+              c:identifier="GST_D3D11_MEMORY_TRANSFER_NEED_DOWNLOAD"
+              glib:nick="need-download"
+              glib:name="GST_D3D11_MEMORY_TRANSFER_NEED_DOWNLOAD">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+             line="95">the texture needs downloading
+                                          to the staging texture memory</doc>
+      </member>
+      <member name="need_upload"
+              value="2097152"
+              c:identifier="GST_D3D11_MEMORY_TRANSFER_NEED_UPLOAD"
+              glib:nick="need-upload"
+              glib:name="GST_D3D11_MEMORY_TRANSFER_NEED_UPLOAD">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+             line="97">the staging texture needs uploading
+                                          to the texture</doc>
+      </member>
+    </bitfield>
+    <class name="D3D11PoolAllocator"
+           c:symbol-prefix="d3d11_pool_allocator"
+           c:type="GstD3D11PoolAllocator"
+           version="1.22"
+           parent="D3D11Allocator"
+           glib:type-name="GstD3D11PoolAllocator"
+           glib:get-type="gst_d3d11_pool_allocator_get_type"
+           glib:type-struct="D3D11PoolAllocatorClass">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="319">Allocates #GstD3D11Memory objects and pooling allocated memory</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="351"/>
+      <constructor name="new"
+                   c:identifier="gst_d3d11_pool_allocator_new"
+                   version="1.22"
+                   introspectable="0">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="2322">Creates a new #GstD3D11PoolAllocator instance.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="357"/>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="2329">a new #GstD3D11PoolAllocator instance</doc>
+          <type name="D3D11PoolAllocator" c:type="GstD3D11PoolAllocator*"/>
+        </return-value>
+        <parameters>
+          <parameter name="device" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2324">a #GstD3D11Device</doc>
+            <type name="D3D11Device" c:type="GstD3D11Device*"/>
+          </parameter>
+          <parameter name="desc" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2325">a D3D11_TEXTURE2D_DESC for texture allocation</doc>
+            <type c:type="const D3D11_TEXTURE2D_DESC*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <method name="acquire_memory"
+              c:identifier="gst_d3d11_pool_allocator_acquire_memory">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="2354">Acquires a #GstMemory from @allocator. @memory should point to a memory
+location that can hold a pointer to the new #GstMemory.</doc>
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="361"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="2362">a #GstFlowReturn such as %GST_FLOW_FLUSHING when the allocator is
+inactive.</doc>
+          <type name="Gst.FlowReturn" c:type="GstFlowReturn"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2356">a #GstD3D11PoolAllocator</doc>
+            <type name="D3D11PoolAllocator" c:type="GstD3D11PoolAllocator*"/>
+          </instance-parameter>
+          <parameter name="memory"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2357">a #GstMemory</doc>
+            <type name="Gst.Memory" c:type="GstMemory**"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="get_pool_size"
+              c:identifier="gst_d3d11_pool_allocator_get_pool_size"
+              version="1.22">
+        <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                         line="365"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="2398">%TRUE if the size of memory pool is known</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="allocator" transfer-ownership="none">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2394">a #GstD3D11PoolAllocator</doc>
+            <type name="D3D11PoolAllocator" c:type="GstD3D11PoolAllocator*"/>
+          </instance-parameter>
+          <parameter name="max_size"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full"
+                     optional="1"
+                     allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2395">the max size of pool</doc>
+            <type name="guint" c:type="guint*"/>
+          </parameter>
+          <parameter name="outstanding_size"
+                     direction="out"
+                     caller-allocates="0"
+                     transfer-ownership="full"
+                     optional="1"
+                     allow-none="1">
+            <doc xml:space="preserve"
+                 filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+                 line="2396">the number of outstanding memory</doc>
+            <type name="guint" c:type="guint*"/>
+          </parameter>
+        </parameters>
+      </method>
+      <field name="parent">
+        <type name="D3D11Allocator" c:type="GstD3D11Allocator"/>
+      </field>
+      <field name="device">
+        <type name="D3D11Device" c:type="GstD3D11Device*"/>
+      </field>
+      <field name="priv" readable="0" private="1">
+        <type name="D3D11PoolAllocatorPrivate"
+              c:type="GstD3D11PoolAllocatorPrivate*"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </class>
+    <record name="D3D11PoolAllocatorClass"
+            c:type="GstD3D11PoolAllocatorClass"
+            glib:is-gtype-struct-for="D3D11PoolAllocator"
+            version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="338">Opaque GstD3D11PoolAllocatorClass struct</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="351"/>
+      <field name="parent_class">
+        <type name="D3D11AllocatorClass" c:type="GstD3D11AllocatorClass"/>
+      </field>
+      <field name="_gst_reserved" readable="0" private="1">
+        <array zero-terminated="0" fixed-size="4">
+          <type name="gpointer" c:type="gpointer"/>
+        </array>
+      </field>
+    </record>
+    <record name="D3D11PoolAllocatorPrivate"
+            c:type="GstD3D11PoolAllocatorPrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="50"/>
+    </record>
+    <record name="D3D11StagingBufferPool"
+            c:type="GstD3D11StagingBufferPool"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="56"/>
+    </record>
+    <record name="D3D11StagingBufferPoolClass"
+            c:type="GstD3D11StagingBufferPoolClass"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="57"/>
+    </record>
+    <record name="D3D11StagingBufferPoolPrivate"
+            c:type="GstD3D11StagingBufferPoolPrivate"
+            disguised="1"
+            opaque="1">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11_fwd.h" line="58"/>
+    </record>
+    <function-macro name="D3D11_ALLOCATOR"
+                    c:identifier="GST_D3D11_ALLOCATOR"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="36"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_ALLOCATOR_CAST"
+                    c:identifier="GST_D3D11_ALLOCATOR_CAST"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="41"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_ALLOCATOR_CLASS"
+                    c:identifier="GST_D3D11_ALLOCATOR_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="37"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_ALLOCATOR_GET_CLASS"
+                    c:identifier="GST_D3D11_ALLOCATOR_GET_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="40"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_BUFFER_POOL"
+                    c:identifier="GST_D3D11_BUFFER_POOL"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="31"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_BUFFER_POOL_CLASS"
+                    c:identifier="GST_D3D11_BUFFER_POOL_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="32"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_BUFFER_POOL_GET_CLASS"
+                    c:identifier="GST_D3D11_BUFFER_POOL_GET_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="35"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_CONVERTER"
+                    c:identifier="GST_D3D11_CONVERTER"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="30"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_CONVERTER_CAST"
+                    c:identifier="GST_D3D11_CONVERTER_CAST"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="35"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_CONVERTER_CLASS"
+                    c:identifier="GST_D3D11_CONVERTER_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="31"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_CONVERTER_GET_CLASS"
+                    c:identifier="GST_D3D11_CONVERTER_GET_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="32"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <constant name="D3D11_CONVERTER_OPT_BACKEND"
+              value="GstD3D11Converter.backend"
+              c:type="GST_D3D11_CONVERTER_OPT_BACKEND"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="54">#GstD3D11ConverterBackend, the conversion backend
+(e.g., pixel shader and/or video processor) to use</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="62"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="D3D11_CONVERTER_OPT_DEST_ALPHA_MODE"
+              value="GstD3D11Converter.dest-alpha-mode"
+              c:type="GST_D3D11_CONVERTER_OPT_DEST_ALPHA_MODE"
+              version="1.24">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="136">Set the source alpha mode.
+Default is #GST_D3D11_CONVERTER_ALPHA_MODE_UNSPECIFIED.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="144"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="D3D11_CONVERTER_OPT_GAMMA_MODE"
+              value="GstD3D11Converter.gamma-mode"
+              c:type="GST_D3D11_CONVERTER_OPT_GAMMA_MODE"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="64">#GstVideoGammaMode, set the gamma mode.
+Default is #GST_VIDEO_GAMMA_MODE_NONE</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="72"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="D3D11_CONVERTER_OPT_PRIMARIES_MODE"
+              value="GstD3D11Converter.primaries-mode"
+              c:type="GST_D3D11_CONVERTER_OPT_PRIMARIES_MODE"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="74">#GstVideoPrimariesMode, set the primaries conversion mode.
+Default is #GST_VIDEO_PRIMARIES_MODE_NONE.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="82"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="D3D11_CONVERTER_OPT_SAMPLER_FILTER"
+              value="GstD3D11Converter.sampler-filter"
+              c:type="GST_D3D11_CONVERTER_OPT_SAMPLER_FILTER"
+              version="1.24">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="84">#D3D11_FILTER, set sampler filter.
+
+Supported values are:
+@D3D11_FILTER_MIN_MAG_MIP_POINT
+@D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT
+@D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT
+@D3D11_FILTER_ANISOTROPIC
+
+Default is #D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="99"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="D3D11_CONVERTER_OPT_SRC_ALPHA_MODE"
+              value="GstD3D11Converter.src-alpha-mode"
+              c:type="GST_D3D11_CONVERTER_OPT_SRC_ALPHA_MODE"
+              version="1.24">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+           line="126">Set the source alpha mode.
+Default is #GST_D3D11_CONVERTER_ALPHA_MODE_UNSPECIFIED.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="134"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <function-macro name="D3D11_DEVICE"
+                    c:identifier="GST_D3D11_DEVICE"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="30"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_DEVICE_CAST"
+                    c:identifier="GST_D3D11_DEVICE_CAST"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="35"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_DEVICE_CLASS"
+                    c:identifier="GST_D3D11_DEVICE_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="31"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_DEVICE_GET_CLASS"
+                    c:identifier="GST_D3D11_DEVICE_GET_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="32"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <constant name="D3D11_DEVICE_HANDLE_CONTEXT_TYPE"
+              value="gst.d3d11.device.handle"
+              c:type="GST_D3D11_DEVICE_HANDLE_CONTEXT_TYPE"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11device.h"
+           line="42">The name used in #GstContext queries for requesting a #GstD3D11Device</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="49"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <function-macro name="D3D11_FENCE"
+                    c:identifier="GST_D3D11_FENCE"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="39"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_FENCE_CAST"
+                    c:identifier="GST_D3D11_FENCE_CAST"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="40"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_MEMORY_CAST"
+                    c:identifier="GST_D3D11_MEMORY_CAST"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="33"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <constant name="D3D11_MEMORY_NAME"
+              value="D3D11Memory"
+              c:type="GST_D3D11_MEMORY_NAME"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="51">The name of the Direct3D11 memory</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="58"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <function-macro name="D3D11_POOL_ALLOCATOR"
+                    c:identifier="GST_D3D11_POOL_ALLOCATOR"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="44"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_POOL_ALLOCATOR_CAST"
+                    c:identifier="GST_D3D11_POOL_ALLOCATOR_CAST"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="49"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_POOL_ALLOCATOR_CLASS"
+                    c:identifier="GST_D3D11_POOL_ALLOCATOR_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="45"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="D3D11_POOL_ALLOCATOR_GET_CLASS"
+                    c:identifier="GST_D3D11_POOL_ALLOCATOR_GET_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="48"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_ALLOCATOR"
+                    c:identifier="GST_IS_D3D11_ALLOCATOR"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="38"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_ALLOCATOR_CLASS"
+                    c:identifier="GST_IS_D3D11_ALLOCATOR_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="39"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_BUFFER_POOL"
+                    c:identifier="GST_IS_D3D11_BUFFER_POOL"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="33"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_BUFFER_POOL_CLASS"
+                    c:identifier="GST_IS_D3D11_BUFFER_POOL_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="34"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_CONVERTER"
+                    c:identifier="GST_IS_D3D11_CONVERTER"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="33"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_CONVERTER_CLASS"
+                    c:identifier="GST_IS_D3D11_CONVERTER_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11converter.h"
+                       line="34"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_DEVICE"
+                    c:identifier="GST_IS_D3D11_DEVICE"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="33"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_DEVICE_CLASS"
+                    c:identifier="GST_IS_D3D11_DEVICE_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="34"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_FENCE"
+                    c:identifier="GST_IS_D3D11_FENCE"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11device.h"
+                       line="38"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_POOL_ALLOCATOR"
+                    c:identifier="GST_IS_D3D11_POOL_ALLOCATOR"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="46"/>
+      <parameters>
+        <parameter name="obj">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="IS_D3D11_POOL_ALLOCATOR_CLASS"
+                    c:identifier="GST_IS_D3D11_POOL_ALLOCATOR_CLASS"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="47"/>
+      <parameters>
+        <parameter name="klass">
+        </parameter>
+      </parameters>
+    </function-macro>
+    <constant name="MAP_D3D11"
+              value="131072"
+              c:type="GST_MAP_D3D11"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+           line="69">Flag indicating that we should map the D3D11 resource instead of to system memory.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="76"/>
+      <type name="gint" c:type="gint"/>
+    </constant>
+    <function name="buffer_pool_config_get_d3d11_allocation_params"
+              c:identifier="gst_buffer_pool_config_get_d3d11_allocation_params"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="77"/>
+      <return-value transfer-ownership="full" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+             line="434">the currently configured
+#GstD3D11AllocationParams on @config or %NULL if @config doesn't contain
+#GstD3D11AllocationParams</doc>
+        <type name="D3D11AllocationParams" c:type="GstD3D11AllocationParams*"/>
+      </return-value>
+      <parameters>
+        <parameter name="config" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+               line="432">a buffer pool config</doc>
+          <type name="Gst.Structure" c:type="GstStructure*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="buffer_pool_config_set_d3d11_allocation_params"
+              c:identifier="gst_buffer_pool_config_set_d3d11_allocation_params"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+           line="452">Sets @params on @config</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11bufferpool.h"
+                       line="80"/>
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="config" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+               line="454">a buffer pool config</doc>
+          <type name="Gst.Structure" c:type="GstStructure*"/>
+        </parameter>
+        <parameter name="params" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11bufferpool.cpp"
+               line="455">a #GstD3D11AllocationParams</doc>
+          <type name="D3D11AllocationParams"
+                c:type="GstD3D11AllocationParams*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_compile"
+              c:identifier="gst_d3d11_compile"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+           line="78">Compiles HLSL code or an effect file into bytecode for a given target</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11compile.h"
+                       line="32"/>
+      <return-value>
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+             line="94">HRESULT return code</doc>
+        <type c:type="HRESULT"/>
+      </return-value>
+      <parameters>
+        <parameter name="src_data" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="80">source data to compile</doc>
+          <type c:type="LPCVOID"/>
+        </parameter>
+        <parameter name="src_data_size" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="81">length of src_data</doc>
+          <type c:type="SIZE_T"/>
+        </parameter>
+        <parameter name="source_name"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="82">used for strings that specify error messages</doc>
+          <type c:type="LPCSTR"/>
+        </parameter>
+        <parameter name="defines"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="83">null-terminated array of D3D_SHADER_MACRO struct that defines shader macros</doc>
+          <type c:type="const D3D_SHADER_MACRO*"/>
+        </parameter>
+        <parameter name="include"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="84">a ID3DInclude</doc>
+          <type c:type="ID3DInclude*"/>
+        </parameter>
+        <parameter name="entry_point"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="85">the name of entry point function</doc>
+          <type c:type="LPCSTR"/>
+        </parameter>
+        <parameter name="target" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="86">a string specifies the shader target</doc>
+          <type c:type="LPCSTR"/>
+        </parameter>
+        <parameter name="flags1" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="87">flags defined by D3DCOMPILE constants</doc>
+          <type c:type="UINT"/>
+        </parameter>
+        <parameter name="flags2" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="88">flags defined by D3DCOMPILE_EFFECT constants</doc>
+          <type c:type="UINT"/>
+        </parameter>
+        <parameter name="code"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full"
+                   optional="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="89">a compiled code</doc>
+          <type c:type="ID3DBlob**"/>
+        </parameter>
+        <parameter name="error_msgs"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full"
+                   nullable="1"
+                   optional="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="90">compiler error messages</doc>
+          <type c:type="ID3DBlob**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_compile_init"
+              c:identifier="gst_d3d11_compile_init"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+           line="63">Loads HLSL compiler library</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11compile.h"
+                       line="29"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+             line="68">%TRUE if HLSL compiler library is available</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="d3d11_context_new"
+              c:identifier="gst_d3d11_context_new"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="508">Creates a new #GstContext object with @device</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="55"/>
+      <return-value transfer-ownership="full">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="514">a #GstContext object</doc>
+        <type name="Gst.Context" c:type="GstContext*"/>
+      </return-value>
+      <parameters>
+        <parameter name="device" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="510">a #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_create_pixel_shader_simple"
+              c:identifier="gst_d3d11_create_pixel_shader_simple"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+           line="111">Compiles pixel shader code and creates ID3D11PixelShader</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11compile.h"
+                       line="45"/>
+      <return-value>
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+             line="120">HRESULT return code</doc>
+        <type c:type="HRESULT"/>
+      </return-value>
+      <parameters>
+        <parameter name="device" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="113">a #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </parameter>
+        <parameter name="source" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="114">a pixel shader code to compile</doc>
+          <type name="utf8" c:type="const gchar*"/>
+        </parameter>
+        <parameter name="entry_point" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="115">the name of entry point function</doc>
+          <type name="utf8" c:type="const gchar*"/>
+        </parameter>
+        <parameter name="shader"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="116">a ID3D11PixelShader</doc>
+          <type c:type="ID3D11PixelShader**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_create_user_token"
+              c:identifier="gst_d3d11_create_user_token"
+              version="1.24">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="602">Creates new user token value</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="61"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="607">user token value</doc>
+        <type name="gint64" c:type="gint64"/>
+      </return-value>
+    </function>
+    <function name="d3d11_create_vertex_shader_simple"
+              c:identifier="gst_d3d11_create_vertex_shader_simple"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+           line="182">Compiles vertex shader code and creates ID3D11VertexShader and
+ID3D11InputLayout</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11compile.h"
+                       line="51"/>
+      <return-value>
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+             line="195">HRESULT return code</doc>
+        <type c:type="HRESULT"/>
+      </return-value>
+      <parameters>
+        <parameter name="device" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="184">a #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </parameter>
+        <parameter name="source" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="185">a vertex shader code to compile</doc>
+          <type name="utf8" c:type="const gchar*"/>
+        </parameter>
+        <parameter name="entry_point" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="186">the name of entry point function</doc>
+          <type name="utf8" c:type="const gchar*"/>
+        </parameter>
+        <parameter name="input_desc" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="187">an array of D3D11_INPUT_ELEMENT_DESC</doc>
+          <type c:type="const D3D11_INPUT_ELEMENT_DESC*"/>
+        </parameter>
+        <parameter name="desc_len" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="188">length of input_desc</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+        <parameter name="shader"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="189">a ID3D11VertexShader</doc>
+          <type c:type="ID3D11VertexShader**"/>
+        </parameter>
+        <parameter name="layout"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+               line="190">a ID3D11InputLayout</doc>
+          <type c:type="ID3D11InputLayout**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_dxgi_format_get_resource_format"
+              c:identifier="gst_d3d11_dxgi_format_get_resource_format"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="74"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+             line="250">the number of planes for @format</doc>
+        <type name="guint" c:type="guint"/>
+      </return-value>
+      <parameters>
+        <parameter name="format" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="247">a DXGI_FORMAT</doc>
+          <type c:type="DXGI_FORMAT"/>
+        </parameter>
+        <parameter name="resource_format"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="248">Resource formats for each plane</doc>
+          <type c:type="DXGI_FORMAT*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_dxgi_format_get_size"
+              c:identifier="gst_d3d11_dxgi_format_get_size"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+           line="117">Calculate required memory size and per plane stride with
+based on information</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="59"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+             line="130">%TRUE if @size can be calculated with given information</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="format" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="119">a DXGI_FORMAT</doc>
+          <type c:type="DXGI_FORMAT"/>
+        </parameter>
+        <parameter name="width" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="120">a texture width</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+        <parameter name="height" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="121">a texture height</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+        <parameter name="pitch" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="122">a pitch of texture</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+        <parameter name="offset" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="123">offset for each plane</doc>
+          <type name="gsize" c:type="gsize*"/>
+        </parameter>
+        <parameter name="stride" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="124">stride for each plane</doc>
+          <type name="gint" c:type="gint*"/>
+        </parameter>
+        <parameter name="size"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="125">required memory size for given format</doc>
+          <type name="gsize" c:type="gsize*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_dxgi_format_to_gst"
+              c:identifier="gst_d3d11_dxgi_format_to_gst"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+           line="184">Converts the @format to its #GstVideoFormat representation.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="68"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+             line="190">a #GstVideoFormat equivalent to @format</doc>
+        <type name="GstVideo.VideoFormat" c:type="GstVideoFormat"/>
+      </return-value>
+      <parameters>
+        <parameter name="format" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="186">a DXGI_FORMAT</doc>
+          <type c:type="DXGI_FORMAT"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_dxgi_format_to_string"
+              c:identifier="gst_d3d11_dxgi_format_to_string"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+           line="285">Converts @format enum value to its string representation</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="78"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+             line="291">a string representation of @format</doc>
+        <type name="utf8" c:type="const gchar*"/>
+      </return-value>
+      <parameters>
+        <parameter name="format" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="287">a DXGI_FORMAT</doc>
+          <type c:type="DXGI_FORMAT"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_ensure_element_data"
+              c:identifier="gst_d3d11_ensure_element_data"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="368">Perform the steps necessary for retrieving a #GstD3D11Device
+from the surrounding elements or from the application using the #GstContext mechanism.
+
+If the contents of @device is not %NULL, then no #GstContext query is
+necessary for #GstD3D11Device retrieval is performed.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="45"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="381">whether a #GstD3D11Device exists in @device</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="element" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="370">the #GstElement running the query</doc>
+          <type name="Gst.Element" c:type="GstElement*"/>
+        </parameter>
+        <parameter name="adapter_index" transfer-ownership="none">
+          <type name="gint" c:type="gint"/>
+        </parameter>
+        <parameter name="device"
+                   direction="inout"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="373">the resulting #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_ensure_element_data_for_adapter_luid"
+              c:identifier="gst_d3d11_ensure_element_data_for_adapter_luid"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="440">Perform the steps necessary for retrieving a #GstD3D11Device
+from the surrounding elements or from the application using the #GstContext mechanism.
+
+If the contents of @device is not %NULL, then no #GstContext query is
+necessary for #GstD3D11Device retrieval is performed.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="50"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="452">whether a #GstD3D11Device exists in @device</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="element" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="442">the #GstElement running the query</doc>
+          <type name="Gst.Element" c:type="GstElement*"/>
+        </parameter>
+        <parameter name="adapter_luid" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="443">an int64 representation of DXGI adapter LUID</doc>
+          <type name="gint64" c:type="gint64"/>
+        </parameter>
+        <parameter name="device"
+                   direction="inout"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="444">the resulting #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_format_init"
+              c:identifier="gst_d3d11_format_init"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+           line="229">Initialize @format with default values.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="71"/>
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="format"
+                   direction="out"
+                   caller-allocates="1"
+                   transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="231">a #GstD3D11Format</doc>
+          <type name="D3D11Format" c:type="GstD3D11Format*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_handle_context_query"
+              c:identifier="gst_d3d11_handle_context_query"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="40"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="234">Whether the @query was successfully responded to from the passed
+         @device.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="element" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="230">a #GstElement</doc>
+          <type name="Gst.Element" c:type="GstElement*"/>
+        </parameter>
+        <parameter name="query" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="231">a #GstQuery of type %GST_QUERY_CONTEXT</doc>
+          <type name="Gst.Query" c:type="GstQuery*"/>
+        </parameter>
+        <parameter name="device"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="232">a #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_handle_set_context"
+              c:identifier="gst_d3d11_handle_set_context"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="72">Helper function for implementing #GstElementClass.set_context() in
+D3D11 capable elements.
+
+Retrieve's the #GstD3D11Device in @context and places the result in @device.
+@device is accepted if @adapter_index is equal to -1 (accept any device)
+or equal to that of @device</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="28"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="86">whether the @device could be set successfully</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="element" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="74">a #GstElement</doc>
+          <type name="Gst.Element" c:type="GstElement*"/>
+        </parameter>
+        <parameter name="context" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="75">a #GstContext</doc>
+          <type name="Gst.Context" c:type="GstContext*"/>
+        </parameter>
+        <parameter name="adapter_index" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="76">a DXGI adapter index</doc>
+          <type name="gint" c:type="gint"/>
+        </parameter>
+        <parameter name="device"
+                   direction="inout"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="77">location of a #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_handle_set_context_for_adapter_luid"
+              c:identifier="gst_d3d11_handle_set_context_for_adapter_luid"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="134">Helper function for implementing #GstElementClass.set_context() in
+D3D11 capable elements.
+
+Retrieve's the #GstD3D11Device in @context and places the result in @device.
+@device is accepted only when @adapter_index is equal to that of @device</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="34"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+             line="147">whether the @device could be set successfully</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="element" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="136">a #GstElement</doc>
+          <type name="Gst.Element" c:type="GstElement*"/>
+        </parameter>
+        <parameter name="context" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="137">a #GstContext</doc>
+          <type name="Gst.Context" c:type="GstContext*"/>
+        </parameter>
+        <parameter name="adapter_luid" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="138">an int64 representation of DXGI adapter LUID</doc>
+          <type name="gint64" c:type="gint64"/>
+        </parameter>
+        <parameter name="device"
+                   direction="inout"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="139">location of a #GstD3D11Device</doc>
+          <type name="D3D11Device" c:type="GstD3D11Device**"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_luid_to_int64"
+              c:identifier="gst_d3d11_luid_to_int64"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+           line="531">Converts @luid to a 64-bit signed integer.
+See also Int64FromLuid method defined in
+windows.devices.display.core.interop.h Windows SDK header</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="58"/>
+      <return-value transfer-ownership="none">
+        <type name="gint64" c:type="gint64"/>
+      </return-value>
+      <parameters>
+        <parameter name="luid" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.cpp"
+               line="533">A pointer to LUID struct</doc>
+          <type c:type="const LUID*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_buffer_desc"
+              c:identifier="gst_d3d11_memory_get_buffer_desc"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+           line="819">Fill @desc with D3D11_BUFFER_DESC for ID3D11Buffer</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="208"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="826">%TRUE if successeed</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="821">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="desc"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="822">a D3D11_BUFFER_DESC</doc>
+          <type c:type="D3D11_BUFFER_DESC*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_decoder_output_view"
+              c:identifier="gst_d3d11_memory_get_decoder_output_view"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="233"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1185">a pointer to the
+ID3D11VideoDecoderOutputView or %NULL if ID3D11VideoDecoderOutputView is
+unavailable</doc>
+        <type c:type="ID3D11VideoDecoderOutputView*"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1180">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="video_device" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1181">a ID3D11VideoDevice handle</doc>
+          <type c:type="ID3D11VideoDevice*"/>
+        </parameter>
+        <parameter name="decoder" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1182">a ID3D11VideoDecoder handle</doc>
+          <type c:type="ID3D11VideoDecoder*"/>
+        </parameter>
+        <parameter name="decoder_profile" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1183">a DXVA decoder profile GUID</doc>
+          <type c:type="const GUID*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_native_type"
+              c:identifier="gst_d3d11_memory_get_native_type"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="198"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="709">a #GstD3D11MemoryNativeType</doc>
+        <type name="D3D11MemoryNativeType" c:type="GstD3D11MemoryNativeType"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="707">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_nt_handle"
+              c:identifier="gst_d3d11_memory_get_nt_handle"
+              version="1.24"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+           line="1430">Creates unnamed sharable NT handle via IDXGIResource1::CreateSharedHandle
+or returns already created handle. The returned @handle is owned by
+@mem and therefore caller shouldn't close the handle.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="259"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1439">%TRUE if successful</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1432">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="handle"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1433">a sharable NT handle</doc>
+          <type c:type="HANDLE*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_processor_input_view"
+              c:identifier="gst_d3d11_memory_get_processor_input_view"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="239"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1271">a pointer to the
+ID3D11VideoProcessorInputView or %NULL if ID3D11VideoProcessorInputView is
+unavailable</doc>
+        <type c:type="ID3D11VideoProcessorInputView*"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1267">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="video_device" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1268">a #ID3D11VideoDevice</doc>
+          <type c:type="ID3D11VideoDevice*"/>
+        </parameter>
+        <parameter name="enumerator" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1269">a #ID3D11VideoProcessorEnumerator</doc>
+          <type c:type="ID3D11VideoProcessorEnumerator*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_processor_output_view"
+              c:identifier="gst_d3d11_memory_get_processor_output_view"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="244"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1347">a pointer to the
+ID3D11VideoProcessorOutputView or %NULL if ID3D11VideoProcessorOutputView is
+unavailable</doc>
+        <type c:type="ID3D11VideoProcessorOutputView*"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1343">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="video_device" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1344">a #ID3D11VideoDevice</doc>
+          <type c:type="ID3D11VideoDevice*"/>
+        </parameter>
+        <parameter name="enumerator" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1345">a #ID3D11VideoProcessorEnumerator</doc>
+          <type c:type="ID3D11VideoProcessorEnumerator*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_render_target_view"
+              c:identifier="gst_d3d11_memory_get_render_target_view"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="229"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1095">a pointer to the
+ID3D11RenderTargetView or %NULL if ID3D11RenderTargetView is unavailable
+for @index</doc>
+        <type c:type="ID3D11RenderTargetView*"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1092">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="index" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1093">the index of the ID3D11RenderTargetView</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_render_target_view_size"
+              c:identifier="gst_d3d11_memory_get_render_target_view_size"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="226"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1074">the number of ID3D11RenderTargetView that can be used
+for processing GPU operation with @mem</doc>
+        <type name="guint" c:type="guint"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1072">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_resource_handle"
+              c:identifier="gst_d3d11_memory_get_resource_handle"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="201"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="752">a ID3D11Resource handle. Caller must not release
+returned handle.</doc>
+        <type c:type="ID3D11Resource*"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="750">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_resource_stride"
+              c:identifier="gst_d3d11_memory_get_resource_stride"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="212"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="850">%TRUE if successeed</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="847">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="stride"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="848">stride of resource</doc>
+          <type name="guint" c:type="guint*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_shader_resource_view"
+              c:identifier="gst_d3d11_memory_get_shader_resource_view"
+              version="1.22"
+              introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="222"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="965">a pointer to the
+ID3D11ShaderResourceView or %NULL if ID3D11ShaderResourceView is unavailable
+for @index</doc>
+        <type c:type="ID3D11ShaderResourceView*"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="962">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="index" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="963">the index of the ID3D11ShaderResourceView</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_shader_resource_view_size"
+              c:identifier="gst_d3d11_memory_get_shader_resource_view_size"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="219"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="944">the number of ID3D11ShaderResourceView that can be used
+for processing GPU operation with @mem</doc>
+        <type name="guint" c:type="guint"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="942">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_subresource_index"
+              c:identifier="gst_d3d11_memory_get_subresource_index"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="216"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="778">subresource index corresponding to @mem.</doc>
+        <type name="guint" c:type="guint"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="776">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_texture_desc"
+              c:identifier="gst_d3d11_memory_get_texture_desc"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+           line="793">Fill @desc with D3D11_TEXTURE2D_DESC for ID3D11Texture2D</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="204"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="800">%TRUE if successeed</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="795">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="desc"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="796">a D3D11_TEXTURE2D_DESC</doc>
+          <type c:type="D3D11_TEXTURE2D_DESC*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_get_token_data"
+              c:identifier="gst_d3d11_memory_get_token_data"
+              version="1.24">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+           line="1402">Gets back user data pointer stored via gst_d3d11_memory_set_token_data()</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="255"/>
+      <return-value transfer-ownership="none" nullable="1">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="1409">user data pointer or %NULL</doc>
+        <type name="gpointer" c:type="gpointer"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1404">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="token" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1405">an user token</doc>
+          <type name="gint64" c:type="gint64"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="d3d11_memory_init_once"
+              c:identifier="gst_d3d11_memory_init_once"
+              version="1.22">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+           line="722">Initializes the Direct3D11 Texture allocator. It is safe to call
+this function multiple times. This must be called before any other
+GstD3D11Memory operation.</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="192"/>
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+    </function>
+    <function name="d3d11_memory_set_token_data"
+              c:identifier="gst_d3d11_memory_set_token_data"
+              version="1.24">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+           line="1369">Sets an opaque user data on a #GstD3D11Memory</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="249"/>
+      <return-value transfer-ownership="none">
+        <type name="none" c:type="void"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1371">a #GstD3D11Memory</doc>
+          <type name="D3D11Memory" c:type="GstD3D11Memory*"/>
+        </parameter>
+        <parameter name="token" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1372">an user token</doc>
+          <type name="gint64" c:type="gint64"/>
+        </parameter>
+        <parameter name="data"
+                   transfer-ownership="none"
+                   nullable="1"
+                   allow-none="1">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1373">an user data</doc>
+          <type name="gpointer" c:type="gpointer"/>
+        </parameter>
+        <parameter name="notify" transfer-ownership="none" scope="async">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="1374">function to invoke with @data as argument, when @data needs to be
+         freed</doc>
+          <type name="GLib.DestroyNotify" c:type="GDestroyNotify"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function-macro name="d3d11_result"
+                    c:identifier="gst_d3d11_result"
+                    version="1.22"
+                    introspectable="0">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+                       line="80"/>
+      <parameters>
+        <parameter name="result">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+               line="72">HRESULT D3D11 API return code</doc>
+        </parameter>
+        <parameter name="device">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11utils.h"
+               line="73">Associated #GstD3D11Device</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <docsection name="gstd3d11compile">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11compile.cpp"
+           line="32">A set of HLSL compile helper methods</doc>
+    </docsection>
+    <function name="is_d3d11_memory"
+              c:identifier="gst_is_d3d11_memory"
+              version="1.22">
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11memory.h"
+                       line="195"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+             line="693">whether @mem is a #GstD3D11Memory</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="mem" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11memory.cpp"
+               line="691">a #GstMemory</doc>
+          <type name="Gst.Memory" c:type="GstMemory*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="video_info_apply_dxgi_color_space"
+              c:identifier="gst_video_info_apply_dxgi_color_space"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+           line="729">Updates color information of @info using @color_space</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="85"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+             line="736">%TRUE if successful</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="color_space" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="731">DXGI color space</doc>
+          <type c:type="DXGI_COLOR_SPACE_TYPE"/>
+        </parameter>
+        <parameter name="info"
+                   direction="inout"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="732">a #GstVideoInfo</doc>
+          <type name="GstVideo.VideoInfo" c:type="GstVideoInfo*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="video_info_to_dxgi_color_space"
+              c:identifier="gst_video_info_to_dxgi_color_space"
+              version="1.22"
+              introspectable="0">
+      <doc xml:space="preserve"
+           filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+           line="598">Derives DXGI_COLOR_SPACE_TYPE from @info</doc>
+      <source-position filename="gst-libs\gst\d3d11\gstd3d11format.h"
+                       line="81"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve"
+             filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+             line="605">%TRUE if successful</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="info" transfer-ownership="none">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="600">a #GstVideoInfo</doc>
+          <type name="GstVideo.VideoInfo" c:type="const GstVideoInfo*"/>
+        </parameter>
+        <parameter name="color_space"
+                   direction="out"
+                   caller-allocates="0"
+                   transfer-ownership="full">
+          <doc xml:space="preserve"
+               filename="gst-libs\gst\d3d11\gstd3d11format.cpp"
+               line="601">DXGI color space</doc>
+          <type c:type="DXGI_COLOR_SPACE_TYPE*"/>
+        </parameter>
+      </parameters>
+    </function>
+  </namespace>
+</repository>
