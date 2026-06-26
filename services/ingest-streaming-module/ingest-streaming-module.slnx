@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ingest-streaming-module.vcxproj" Id="72ff2d92-3800-44b5-9069-e1e80ff38fab" />
+</Solution>

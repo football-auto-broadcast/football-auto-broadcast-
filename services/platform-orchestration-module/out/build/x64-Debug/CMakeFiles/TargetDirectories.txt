@@ -1,3 +1,0 @@
-D:/football/football-auto-broadcast-/services/platform-orchestration-module/out/build/x64-Debug/CMakeFiles/platform_orchestration_service.dir
-D:/football/football-auto-broadcast-/services/platform-orchestration-module/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-D:/football/football-auto-broadcast-/services/platform-orchestration-module/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
