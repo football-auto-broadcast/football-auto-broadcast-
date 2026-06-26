@@ -1,0 +1,24 @@
+{
+  "data_root": "D:\\football\\data",
+  "log_level": "info",
+  "cameras": [
+    {
+      "serial": "D91363830",
+      "camera_id": "cam_01",
+      "role": "main",
+      "width": 2592,
+      "height": 1944,
+      "fps": 25.0,
+      "rtsp_url": "rtsp://127.0.0.1:8554/main"
+    },
+    {
+      "serial": "F92514845",
+      "camera_id": "cam_02",
+      "role": "aux",
+      "width": 2592,
+      "height": 1944,
+      "fps": 25.0,
+      "rtsp_url": "rtsp://127.0.0.1:8555/aux"
+    }
+  ]
+}

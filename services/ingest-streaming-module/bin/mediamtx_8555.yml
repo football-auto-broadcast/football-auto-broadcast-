@@ -1,0 +1,12 @@
+rtspAddress: :8555
+rtsp: yes
+rtpAddress: :8010
+rtcpAddress: :8011
+hls: yes
+hlsAddress: :8889
+rtmp: no
+webrtc: no
+srt: no
+paths:
+  aux:
+    source: publisher

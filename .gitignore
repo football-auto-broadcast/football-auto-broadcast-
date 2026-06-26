@@ -69,3 +69,57 @@ services/vision-event-module/training/weights/
 services/vision-event-module/training/detect_test/*.mp4
 .vs/
 *.ipch
+build/
+# ========================
+# 构建中间产物（必须排除）
+# ========================
+x64/
+Debug/
+Release/
+build/
+.vs/
+
+# MSVC 中间文件
+*.obj
+*.idb
+*.pch
+*.ilk
+*.pdb
+*.aps
+*.lastbuildstate
+*.tlog
+*.log
+
+# Visual Studio 用户设置（仅个人调试信息，勿提交）
+*.vcxproj.user
+*.slnx.user
+*.suo
+*.user
+*.userosscache
+
+# ========================
+# 运行时文件（按目录白名单）
+# ========================
+# bin/ 目录下的 .exe / .dll 是运行必需，不全局排除
+# 但排除编译产物（x64/ 下已覆盖）和测试产物
+*.h264                     # 测试产生的裸 H.264 流
+
+# ========================
+# 大型第三方二进制（超过 GitHub 100MB 限制）
+# ========================
+# GStreamer 静态库和插件库
+third_party/gstreamer/lib/*.a
+third_party/gstreamer/lib/**/*.a
+# 排除 FFmpeg 可执行文件（较大）
+third_party/ffmpeg/bin/*.exe
+third_party/gstreamer/lib/gstreamer-1.0/*.lib     # 排除超过 100MB 的 .lib 文件
+third_party/gstreamer/lib/gstreamer-1.0/**/*.lib
+
+# FFmpeg 可执行文件（较大）
+third_party/ffmpeg/bin/*.exe
+
+# ========================
+# 项目数据与配置（本地差异）
+# ========================
+data/
+configs/
