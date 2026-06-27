@@ -18,3 +18,4 @@ target_include_directories(highlight_generation_service PRIVATE
 if(WIN32)
     target_link_libraries(highlight_generation_service PRIVATE ws2_32)
 endif()
+
