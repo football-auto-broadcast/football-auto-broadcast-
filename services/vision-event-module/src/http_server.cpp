@@ -219,6 +219,10 @@ struct HttpServer::Impl {
             return ApiResponse::ok("{\"status\":\"ok\"}").to_json();
         }
 
+        if (method == "GET" && path == "/api/v1/vision/status") {
+            return ApiResponse::ok(service->get_status(service->latest_match_id()).to_json()).to_json();
+        }
+
         if (method == "POST" && path == "/api/v1/vision/matches/init") {
             const std::string match_id = extract_json_string(body, "match_id");
             if (match_id.empty()) {
@@ -231,6 +235,11 @@ struct HttpServer::Impl {
             }
             if (!aux_stream_uri.empty()) {
                 service->configure_stream("cam_02", aux_stream_uri);
+            }
+            const std::string metadata_root =
+                extract_json_string_in_object(body, "storage_config", "metadata_root");
+            if (!metadata_root.empty()) {
+                service->configure_metadata_root(metadata_root);
             }
             if (!service->init_match(match_id)) {
                 return ApiResponse::error(ErrorCode::ERR_PARAM).to_json();

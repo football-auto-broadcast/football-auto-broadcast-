@@ -1,42 +1,622 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>足球转播平台</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>足球赛事自动转播系统</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; background: #f5f7fa; color: #333; }
-        h1 { color: #2c3e50; }
-        .card { background: #fff; border-radius: 8px; padding: 20px; margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 12px 0; }
-        a { text-decoration: none; color: #3498db; font-size: 18px; }
-        a:hover { text-decoration: underline; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #fff; }
-        .badge-online { background: #27ae60; }
-        .badge-offline { background: #e74c3c; }
+        :root {
+            --ink: #16232c;
+            --muted: #5b6870;
+            --line: #dce2e5;
+            --surface: #ffffff;
+            --canvas: #f3f6f5;
+            --green: #167347;
+            --green-dark: #0f5535;
+            --amber: #c77d18;
+            --red: #b94242;
+            --blue: #276b8f;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--canvas);
+            font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+            letter-spacing: 0;
+        }
+
+        a { color: inherit; }
+
+        .shell {
+            width: min(1180px, calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .hero {
+            position: relative;
+            min-height: 600px;
+            height: min(72vh, 720px);
+            color: #fff;
+            background-image: url("./足球场.jpg");
+            background-size: cover;
+            background-position: center 58%;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 20, 29, 0.43);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            min-height: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.36);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            font-size: 13px;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav a {
+            padding: 10px 14px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .nav a:hover,
+        .nav a:focus-visible { background: rgba(255, 255, 255, 0.16); }
+
+        .hero-content {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 48px 0 92px;
+            max-width: 760px;
+        }
+
+        .eyebrow {
+            margin: 0 0 18px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            width: 100%;
+            max-width: 740px;
+            font-size: clamp(42px, 5.2rem, 74px);
+            line-height: 1.1;
+            font-weight: 750;
+            overflow-wrap: anywhere;
+            text-shadow: 0 2px 18px rgba(0, 0, 0, 0.36);
+        }
+
+        .hero-copy {
+            margin: 22px 0 0;
+            max-width: 660px;
+            font-size: 18px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.94);
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.42);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .button {
+            min-height: 46px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 700;
+            transition: transform 160ms ease, background 160ms ease;
+        }
+
+        .button:hover { transform: translateY(-1px); }
+        .button-primary { background: #fff; color: var(--green-dark); }
+        .button-secondary { border-color: rgba(255, 255, 255, 0.76); color: #fff; }
+        .button-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+
+        .live-band {
+            position: relative;
+            z-index: 2;
+            margin-top: -42px;
+        }
+
+        .live-panel {
+            min-height: 92px;
+            display: grid;
+            grid-template-columns: 1.35fr repeat(4, 1fr);
+            align-items: stretch;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 12px 32px rgba(20, 38, 48, 0.12);
+            overflow: hidden;
+        }
+
+        .live-heading,
+        .metric {
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .metric { border-left: 1px solid var(--line); }
+
+        .live-heading strong {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 16px;
+        }
+
+        .live-heading span,
+        .metric-label {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .pulse {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--amber);
+            box-shadow: 0 0 0 4px rgba(199, 125, 24, 0.14);
+        }
+
+        .metric-value {
+            font-size: 15px;
+            line-height: 1.35;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .state-online { color: var(--green); }
+        .state-offline { color: var(--red); }
+        .state-idle { color: var(--muted); }
+
+        main { padding: 72px 0 64px; }
+
+        .section-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 30px;
+            line-height: 1.25;
+        }
+
+        .section-head p {
+            margin: 0;
+            max-width: 560px;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .workflows {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 64px;
+        }
+
+        .workflow {
+            min-height: 170px;
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+        }
+
+        .workflow:hover {
+            transform: translateY(-2px);
+            border-color: #9eb4aa;
+            box-shadow: 0 10px 24px rgba(20, 38, 48, 0.08);
+        }
+
+        .workflow-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .workflow-tag {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 6px;
+            color: #fff;
+            background: var(--green);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .workflow:nth-child(2) .workflow-tag { background: var(--blue); }
+
+        .workflow-arrow {
+            font-size: 23px;
+            color: #738087;
+        }
+
+        .workflow h3 {
+            margin: 18px 0 6px;
+            font-size: 20px;
+        }
+
+        .workflow p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .architecture {
+            background: #e9efed;
+            border-top: 1px solid #d4ded9;
+            border-bottom: 1px solid #d4ded9;
+            padding: 58px 0;
+        }
+
+        .module-list {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .module-row {
+            min-height: 64px;
+            display: grid;
+            grid-template-columns: 58px 1.1fr 90px 1.7fr 100px;
+            gap: 18px;
+            align-items: center;
+            padding: 10px 22px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .module-row:last-child { border-bottom: 0; }
+        .module-row.platform { background: #f0f7f3; }
+
+        .module-id {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #253740;
+            color: #fff;
+            font-weight: 800;
+            font-size: 13px;
+        }
+
+        .platform .module-id { background: var(--green); }
+        .module-name { font-size: 14px; font-weight: 700; }
+        .module-port { font-family: Consolas, monospace; font-size: 13px; color: var(--blue); }
+        .module-role { color: var(--muted); font-size: 13px; line-height: 1.5; }
+        .module-status { font-size: 12px; font-weight: 700; text-align: right; }
+
+        footer {
+            background: #17242b;
+            color: rgba(255, 255, 255, 0.78);
+            padding: 28px 0;
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            font-size: 13px;
+        }
+
+        .footer-links { display: flex; gap: 20px; }
+        .footer-links a { color: #fff; text-decoration: none; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            .hero { min-height: 570px; height: 70vh; }
+            .live-panel { grid-template-columns: 1fr 1fr; }
+            .live-heading { grid-column: 1 / -1; border-bottom: 1px solid var(--line); }
+            .metric { border-left: 0; border-bottom: 1px solid var(--line); }
+            .metric:nth-child(even) { border-left: 1px solid var(--line); }
+            .module-row { grid-template-columns: 48px 1fr 80px 96px; }
+            .module-role { display: none; }
+        }
+
+        @media (max-width: 640px) {
+            .shell { width: min(100% - 28px, 1180px); }
+            .hero { min-height: 540px; height: 78vh; background-position: 57% center; }
+            .topbar { min-height: 66px; }
+            .brand { font-size: 14px; }
+            .brand-mark { width: 30px; height: 30px; }
+            .nav a { padding: 8px; font-size: 13px; }
+            .nav a:first-child { display: none; }
+            .hero-content { padding: 36px 0 78px; }
+            h1 { font-size: 38px; }
+            .hero-copy { font-size: 16px; line-height: 1.65; }
+            .hero-actions { width: 100%; }
+            .button { flex: 1 1 150px; }
+            .live-band { margin-top: -26px; }
+            .live-heading, .metric { padding: 16px; }
+            .metric-value { font-size: 14px; }
+            main { padding: 54px 0 48px; }
+            .section-head { display: block; }
+            .section-head p { margin-top: 10px; }
+            h2 { font-size: 26px; }
+            .workflows { grid-template-columns: 1fr; margin-bottom: 48px; }
+            .architecture { padding: 46px 0; }
+            .module-row {
+                grid-template-columns: 42px 1fr 76px;
+                gap: 10px;
+                padding: 10px 14px;
+            }
+            .module-status { display: none; }
+            .footer-inner { display: block; }
+            .footer-links { margin-top: 14px; flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
-    <h1>⚽ 足球赛事自动转播系统</h1>
-    <p>平台与调度模块 (E) — Team Interface Contract v1.2 Frozen</p>
-    <div class="card">
-        <ul>
-            <li>📋 <a href="/matches.html">比赛管理</a> — 创建、开始、结束比赛，触发集锦生成</li>
-            <li>📊 <a href="/status.html">系统状态</a> — 查看所有模块（A/B/C/D）运行状态与双机位信息</li>
-        </ul>
-    </div>
-    <div class="card">
-        <h3>模块架构</h3>
-        <table style="width:100%;border-collapse:collapse;">
-            <tr><th style="text-align:left;padding:8px;">模块</th><th style="text-align:left;padding:8px;">端口</th><th style="text-align:left;padding:8px;">职责</th></tr>
-            <tr><td style="padding:8px;">A - 采集与编码分发</td><td style="padding:8px;">8081</td><td style="padding:8px;">海康相机取流 + RTSP 输出</td></tr>
-            <tr><td style="padding:8px;">B - 录像与主画面生成</td><td style="padding:8px;">8082</td><td style="padding:8px;">双路录像 + 裁切 + 主画面选择</td></tr>
-            <tr><td style="padding:8px;">C - 视觉分析</td><td style="padding:8px;">8083</td><td style="padding:8px;">关注区域 + 多机位决策 + 候选事件</td></tr>
-            <tr><td style="padding:8px;">D - 集锦生成</td><td style="padding:8px;">8084</td><td style="padding:8px;">事件裁切 + 全场集锦输出</td></tr>
-            <tr style="background:#eaf2f8;"><td style="padding:8px;"><strong>E - 平台与调度</strong></td><td style="padding:8px;"><strong>8080</strong></td><td style="padding:8px;">比赛编排 + 状态汇总 + 预览下载</td></tr>
-        </table>
-    </div>
-    <hr>
-    <p><small>API 健康检查: <a href="/api/v1/health">/api/v1/health</a> | 系统状态: <a href="/api/v1/system/status">/api/v1/system/status</a></small></p>
+    <header class="hero">
+        <div class="hero-inner shell">
+            <div class="topbar">
+                <div class="brand">
+                    <span class="brand-mark">FAB</span>
+                    <span>Football Auto Broadcast</span>
+                </div>
+                <nav class="nav" aria-label="主导航">
+                    <a href="#architecture">系统链路</a>
+                    <a href="/status.html">系统状态</a>
+                    <a href="/matches.html">比赛管理</a>
+                </nav>
+            </div>
+
+            <div class="hero-content">
+                <p class="eyebrow">双机位 · 自动导播 · 智能集锦</p>
+                <h1>足球赛事自动转播系统</h1>
+                <p class="hero-copy">连接海康工业相机，统一完成双路采集、实时视觉分析、主画面决策、全程录像与赛后集锦生成。</p>
+                <div class="hero-actions">
+                    <a class="button button-primary" href="/matches.html">进入比赛控制台</a>
+                    <a class="button button-secondary" href="/status.html">查看实时状态</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="live-band shell" aria-labelledby="live-title">
+        <div class="live-panel">
+            <div class="live-heading">
+                <strong id="live-title"><span class="pulse" id="health-pulse"></span>系统实时摘要</strong>
+                <span id="updated-at">正在读取模块状态</span>
+            </div>
+            <div class="metric">
+                <strong class="metric-value" id="camera-state">读取中</strong>
+                <span class="metric-label">双相机链路</span>
+            </div>
+            <div class="metric">
+                <strong class="metric-value" id="record-state">读取中</strong>
+                <span class="metric-label">录像与主画面</span>
+            </div>
+            <div class="metric">
+                <strong class="metric-value" id="vision-state">读取中</strong>
+                <span class="metric-label">视觉分析</span>
+            </div>
+            <div class="metric">
+                <strong class="metric-value" id="highlight-state">读取中</strong>
+                <span class="metric-label">集锦生成</span>
+            </div>
+        </div>
+    </section>
+
+    <main class="shell">
+        <div class="section-head">
+            <h2>赛事工作台</h2>
+            <p>从比赛创建到结果下载，平台将 A/B/C/D 模块编排为一条可监控、可回溯的生产链路。</p>
+        </div>
+
+        <div class="workflows">
+            <a class="workflow" href="/matches.html">
+                <div class="workflow-top">
+                    <span class="workflow-tag">M</span>
+                    <span class="workflow-arrow" aria-hidden="true">→</span>
+                </div>
+                <div>
+                    <h3>比赛管理</h3>
+                    <p>创建赛事，执行启动与停止，触发集锦生成并下载最终视频。</p>
+                </div>
+            </a>
+            <a class="workflow" href="/status.html">
+                <div class="workflow-top">
+                    <span class="workflow-tag">S</span>
+                    <span class="workflow-arrow" aria-hidden="true">→</span>
+                </div>
+                <div>
+                    <h3>全景监控</h3>
+                    <p>集中查看双路相机、录像、视觉分析、导播决策与存储状态。</p>
+                </div>
+            </a>
+        </div>
+    </main>
+
+    <section class="architecture" id="architecture">
+        <div class="shell">
+            <div class="section-head">
+                <h2>系统链路</h2>
+                <p>模块通过冻结接口契约协同，端口和职责保持稳定，便于现场快速定位链路状态。</p>
+            </div>
+            <div class="module-list">
+                <div class="module-row">
+                    <span class="module-id">A</span>
+                    <span class="module-name">采集与编码分发</span>
+                    <span class="module-port">:8081</span>
+                    <span class="module-role">海康相机取流并发布双路 RTSP</span>
+                    <span class="module-status" id="module-a">读取中</span>
+                </div>
+                <div class="module-row">
+                    <span class="module-id">B</span>
+                    <span class="module-name">录像与主画面</span>
+                    <span class="module-port">:8082</span>
+                    <span class="module-role">双路录像、画面裁切与节目输出</span>
+                    <span class="module-status" id="module-b">读取中</span>
+                </div>
+                <div class="module-row">
+                    <span class="module-id">C</span>
+                    <span class="module-name">视觉分析</span>
+                    <span class="module-port">:8083</span>
+                    <span class="module-role">关注区域、机位决策与候选事件</span>
+                    <span class="module-status" id="module-c">读取中</span>
+                </div>
+                <div class="module-row">
+                    <span class="module-id">D</span>
+                    <span class="module-name">集锦生成</span>
+                    <span class="module-port">:8084</span>
+                    <span class="module-role">按事件裁切并输出全场集锦</span>
+                    <span class="module-status" id="module-d">读取中</span>
+                </div>
+                <div class="module-row platform">
+                    <span class="module-id">E</span>
+                    <span class="module-name">平台与调度</span>
+                    <span class="module-port">:8080</span>
+                    <span class="module-role">比赛编排、状态汇总与结果下载</span>
+                    <span class="module-status state-online">在线</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-inner shell">
+            <span>Football Auto Broadcast · Team Interface Contract v1.2</span>
+            <div class="footer-links">
+                <a href="/api/v1/health">健康检查</a>
+                <a href="/api/v1/system/status">系统状态 API</a>
+                <a href="/matches.html">比赛管理</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const stateClass = (value) => {
+            if (["running", "online", "recording", "success"].includes(value)) return "state-online";
+            if (["failed", "offline", "unreachable", "degraded"].includes(value)) return "state-offline";
+            return "state-idle";
+        };
+
+        const stateLabel = (value) => {
+            const labels = {
+                running: "运行中", online: "在线", recording: "录制中", success: "已完成",
+                stopped: "已停止", idle: "空闲", processing: "处理中", degraded: "异常",
+                offline: "离线", unreachable: "不可达", failed: "失败"
+            };
+            return labels[value] || value || "未知";
+        };
+
+        const setState = (id, value, text) => {
+            const element = document.getElementById(id);
+            element.textContent = text || stateLabel(value);
+            element.className = element.className.replace(/state-(online|offline|idle)/g, "").trim();
+            element.classList.add(stateClass(value));
+        };
+
+        async function refreshStatus() {
+            const pulse = document.getElementById("health-pulse");
+            try {
+                const response = await fetch("/api/v1/system/status", { cache: "no-store" });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const payload = await response.json();
+                const data = payload.data || {};
+                const bothCamerasOnline = data.cam_01_status === "online" && data.cam_02_status === "online";
+                setState("camera-state", bothCamerasOnline ? "online" : "degraded",
+                    bothCamerasOnline ? `双路在线 · ${data.cam_01_fps || 0}/${data.cam_02_fps || 0} fps` : "链路异常");
+                setState("record-state", data.record_status);
+                setState("vision-state", data.vision_status);
+                setState("highlight-state", data.highlight_status);
+                setState("module-a", data.ingest_status);
+                setState("module-b", data.record_status);
+                setState("module-c", data.vision_status);
+                setState("module-d", data.highlight_status);
+                pulse.style.background = data.recent_errors?.length ? "var(--amber)" : "var(--green)";
+                document.getElementById("updated-at").textContent = `最近更新 ${new Date().toLocaleTimeString("zh-CN", { hour12: false })}`;
+            } catch (error) {
+                ["camera-state", "record-state", "vision-state", "highlight-state", "module-a", "module-b", "module-c", "module-d"]
+                    .forEach((id) => setState(id, "unreachable", "不可达"));
+                pulse.style.background = "var(--red)";
+                document.getElementById("updated-at").textContent = "状态接口暂不可用";
+            }
+        }
+
+        refreshStatus();
+        window.setInterval(refreshStatus, 5000);
+    </script>
 </body>
 </html>

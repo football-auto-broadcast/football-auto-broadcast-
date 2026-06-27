@@ -2,115 +2,258 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <thread>
+#include <chrono>
 
-CameraDevice::CameraDevice(const std::string& serial, const std::string& cameraId, const std::string& role)
-    : m_serial(serial), m_cameraId(cameraId), m_role(role) {}
+CameraDevice::CameraDevice(const std::string& serial, const std::string& cameraId, const std::string& role,
+                           int requestedWidth, int requestedHeight)
+    : m_serial(serial),
+      m_cameraId(cameraId),
+      m_role(role),
+      m_requestedWidth(requestedWidth),
+      m_requestedHeight(requestedHeight) {}
 
 CameraDevice::~CameraDevice() {
     Stop();
     Close();
 }
 
-bool CameraDevice::Initialize() {
+bool CameraDevice::Initialize(const MV_CC_DEVICE_INFO* deviceInfo) {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
-    // MV_CC_Initialize() must be called once before any camera operations
-    // It's a global SDK initialization (transport layer)
+    // MV_CC_Initialize() must be called once before any camera operations.
+    // Enumeration is now done once in IngestEngine and the matching device info
+    // is passed in — no per-camera enumeration calls.
     static bool sdkInitialized = false;
     static std::mutex initMutex;
     std::lock_guard<std::mutex> initLock(initMutex);
     if (!sdkInitialized) {
         int initRet = MV_CC_Initialize();
         if (initRet != MV_OK) {
-            std::cout << "[ERROR] Failed to initialize MVS SDK. Error: " << initRet << std::endl;
+            std::cout << "[ERROR] Failed to initialize MVS SDK. Error: 0x"
+                      << std::hex << initRet << std::dec << std::endl;
             return false;
         }
         sdkInitialized = true;
         std::cout << "[INFO] MVS SDK initialized" << std::endl;
     }
 
+    if (deviceInfo == nullptr) {
+        std::cout << "[ERROR] Camera " << m_serial << " deviceInfo is null" << std::endl;
+        return false;
+    }
+
     if (m_status != Status::idle) {
         std::cout << "[WARN] Camera " << m_serial << " is not in idle state" << std::endl;
         return false;
     }
-    
+
     m_status = Status::initializing;
-    
-    // Refresh device list by enumerating twice - sometimes first enumeration may miss devices
-    MV_CC_DEVICE_INFO_LIST devList = { 0 };
-    int ret = MV_CC_EnumDevices(MV_GIGE_DEVICE | MV_USB_DEVICE, &devList);
-    if (ret != MV_OK) {
-        std::cout << "[ERROR] Camera " << m_serial << " failed to enumerate devices. Error: " << ret << std::endl;
+
+    // Verify this is a GigE device
+    if (deviceInfo->nTLayerType != MV_GIGE_DEVICE) {
+        std::cout << "[ERROR] Camera " << m_serial
+                  << " device is not GigE (TLayerType="
+                  << deviceInfo->nTLayerType << ")" << std::endl;
         m_status = Status::failed;
         return false;
     }
-    
-    // Force re-enumerate to get fresh device list
-    MV_CC_EnumDevices(MV_GIGE_DEVICE | MV_USB_DEVICE, &devList);
-    
-    std::cout << "[DEBUG] Camera " << m_serial << " enumerating, found " << devList.nDeviceNum << " devices" << std::endl;
-    
-    for (unsigned int i = 0; i < devList.nDeviceNum; i++) {
-        MV_CC_DEVICE_INFO* devInfo = devList.pDeviceInfo[i];
-        
-        // Only check GigE devices (camera connected via network cable)
-        if (devInfo->nTLayerType != MV_GIGE_DEVICE) {
-            continue;
-        }
-        
-        std::string devSerial = (char*)devInfo->SpecialInfo.stGigEInfo.chSerialNumber;
-        
-        std::cout << "[DEBUG] Found GigE camera: serial=" << devSerial << std::endl;
-        
-        if (devSerial == m_serial) {
-            ret = MV_CC_CreateHandle(&m_cameraHandle, devInfo);
-            if (ret != MV_OK) {
-                std::cout << "[ERROR] Camera " << m_serial << " failed to create handle. Error: " << ret << std::endl;
-                m_status = Status::failed;
-                return false;
-            }
-            
+
+    const auto& gigeInfo = deviceInfo->SpecialInfo.stGigEInfo;
+    std::string devSerial = (char*)gigeInfo.chSerialNumber;
+    unsigned int camIp = gigeInfo.nCurrentIp;
+    unsigned int camMask = gigeInfo.nCurrentSubNetMask;
+    unsigned int camGw = gigeInfo.nDefultGateWay;
+    unsigned int hostIp = gigeInfo.nNetExport;
+
+    std::cout << "[DEBUG] Camera " << m_serial
+              << " devSerial=" << devSerial
+              << " camIP=" << ((camIp >> 24) & 0xFF) << "." << ((camIp >> 16) & 0xFF)
+              << "." << ((camIp >> 8) & 0xFF) << "." << (camIp & 0xFF)
+              << " mask=" << ((camMask >> 24) & 0xFF) << "." << ((camMask >> 16) & 0xFF)
+              << "." << ((camMask >> 8) & 0xFF) << "." << (camMask & 0xFF)
+              << " hostIP=" << ((hostIp >> 24) & 0xFF) << "." << ((hostIp >> 16) & 0xFF)
+              << "." << ((hostIp >> 8) & 0xFF) << "." << (hostIp & 0xFF)
+              << std::endl;
+
+    // Check subnet alignment
+    bool subnetOk = ((camIp & camMask) == (hostIp & camMask));
+    if (!subnetOk) {
+        std::cout << "[WARN] Camera " << m_serial
+                  << " host and camera are on DIFFERENT subnets. "
+                  << "Attempting ForceIp to align..." << std::endl;
+    }
+
+    int ret = MV_CC_CreateHandle(&m_cameraHandle, const_cast<MV_CC_DEVICE_INFO*>(deviceInfo));
+    if (ret != MV_OK) {
+        std::cout << "[ERROR] Camera " << m_serial
+                  << " CreateHandle failed: 0x"
+                  << std::hex << ret << std::dec << std::endl;
+        m_status = Status::failed;
+        return false;
+    }
+
+    // --- Strategy: try multiple approaches to open the device ---
+    bool opened = false;
+    const int strategies = 3;
+
+    for (int attempt = 0; attempt < strategies && !opened; ++attempt) {
+        switch (attempt) {
+        case 0:
+            // Strategy 1: standard OpenDevice
+            std::cout << "[DEBUG] Camera " << m_serial
+                      << " Strategy 1: direct OpenDevice" << std::endl;
             ret = MV_CC_OpenDevice(m_cameraHandle);
-            if (ret != MV_OK) {
-                std::cout << "[ERROR] Camera " << m_serial << " failed to open device. Error: " << ret << std::endl;
-                MV_CC_DestroyHandle(m_cameraHandle);
-                m_cameraHandle = nullptr;
-                m_status = Status::failed;
-                return false;
-            }
-            
-            // Configure camera parameters for proper exposure
-            MV_CC_SetEnumValueByString(m_cameraHandle, "ExposureAuto", "Off"); // Manual exposure
-            MV_CC_SetFloatValue(m_cameraHandle, "ExposureTime", 30000.0f); // 30ms exposure
-            MV_CC_SetEnumValueByString(m_cameraHandle, "GainAuto", "Off"); // Manual gain
-            MV_CC_SetFloatValue(m_cameraHandle, "Gain", 8.0f); // 8dB gain
-            MV_CC_SetEnumValueByString(m_cameraHandle, "TriggerMode", "Off"); // Free run (no trigger)
-            MV_CC_SetEnumValueByString(m_cameraHandle, "AcquisitionMode", "Continuous"); // Continuous acquisition
-            std::cout << "[INFO] Camera " << m_serial << " parameters configured: Exposure=30ms, Gain=8dB" << std::endl;
+            if (ret == MV_OK) { opened = true; break; }
+            std::cout << "[WARN] Camera " << m_serial
+                      << " direct OpenDevice failed: 0x"
+                      << std::hex << ret << std::dec << std::endl;
+            break;
 
-            if (!GetCameraInfoFromSDK()) {
-                std::cout << "[WARN] Camera " << m_serial << " failed to get camera info" << std::endl;
-            }
+        case 1:
+            // Strategy 2: delay then retry (SDK internal state may need settling)
+            std::cout << "[DEBUG] Camera " << m_serial
+                      << " Strategy 2: delay 500ms then OpenDevice" << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            ret = MV_CC_OpenDevice(m_cameraHandle);
+            if (ret == MV_OK) { opened = true; break; }
+            std::cout << "[WARN] Camera " << m_serial
+                      << " delayed OpenDevice failed: 0x"
+                      << std::hex << ret << std::dec << std::endl;
+            break;
 
-            m_isOnline = true;
-            m_status = Status::stopped;
-            std::cout << "[SUCCESS] Camera " << m_serial << " initialized" << std::endl;
-            return true;
+        case 2:
+            // Strategy 3: ForceIpEx to align camera IP with host subnet, then OpenDevice
+            if (!subnetOk) {
+                // Calculate an IP for the camera on the host's subnet
+                unsigned int newCamIp = (hostIp & camMask) | (camIp & ~camMask);
+                // Avoid .0 and .255
+                if ((newCamIp & 0xFF) == 0) newCamIp |= 1;
+                if ((newCamIp & 0xFF) == 255) newCamIp &= ~0xFF;
+
+                std::cout << "[DEBUG] Camera " << m_serial
+                          << " Strategy 3: ForceIp to "
+                          << ((newCamIp >> 24) & 0xFF) << "." << ((newCamIp >> 16) & 0xFF)
+                          << "." << ((newCamIp >> 8) & 0xFF) << "." << (newCamIp & 0xFF)
+                          << std::endl;
+
+                ret = MV_GIGE_ForceIpEx(m_cameraHandle, newCamIp, camMask, camGw);
+                if (ret == MV_OK) {
+                    std::cout << "[INFO] Camera " << m_serial
+                              << " ForceIp success, waiting for camera restart..."
+                              << std::endl;
+                    // Camera reboots after ForceIp — wait for it
+                    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+                    // Retry OpenDevice after IP change
+                    ret = MV_CC_OpenDevice(m_cameraHandle);
+                    if (ret == MV_OK) {
+                        opened = true;
+                        std::cout << "[INFO] Camera " << m_serial
+                                  << " OpenDevice success after ForceIp" << std::endl;
+                        break;
+                    }
+                    std::cout << "[WARN] Camera " << m_serial
+                              << " OpenDevice after ForceIp failed: 0x"
+                              << std::hex << ret << std::dec << std::endl;
+                } else {
+                    std::cout << "[WARN] Camera " << m_serial
+                              << " ForceIpEx failed: 0x"
+                              << std::hex << ret << std::dec << std::endl;
+                }
+            } else {
+                std::cout << "[DEBUG] Camera " << m_serial
+                          << " subnet OK, skipping ForceIp strategy" << std::endl;
+            }
+            break;
         }
     }
-    
-    std::cout << "[WARN] Camera " << m_serial << " not found" << std::endl;
-    m_status = Status::failed;
-    return false;
+
+    if (!opened) {
+        std::cout << "[ERROR] Camera " << m_serial
+                  << " all " << strategies << " OpenDevice strategies failed" << std::endl;
+        MV_CC_DestroyHandle(m_cameraHandle);
+        m_cameraHandle = nullptr;
+        m_status = Status::failed;
+        return false;
+    }
+
+    int packetSize = MV_CC_GetOptimalPacketSize(m_cameraHandle);
+    if (packetSize > 0) {
+        ret = MV_CC_SetIntValue(m_cameraHandle, "GevSCPSPacketSize", packetSize);
+        if (ret == MV_OK) {
+            std::cout << "[INFO] Camera " << m_serial
+                      << " packet size configured: " << packetSize << std::endl;
+        } else {
+            std::cout << "[WARN] Camera " << m_serial
+                      << " failed to set packet size " << packetSize
+                      << " Error: 0x" << std::hex << ret << std::dec << std::endl;
+        }
+    }
+
+    const char* pixelFormats[] = {"BayerGR8", "BayerRG8", "BayerGB8", "BayerBG8"};
+    bool pixelFormatConfigured = false;
+    for (const char* pixelFormat : pixelFormats) {
+        ret = MV_CC_SetEnumValueByString(m_cameraHandle, "PixelFormat", pixelFormat);
+        if (ret == MV_OK) {
+            std::cout << "[INFO] Camera " << m_serial
+                      << " pixel format configured: " << pixelFormat << std::endl;
+            pixelFormatConfigured = true;
+            break;
+        }
+    }
+    if (!pixelFormatConfigured) {
+        std::cout << "[WARN] Camera " << m_serial
+                  << " does not accept Bayer8 pixel formats, using current PixelFormat" << std::endl;
+    }
+
+    if (m_requestedWidth > 0 && m_requestedHeight > 0) {
+        MV_CC_SetIntValue(m_cameraHandle, "OffsetX", 0);
+        MV_CC_SetIntValue(m_cameraHandle, "OffsetY", 0);
+        int widthRet = MV_CC_SetIntValue(m_cameraHandle, "Width", m_requestedWidth);
+        int heightRet = MV_CC_SetIntValue(m_cameraHandle, "Height", m_requestedHeight);
+        if (widthRet == MV_OK && heightRet == MV_OK) {
+            std::cout << "[INFO] Camera " << m_serial
+                      << " ROI configured: " << m_requestedWidth
+                      << "x" << m_requestedHeight << std::endl;
+        } else {
+            std::cout << "[WARN] Camera " << m_serial
+                      << " failed to set requested ROI " << m_requestedWidth
+                      << "x" << m_requestedHeight
+                      << " widthRet=0x" << std::hex << widthRet
+                      << " heightRet=0x" << std::hex << heightRet << std::dec << std::endl;
+        }
+    }
+
+    // Configure camera parameters for proper exposure
+    MV_CC_SetEnumValueByString(m_cameraHandle, "ExposureAuto", "Off");
+    MV_CC_SetFloatValue(m_cameraHandle, "ExposureTime", 30000.0f);
+    MV_CC_SetEnumValueByString(m_cameraHandle, "GainAuto", "Off");
+    MV_CC_SetFloatValue(m_cameraHandle, "Gain", 8.0f);
+    MV_CC_SetEnumValueByString(m_cameraHandle, "TriggerMode", "Off");
+    MV_CC_SetEnumValueByString(m_cameraHandle, "AcquisitionMode", "Continuous");
+    MV_CC_SetBoolValue(m_cameraHandle, "AcquisitionFrameRateEnable", true);
+    MV_CC_SetFloatValue(m_cameraHandle, "AcquisitionFrameRate", 25.0f);
+    std::cout << "[INFO] Camera " << m_serial
+              << " parameters configured: Exposure=30ms, Gain=8dB, 25fps" << std::endl;
+
+    if (!GetCameraInfoFromSDK()) {
+        std::cout << "[WARN] Camera " << m_serial << " failed to get camera info" << std::endl;
+    }
+
+    m_isOnline = true;
+    m_status = Status::stopped;
+    std::cout << "[SUCCESS] Camera " << m_serial << " initialized" << std::endl;
+    return true;
 }
 
 bool CameraDevice::Open() {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
-    
+
     if (m_cameraHandle == nullptr) {
-        if (!Initialize()) {
-            return false;
-        }
+        std::cout << "[ERROR] Camera " << m_serial
+                  << " handle is null, must call Initialize() first" << std::endl;
+        return false;
     }
     
     if (m_status == Status::running) {
@@ -203,19 +346,51 @@ void CameraDevice::Close() {
 
 bool CameraDevice::Reconnect() {
     std::cout << "[INFO] Camera " << m_serial << " reconnecting..." << std::endl;
-    
+
     Close();
-    
-    if (!Initialize()) {
-        std::cout << "[ERROR] Camera " << m_serial << " reconnect failed" << std::endl;
+
+    // Single enumeration — the double-enumeration pattern was causing
+    // MV_E_CALLORDER (0x80000003) on MV_CC_OpenDevice.
+    MV_CC_DEVICE_INFO_LIST devList = { 0 };
+    int ret = MV_CC_EnumDevices(MV_GIGE_DEVICE | MV_USB_DEVICE, &devList);
+    if (ret != MV_OK) {
+        std::cout << "[ERROR] Camera " << m_serial
+                  << " reconnect enumeration failed. Error: 0x"
+                  << std::hex << ret << std::dec << std::endl;
         return false;
     }
-    
+
+    std::cout << "[DEBUG] Camera " << m_serial << " re-enumerating, found "
+              << devList.nDeviceNum << " devices" << std::endl;
+
+    const MV_CC_DEVICE_INFO* matchedInfo = nullptr;
+    for (unsigned int i = 0; i < devList.nDeviceNum; i++) {
+        if (devList.pDeviceInfo[i]->nTLayerType != MV_GIGE_DEVICE) continue;
+        std::string devSerial =
+            (char*)devList.pDeviceInfo[i]->SpecialInfo.stGigEInfo.chSerialNumber;
+        std::cout << "[DEBUG] Found GigE camera: serial=" << devSerial << std::endl;
+        if (devSerial == m_serial) {
+            matchedInfo = devList.pDeviceInfo[i];
+            break;
+        }
+    }
+
+    if (matchedInfo == nullptr) {
+        std::cout << "[ERROR] Camera " << m_serial << " not found during reconnect" << std::endl;
+        return false;
+    }
+
+    if (!Initialize(matchedInfo)) {
+        std::cout << "[ERROR] Camera " << m_serial << " reconnect Initialize() failed" << std::endl;
+        return false;
+    }
+
     if (!StartGrabbing()) {
-        std::cout << "[ERROR] Camera " << m_serial << " failed to start grabbing after reconnect" << std::endl;
+        std::cout << "[ERROR] Camera " << m_serial
+                  << " failed to start grabbing after reconnect" << std::endl;
         return false;
     }
-    
+
     std::cout << "[SUCCESS] Camera " << m_serial << " reconnected" << std::endl;
     return true;
 }

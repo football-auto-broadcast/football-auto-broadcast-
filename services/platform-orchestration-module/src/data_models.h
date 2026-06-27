@@ -205,11 +205,12 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(DefaultRegionPolicy, cam_01, cam_02)
 struct VisionInitRequest {
     std::string match_id;
     std::vector<StreamEntry> streams;
+    StorageConfig storage_config;
     EventConfig event_config;
     FusionConfig fusion_config;
     DefaultRegionPolicy default_region_policy;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisionInitRequest, match_id, streams, event_config, fusion_config, default_region_policy)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(VisionInitRequest, match_id, streams, storage_config, event_config, fusion_config, default_region_policy)
 
 // --- 8.6 E -> D: Highlight Generate ---
 struct ClipPolicyEntry {

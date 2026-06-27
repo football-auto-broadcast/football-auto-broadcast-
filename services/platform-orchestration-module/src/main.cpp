@@ -213,6 +213,9 @@ static std::pair<int, std::string> call_vision_init(const Match& m) {
         {"cam_01", "main", g_cfg.rtsp_cam_01},
         {"cam_02", "aux",  g_cfg.rtsp_cam_02}
     };
+    req.storage_config.raw_root      = g_cfg.data_root + "\\raw";
+    req.storage_config.program_root  = g_cfg.data_root + "\\program";
+    req.storage_config.metadata_root = g_cfg.data_root + "\\metadata";
     // event_config / fusion_config / default_region_policy use defaults from struct
 
     std::string url = "http://127.0.0.1:" + std::to_string(g_cfg.port_vision);
@@ -268,6 +271,24 @@ static std::pair<int, std::string> call_highlight_generate(const Match& m) {
         return {code, j.value("message", "")};
     } catch (...) {
         return {ErrorCode::UPSTREAM_UNREACHABLE, "Invalid response from module D"};
+    }
+}
+
+static std::pair<int, std::string> call_module_post(int port, const std::string& path, const json& body = json::object()) {
+    std::string url = "http://127.0.0.1:" + std::to_string(port);
+    httplib::Client cli(url);
+    cli.set_connection_timeout(5, 0);
+    cli.set_read_timeout(60, 0);
+
+    auto res = cli.Post(path.c_str(), body.dump(), "application/json");
+    if (!res) {
+        return {ErrorCode::UPSTREAM_UNREACHABLE, "module unreachable: " + url};
+    }
+    try {
+        auto j = json::parse(res->body);
+        return {j.value("code", -1), j.value("message", "")};
+    } catch (...) {
+        return {ErrorCode::UPSTREAM_UNREACHABLE, "invalid response from " + url + path};
     }
 }
 
@@ -552,7 +573,7 @@ int main(int argc, char* argv[]) {
         }
         spdlog::info("[Match:{}] State -> initializing", mid);
 
-        // 5. Orchestrate: Init A -> B -> C in sequence
+        // 5. Orchestrate: Init A -> B -> C -> Start A -> B -> C in sequence
         json init_results = json::object();
         bool all_ok = true;
 
@@ -584,6 +605,28 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        if (all_ok) {
+            auto [code_a_start, msg_a_start] =
+                call_module_post(g_cfg.port_ingest, "/api/v1/ingest/matches/" + mid + "/start");
+            init_results["ingest_start"] = {{"code", code_a_start}, {"message", msg_a_start}};
+            if (code_a_start != ErrorCode::SUCCESS) all_ok = false;
+        }
+
+        if (all_ok) {
+            auto [code_b_start, msg_b_start] =
+                call_module_post(g_cfg.port_record, "/api/v1/record/matches/" + mid + "/start");
+            init_results["record_start"] = {{"code", code_b_start}, {"message", msg_b_start}};
+            if (code_b_start != ErrorCode::SUCCESS) all_ok = false;
+        }
+
+        if (all_ok) {
+            auto [code_c_start, msg_c_start] =
+                call_module_post(g_cfg.port_vision, "/api/v1/vision/matches/" + mid + "/start",
+                                 json{{"record_start_timestamp_ms", now_ms()}});
+            init_results["vision_start"] = {{"code", code_c_start}, {"message", msg_c_start}};
+            if (code_c_start != ErrorCode::SUCCESS) all_ok = false;
+        }
+
         // 6. Update final state
         {
             std::lock_guard<std::mutex> lock(g_matches_mutex);
@@ -611,17 +654,31 @@ int main(int argc, char* argv[]) {
         std::string mid = req.matches[1];
         spdlog::info("[Match:{}] Stop requested", mid);
 
+        json stop_results = json::object();
+        auto [code_c, msg_c] = call_module_post(g_cfg.port_vision, "/api/v1/vision/matches/" + mid + "/stop");
+        stop_results["vision_stop"] = {{"code", code_c}, {"message", msg_c}};
+        auto [code_b, msg_b] = call_module_post(g_cfg.port_record, "/api/v1/record/matches/" + mid + "/stop");
+        stop_results["record_stop"] = {{"code", code_b}, {"message", msg_b}};
+        auto [code_a, msg_a] = call_module_post(g_cfg.port_ingest, "/api/v1/ingest/matches/" + mid + "/stop");
+        stop_results["ingest_stop"] = {{"code", code_a}, {"message", msg_a}};
+
+        const bool all_ok =
+            code_c == ErrorCode::SUCCESS &&
+            code_b == ErrorCode::SUCCESS &&
+            code_a == ErrorCode::SUCCESS;
+
         {
             std::lock_guard<std::mutex> lock(g_matches_mutex);
             if (!g_matches.count(mid)) {
                 res.set_content(make_response(ErrorCode::RESOURCE_NOT_FOUND).dump(), "application/json");
                 return;
             }
-            g_matches[mid].status      = MatchState::STOPPED;
+            g_matches[mid].status      = all_ok ? MatchState::STOPPED : MatchState::FAILED;
             g_matches[mid].finished_at = now_ms();
         }
-        spdlog::info("[Match:{}] State -> stopped", mid);
-        res.set_content(make_response(ErrorCode::SUCCESS, json{{"match_id", mid}, {"status", MatchState::STOPPED}}).dump(), "application/json");
+        spdlog::info("[Match:{}] State -> {}", mid, all_ok ? "stopped" : "failed");
+        res.set_content(make_response(all_ok ? ErrorCode::SUCCESS : ErrorCode::TASK_EXECUTION_FAILED,
+            json{{"match_id", mid}, {"status", all_ok ? MatchState::STOPPED : MatchState::FAILED}, {"stop_results", stop_results}}).dump(), "application/json");
     });
 
     // ---------- Delete Match ----------

@@ -1,0 +1,11 @@
+rtspAddress: :8560
+rtsp: yes
+rtpAddress: :8020
+rtcpAddress: :8021
+hls: no
+rtmp: no
+webrtc: no
+srt: no
+paths:
+  program:
+    source: publisher

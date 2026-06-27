@@ -9,6 +9,10 @@ add_executable(platform_orchestration_service
     src/main.cpp
  "src/httplib.h")
 
+if(MSVC)
+    target_compile_options(platform_orchestration_service PRIVATE /bigobj)
+endif()
+
 # 添加头文件搜索路径（指向我们手动下载的库）
 target_include_directories(platform_orchestration_service PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/httplib
@@ -22,4 +26,17 @@ target_include_directories(platform_orchestration_service PRIVATE
 # 设置输出目录
 set_target_properties(platform_orchestration_service PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+# The service resolves configs/config.ini and ./web from its working directory.
+# Keep runtime assets beside the executable so the documented build/bin launch
+# command serves the platform UI instead of returning HTTP 404.
+add_custom_command(TARGET platform_orchestration_service POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/configs"
+            "$<TARGET_FILE_DIR:platform_orchestration_service>/configs"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/web"
+            "$<TARGET_FILE_DIR:platform_orchestration_service>/web"
+    COMMENT "Copying platform runtime configuration and web assets"
 )

@@ -1,24 +1,27 @@
 {
   "data_root": "D:\\football\\data",
   "log_level": "info",
+  "source_mode": "camera",
   "cameras": [
     {
       "serial": "D91363830",
       "camera_id": "cam_01",
       "role": "main",
-      "width": 2592,
-      "height": 1944,
+      "width": 1920,
+      "height": 1080,
       "fps": 25.0,
-      "rtsp_url": "rtsp://127.0.0.1:8554/main"
+      "rtsp_url": "rtsp://127.0.0.1:8554/main",
+      "source_path": "D:\\football\\data\\integration_inputs\\cam_01.mp4"
     },
     {
       "serial": "F92514845",
       "camera_id": "cam_02",
       "role": "aux",
-      "width": 2592,
-      "height": 1944,
+      "width": 1920,
+      "height": 1080,
       "fps": 25.0,
-      "rtsp_url": "rtsp://127.0.0.1:8555/aux"
+      "rtsp_url": "rtsp://127.0.0.1:8555/aux",
+      "source_path": "D:\\football\\data\\integration_inputs\\cam_02.mp4"
     }
   ]
 }

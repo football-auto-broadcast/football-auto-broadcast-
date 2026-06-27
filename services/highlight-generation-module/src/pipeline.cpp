@@ -6,12 +6,23 @@
 #include <filesystem>
 #include <iomanip>
 #include <cstdlib>
+#include <sstream>
 
 namespace fs = std::filesystem;
 
 HighlightPipeline::HighlightPipeline() {
-    ffmpegPath = "third_party/windows/ffmpeg/bin/ffmpeg.exe"; // 默认安全路径
     dataRoot = "D:\\football\\data";
+    ffmpegPath = "third_party/windows/ffmpeg/bin/ffmpeg.exe";
+    fs::path probe = fs::current_path();
+    for (int i = 0; i < 8; ++i) {
+        fs::path candidate = probe / "third_party" / "windows" / "ffmpeg" / "bin" / "ffmpeg.exe";
+        if (fs::exists(candidate)) {
+            ffmpegPath = candidate.string();
+            break;
+        }
+        if (!probe.has_parent_path() || probe.parent_path() == probe) break;
+        probe = probe.parent_path();
+    }
 }
 
 void HighlightPipeline::loadConfiguration(const std::string& configPath) {
@@ -152,7 +163,7 @@ int HighlightPipeline::executeWorkflow(const std::string& matchId, const std::st
 
         // FFmpeg Stream Copy 无损高速裁剪核心原语
         std::stringstream cmd;
-        cmd << "\"" << ffmpegPath << "\" -ss " << ev.start_sec << " -t " << (ev.end_sec - ev.start_sec)
+        cmd << ffmpegPath << " -ss " << ev.start_sec << " -t " << (ev.end_sec - ev.start_sec)
             << " -i \"" << targetMedia << "\" -c copy -avoid_negative_ts 1 -y \"" << partPath << "\" > NUL 2>&1";
 
         if (std::system(cmd.str().c_str()) != 0) {
@@ -169,7 +180,7 @@ int HighlightPipeline::executeWorkflow(const std::string& matchId, const std::st
     outFinalPath = outDir + "full_highlight.mp4";
 
     std::stringstream concatCmd;
-    concatCmd << "\"" << ffmpegPath << "\" -f concat -safe 0 -i \"" << fs::absolute(listPath).generic_string()
+    concatCmd << ffmpegPath << " -f concat -safe 0 -i \"" << fs::absolute(listPath).generic_string()
               << "\" -c copy -movflags faststart -y \"" << outFinalPath << "\" > NUL 2>&1";
 
     int ret = std::system(concatCmd.str().c_str());

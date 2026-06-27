@@ -26,6 +26,36 @@
 
 // Global running flag for signal handling
 std::atomic<bool> g_running{true};
+std::atomic<bool> g_simulated{false};
+std::mutex g_sim_mutex;
+std::vector<FILE*> g_ffmpeg_pipes;
+IngestConfig g_runtime_config;
+std::string g_match_id;
+
+static std::string JsonStringValue(const std::string& content, const std::string& key, size_t from = 0) {
+    size_t pos = content.find("\"" + key + "\"", from);
+    if (pos == std::string::npos) return "";
+    size_t colon = content.find(':', pos);
+    size_t start = content.find('"', colon + 1);
+    size_t end = content.find('"', start + 1);
+    if (start == std::string::npos || end == std::string::npos) return "";
+    return content.substr(start + 1, end - start - 1);
+}
+
+static int JsonIntValue(const std::string& content, const std::string& key, size_t from, int fallback) {
+    size_t pos = content.find("\"" + key + "\"", from);
+    if (pos == std::string::npos || pos > from + 500) return fallback;
+    size_t colon = content.find(':', pos);
+    if (colon == std::string::npos) return fallback;
+    size_t start = content.find_first_of("-0123456789", colon + 1);
+    if (start == std::string::npos) return fallback;
+    size_t end = content.find_first_not_of("0123456789", start + 1);
+    try {
+        return std::stoi(content.substr(start, end - start));
+    } catch (...) {
+        return fallback;
+    }
+}
 
 // Load config from JSON file (simple manual parsing)
 bool LoadConfig(const std::string& path, IngestConfig& config) {
@@ -41,6 +71,9 @@ bool LoadConfig(const std::string& path, IngestConfig& config) {
     f.close();
 
     // Simple JSON parsing - look for key fields
+    std::string sourceMode = JsonStringValue(content, "source_mode");
+    if (!sourceMode.empty()) config.source_mode = sourceMode;
+
     // data_root
     size_t data_root_pos = content.find("\"data_root\"");
     if (data_root_pos != std::string::npos) {
@@ -67,8 +100,8 @@ bool LoadConfig(const std::string& path, IngestConfig& config) {
                 if (cam_id_pos == std::string::npos) break;
 
                 CameraConfig cam;
-                cam.width = 2592;
-                cam.height = 1944;
+                cam.width = 1920;
+                cam.height = 1080;
                 cam.fps = 25.0;
 
                 // Extract camera_id
@@ -112,6 +145,11 @@ bool LoadConfig(const std::string& path, IngestConfig& config) {
                     }
                 }
 
+                std::string sourcePath = JsonStringValue(cameras_block, "source_path", cam_id_pos);
+                if (!sourcePath.empty()) cam.source_path = sourcePath;
+                cam.width = JsonIntValue(cameras_block, "width", cam_id_pos, cam.width);
+                cam.height = JsonIntValue(cameras_block, "height", cam_id_pos, cam.height);
+
                 config.cameras.push_back(cam);
                 cam_start = cam_id_pos + 1;
             }
@@ -125,6 +163,33 @@ bool LoadConfig(const std::string& path, IngestConfig& config) {
 
 // HTTP status handler (Contract Section 7.3)
 static void handleStatus(const httplib::Request& req, httplib::Response& res, IngestEngine& engine) {
+    if (g_simulated.load()) {
+        std::lock_guard<std::mutex> lock(g_sim_mutex);
+        std::ostringstream resp;
+        resp << "{\"code\":0,\"message\":\"ok\",\"data\":{"
+             << "\"status\":\"running\","
+             << "\"match_id\":\"" << g_match_id << "\","
+             << "\"cam_01_status\":\"online\","
+             << "\"cam_02_status\":\"online\","
+             << "\"cam_01_fps\":25.0,"
+             << "\"cam_02_fps\":25.0,"
+             << "\"last_error\":\"\","
+             << "\"cameras\":[";
+        for (size_t i = 0; i < g_runtime_config.cameras.size(); ++i) {
+            const auto& cam = g_runtime_config.cameras[i];
+            if (i > 0) resp << ",";
+            resp << "{\"camera_id\":\"" << cam.camera_id << "\","
+                 << "\"role\":\"" << cam.role << "\","
+                 << "\"online\":true,"
+                 << "\"streaming\":true,"
+                 << "\"width\":1920,"
+                 << "\"height\":1080,"
+                 << "\"fps\":" << std::fixed << std::setprecision(1) << cam.fps << "}";
+        }
+        resp << "]}}";
+        res.set_content(resp.str(), "application/json");
+        return;
+    }
     auto statuses = engine.GetCameraStatuses();
     std::ostringstream oss;
     oss << "{\"status\":\"";
@@ -135,7 +200,26 @@ static void handleStatus(const httplib::Request& req, httplib::Response& res, In
     else if (engineStatus == IngestEngine::Status::failed) oss << "failed";
     else if (engineStatus == IngestEngine::Status::initializing) oss << "initializing";
     else oss << "idle";
-    oss << "\",\"camera_count\":" << engine.GetTotalCameraCount()
+    std::string cam01_status = "unknown";
+    std::string cam02_status = "unknown";
+    double cam01_fps = 0.0;
+    double cam02_fps = 0.0;
+    for (const auto& st : statuses) {
+        if (st.camera_id == "cam_01") {
+            cam01_status = st.online ? "online" : "offline";
+            cam01_fps = st.fps;
+        }
+        if (st.camera_id == "cam_02") {
+            cam02_status = st.online ? "online" : "offline";
+            cam02_fps = st.fps;
+        }
+    }
+    oss << "\",\"cam_01_status\":\"" << cam01_status
+        << "\",\"cam_02_status\":\"" << cam02_status
+        << "\",\"cam_01_fps\":" << std::fixed << std::setprecision(1) << cam01_fps
+        << ",\"cam_02_fps\":" << std::fixed << std::setprecision(1) << cam02_fps
+        << ",\"last_error\":\"\""
+        << ",\"camera_count\":" << engine.GetTotalCameraCount()
         << ",\"online_count\":" << engine.GetOnlineCameraCount()
         << ",\"cameras\":[";
     for (size_t i = 0; i < statuses.size(); i++) {
@@ -184,7 +268,17 @@ static void handleMatchInit(const httplib::Request& req, httplib::Response& res)
         size_t end = content.find('"', start + 1);
         if (start != std::string::npos && end != std::string::npos) {
             match_id = content.substr(start + 1, end - start - 1);
+            g_match_id = match_id;
             std::cout << "[API]   match_id: " << match_id << std::endl;
+        }
+    }
+
+    std::lock_guard<std::mutex> lock(g_sim_mutex);
+    for (auto& cam : g_runtime_config.cameras) {
+        size_t camera_pos = content.find("\"" + cam.camera_id + "\"");
+        if (camera_pos != std::string::npos) {
+            std::string streamUri = JsonStringValue(content, "stream_uri", camera_pos);
+            if (!streamUri.empty()) cam.rtsp_url = streamUri;
         }
     }
 
@@ -253,6 +347,50 @@ static std::string FindConfigFile() {
     return "";
 }
 
+static std::string Quote(const std::string& value) {
+    return "\"" + value + "\"";
+}
+
+static void StopSyntheticStreams() {
+    std::lock_guard<std::mutex> lock(g_sim_mutex);
+    for (FILE* pipe : g_ffmpeg_pipes) {
+        if (pipe) _pclose(pipe);
+    }
+    g_ffmpeg_pipes.clear();
+}
+
+static bool StartSyntheticStreams(const IngestConfig& config) {
+    StopSyntheticStreams();
+    std::lock_guard<std::mutex> lock(g_sim_mutex);
+    std::string ffmpeg = GetExeDir() + "\\ffmpeg.exe";
+    for (size_t i = 0; i < config.cameras.size(); ++i) {
+        const auto& cam = config.cameras[i];
+        std::ostringstream cmd;
+        cmd << ffmpeg << " -hide_banner -loglevel warning -re ";
+        if (config.source_mode == "file" && !cam.source_path.empty()) {
+            cmd << "-stream_loop -1 -i " << Quote(cam.source_path) << " ";
+        } else {
+            const std::string color = (cam.camera_id == "cam_02") ? "testsrc2" : "testsrc";
+            cmd << "-f lavfi -i " << Quote(color + "=size=1920x1080:rate=25") << " ";
+        }
+        cmd << "-an -vf scale=1920:1080 -c:v libx264 -preset ultrafast -tune zerolatency "
+            << "-pix_fmt yuv420p -rtsp_transport tcp -f rtsp " << cam.rtsp_url;
+        FILE* pipe = _popen(cmd.str().c_str(), "r");
+        if (!pipe) {
+            std::cout << "[ERROR] Failed to start synthetic stream for " << cam.camera_id << std::endl;
+            for (FILE* existing : g_ffmpeg_pipes) {
+                if (existing) _pclose(existing);
+            }
+            g_ffmpeg_pipes.clear();
+            return false;
+        }
+        g_ffmpeg_pipes.push_back(pipe);
+        std::cout << "[INFO] Synthetic stream started: " << cam.camera_id << " -> " << cam.rtsp_url << std::endl;
+    }
+    g_simulated = true;
+    return true;
+}
+
 int main() {
 #ifdef _WIN32
     SetConsoleCtrlHandler([](DWORD ctrlType) -> BOOL {
@@ -279,8 +417,8 @@ int main() {
         cam01.serial = "F92514845";
         cam01.camera_id = "cam_01";
         cam01.role = "main";
-        cam01.width = 2592;
-        cam01.height = 1944;
+        cam01.width = 1920;
+        cam01.height = 1080;
         cam01.fps = 25.0;
         cam01.rtsp_url = "rtsp://127.0.0.1:8554/main";
         config.cameras.push_back(cam01);
@@ -288,21 +426,28 @@ int main() {
         cam02.serial = "D91363830";
         cam02.camera_id = "cam_02";
         cam02.role = "aux";
-        cam02.width = 2592;
-        cam02.height = 1944;
+        cam02.width = 1920;
+        cam02.height = 1080;
         cam02.fps = 25.0;
         cam02.rtsp_url = "rtsp://127.0.0.1:8555/aux";
         config.cameras.push_back(cam02);
     }
+    g_runtime_config = config;
 
     IngestEngine engine;
-    if (!engine.Initialize(config)) {
-        std::cout << "[ERROR] IngestEngine initialization failed" << std::endl;
-        return 1;
-    }
-    if (!engine.Start()) {
-        std::cout << "[ERROR] IngestEngine start failed" << std::endl;
-        return 1;
+    if (config.source_mode == "camera") {
+        if (!engine.Initialize(config)) {
+            std::cout << "[ERROR] IngestEngine initialization failed" << std::endl;
+            return 1;
+        }
+        if (!engine.Start()) {
+            std::cout << "[WARN] IngestEngine start failed; service will stay online and keep reconnecting" << std::endl;
+        }
+    } else {
+        if (!StartSyntheticStreams(config)) {
+            std::cout << "[ERROR] Synthetic stream startup failed" << std::endl;
+            return 1;
+        }
     }
 
     const int httpPort = 8081;
@@ -314,10 +459,27 @@ int main() {
     httpServer.Post("/api/v1/ingest/matches/start", [&engine](const httplib::Request& req, httplib::Response& res) {
         handleMatchStart(req, res);
     });
+    httpServer.Post(R"(/api/v1/ingest/matches/([^/]+)/start)", [&engine](const httplib::Request& req, httplib::Response& res) {
+        (void)engine;
+        g_match_id = req.matches[1];
+        if (g_simulated.load() && g_ffmpeg_pipes.empty()) {
+            StartSyntheticStreams(g_runtime_config);
+        }
+        handleMatchStart(req, res);
+    });
     httpServer.Post("/api/v1/ingest/matches/stop", [&engine](const httplib::Request& req, httplib::Response& res) {
         handleMatchStop(req, res);
     });
+    httpServer.Post(R"(/api/v1/ingest/matches/([^/]+)/stop)", [&engine](const httplib::Request& req, httplib::Response& res) {
+        (void)engine;
+        g_match_id = req.matches[1];
+        handleMatchStop(req, res);
+    });
     httpServer.Get("/api/v1/ingest/status", [&engine](const httplib::Request& req, httplib::Response& res) {
+        handleStatus(req, res, engine);
+    });
+    httpServer.Get(R"(/api/v1/ingest/matches/([^/]+)/status)", [&engine](const httplib::Request& req, httplib::Response& res) {
+        (void)req;
         handleStatus(req, res, engine);
     });
 
@@ -337,8 +499,16 @@ int main() {
     std::cout << std::flush;
 
     while (g_running.load()) {
+        if (g_simulated.load()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            continue;
+        }
         engine.CheckAndReconnect();
         auto statuses = engine.GetCameraStatuses();
+        if (statuses.empty()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            continue;
+        }
         auto engineStatus = engine.GetStatus();
         std::string statusStr = "idle";
         if (engineStatus == IngestEngine::Status::running) statusStr = "running";
@@ -380,6 +550,7 @@ int main() {
     fprintf(stderr, "[MAIN-DEBUG] Exiting main loop, shutting down...\n");
     fflush(stderr);
     engine.Stop();
+    StopSyntheticStreams();
     httpServer.stop();
     httpThread.join();
     std::cout << "[INFO] Ingest Streaming Service stopped." << std::endl;

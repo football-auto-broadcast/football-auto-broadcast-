@@ -19,11 +19,72 @@ bool IngestEngine::Initialize(const IngestConfig& config) {
 
     m_config = config;
     m_status = Status::initializing;
+    m_lastReconnectAttempts.assign(config.cameras.size(), std::chrono::steady_clock::time_point{});
+
+    // --- Enumerate devices ONCE globally (was per-camera with double call) ---
+    // Calling MV_CC_EnumDevices per-camera or twice in a row triggers
+    // MV_E_CALLORDER (0x80000003) in MV_CC_OpenDevice.
+    MV_CC_DEVICE_INFO_LIST devList = { 0 };
+    int enumRet = MV_CC_EnumDevices(MV_GIGE_DEVICE | MV_USB_DEVICE, &devList);
+    if (enumRet != MV_OK) {
+        std::cout << "[ERROR] Device enumeration failed. Error: 0x"
+                  << std::hex << enumRet << std::dec << std::endl;
+        m_status = Status::failed;
+        return false;
+    }
+    std::cout << "[INFO] Enumerated " << devList.nDeviceNum << " devices" << std::endl;
 
     for (const auto& camConfig : config.cameras) {
-        auto camera = std::make_unique<CameraDevice>(camConfig.serial, camConfig.camera_id, camConfig.role);
-        bool cameraSuccess = camera->Initialize();
+        auto camera = std::make_unique<CameraDevice>(
+            camConfig.serial, camConfig.camera_id, camConfig.role,
+            camConfig.width, camConfig.height);
 
+        // Find matching device info by serial and log network config
+        const MV_CC_DEVICE_INFO* matchedInfo = nullptr;
+        for (unsigned int i = 0; i < devList.nDeviceNum; i++) {
+            if (devList.pDeviceInfo[i]->nTLayerType != MV_GIGE_DEVICE) continue;
+
+            const auto& gige = devList.pDeviceInfo[i]->SpecialInfo.stGigEInfo;
+            std::string devSerial = (char*)gige.chSerialNumber;
+
+            // Log camera network info for diagnostics
+            unsigned int camIp = gige.nCurrentIp;
+            unsigned int camMask = gige.nCurrentSubNetMask;
+            unsigned int camGw = gige.nDefultGateWay;
+            unsigned int hostAdapterIp = gige.nNetExport;
+
+            std::cout << "[DEBUG] Found GigE camera: serial=" << devSerial
+                      << " IP=" << ((camIp >> 24) & 0xFF) << "." << ((camIp >> 16) & 0xFF)
+                      << "." << ((camIp >> 8) & 0xFF) << "." << (camIp & 0xFF)
+                      << " Mask=" << ((camMask >> 24) & 0xFF) << "." << ((camMask >> 16) & 0xFF)
+                      << "." << ((camMask >> 8) & 0xFF) << "." << (camMask & 0xFF)
+                      << " HostAdapter=" << ((hostAdapterIp >> 24) & 0xFF)
+                      << "." << ((hostAdapterIp >> 16) & 0xFF)
+                      << "." << ((hostAdapterIp >> 8) & 0xFF) << "." << (hostAdapterIp & 0xFF)
+                      << std::endl;
+
+            // Check if host adapter can reach camera (same subnet)
+            if ((camIp & camMask) != (hostAdapterIp & camMask)) {
+                std::cout << "[WARN] Camera " << devSerial
+                          << " is on DIFFERENT subnet than host adapter! "
+                          << "This may cause MV_CC_OpenDevice to fail." << std::endl;
+            }
+
+            if (devSerial == camConfig.serial) {
+                matchedInfo = devList.pDeviceInfo[i];
+                break;
+            }
+        }
+
+        if (matchedInfo == nullptr) {
+            std::cout << "[WARN] Camera " << camConfig.serial
+                      << " not found in device list" << std::endl;
+            m_cameras.push_back(std::move(camera));
+            m_streamers.push_back(nullptr);
+            continue;
+        }
+
+        bool cameraSuccess = camera->Initialize(matchedInfo);
         if (!cameraSuccess) {
             std::cout << "[WARN] Camera " << camConfig.serial << " initialization failed" << std::endl;
             m_cameras.push_back(std::move(camera));
@@ -281,19 +342,39 @@ size_t IngestEngine::GetTotalCameraCount() const {
 }
 
 void IngestEngine::CheckAndReconnect() {
-    std::vector<size_t> offlineIndices;
+    std::vector<size_t> cameraRestartIndices;
+    std::vector<size_t> streamerRestartIndices;
 
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
         for (size_t i = 0; i < m_cameras.size(); i++) {
-            if (!m_cameras[i]->IsOnline()) {
-                offlineIndices.push_back(i);
+            const bool offline = !m_cameras[i]->IsOnline();
+            const bool stale = m_cameras[i]->GetStatus() == CameraDevice::Status::running &&
+                               m_cameras[i]->GetLastFrameTimeMs() > 15000;
+            const bool reconnectDue =
+                i >= m_lastReconnectAttempts.size() ||
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - m_lastReconnectAttempts[i]).count() >= 5000;
+            if (offline || stale) {
+                if (reconnectDue) {
+                    if (m_lastReconnectAttempts.size() <= i) {
+                        m_lastReconnectAttempts.resize(i + 1);
+                    }
+                    m_lastReconnectAttempts[i] = std::chrono::steady_clock::now();
+                    cameraRestartIndices.push_back(i);
+                }
+                continue;
+            }
+            if (i < m_streamers.size() && m_streamers[i] != nullptr && m_streamers[i]->HasError()) {
+                streamerRestartIndices.push_back(i);
             }
         }
     }
 
-    for (size_t i : offlineIndices) {
-        std::cout << "[INFO] Camera " << m_cameras[i]->GetSerial() << " is offline, attempting reconnect..." << std::endl;
+    for (size_t i : cameraRestartIndices) {
+        std::cout << "[INFO] Camera " << m_cameras[i]->GetSerial()
+                  << " is offline or stale (" << m_cameras[i]->GetLastFrameTimeMs()
+                  << "ms since last frame), attempting reconnect..." << std::endl;
 
         if (m_cameras[i]->Reconnect()) {
             std::cout << "[INFO] Camera " << i << " reconnected, restarting streamer..." << std::endl;
@@ -301,6 +382,9 @@ void IngestEngine::CheckAndReconnect() {
             // Re-create streamer if missing (e.g. camera init failed on first run)
             bool needFresh = (i >= m_streamers.size()) || (m_streamers[i] == nullptr);
             if (needFresh && i < m_config.cameras.size()) {
+                if (m_streamers.size() <= i) {
+                    m_streamers.resize(i + 1);
+                }
                 const auto& cc = m_config.cameras[i];
                 m_streamers[i] = std::make_unique<GstRtspStreamer>(
                     cc.rtsp_url, cc.width, cc.height, cc.fps);
@@ -317,11 +401,36 @@ void IngestEngine::CheckAndReconnect() {
         }
     }
 
+    for (size_t i : streamerRestartIndices) {
+        std::cout << "[INFO] Streamer for camera " << i << " has error, restarting pipeline..." << std::endl;
+        if (i < m_streamers.size() && m_streamers[i] != nullptr) {
+            m_streamers[i]->Stop();
+            if (m_streamers[i]->Initialize()) {
+                m_streamers[i]->Start();
+            }
+        }
+    }
+
     {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
         size_t onlineCount = 0;
         for (const auto& camera : m_cameras) {
             if (camera->IsOnline()) onlineCount++;
+        }
+
+        if (onlineCount > 0 && (!m_running.load() || m_streamingThreads.empty())) {
+            m_running = false;
+            for (auto& thread : m_streamingThreads) {
+                if (thread.joinable()) {
+                    thread.join();
+                }
+            }
+            m_streamingThreads.clear();
+            m_running = true;
+            for (size_t i = 0; i < m_cameras.size(); i++) {
+                m_streamingThreads.emplace_back(&IngestEngine::StreamingThread, this, i);
+            }
+            std::cout << "[INFO] Streaming threads restarted after camera recovery" << std::endl;
         }
 
         if (onlineCount == 0) {

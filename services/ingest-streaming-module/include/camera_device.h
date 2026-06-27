@@ -56,10 +56,11 @@ public:
         failed
     };
 
-    CameraDevice(const std::string& serial, const std::string& cameraId, const std::string& role);
+    CameraDevice(const std::string& serial, const std::string& cameraId, const std::string& role,
+                 int requestedWidth = 0, int requestedHeight = 0);
     ~CameraDevice();
 
-    bool Initialize();
+    bool Initialize(const MV_CC_DEVICE_INFO* deviceInfo);
     bool Open();
     bool StartGrabbing();
     void Stop();
@@ -91,6 +92,8 @@ private:
     std::string m_serial;
     std::string m_cameraId;
     std::string m_role;
+    int m_requestedWidth = 0;
+    int m_requestedHeight = 0;
     
     void* m_cameraHandle = nullptr;
     Status m_status = Status::idle;

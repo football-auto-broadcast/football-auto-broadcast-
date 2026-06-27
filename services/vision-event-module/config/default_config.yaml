@@ -9,7 +9,8 @@ match_id: "match_20260405_001"
 input:
   # 默认走 A 模块输出的本机 RTSP；无流联调时可关闭实时流或启用模拟兜底。
   enable_realtime_streams: true
-  fallback_to_simulation: false
+  fallback_to_simulation: true
+  ffmpeg_path: "../../../third_party/windows/ffmpeg/bin/ffmpeg.exe"
   main_camera:
     stream_uri: "rtsp://127.0.0.1:8554/main"
     camera_id: "cam_01"

@@ -67,6 +67,11 @@ public:
     ModuleStatus get_status(const std::string& match_id) const;
 
     /**
+     * @brief 返回最近初始化或运行的比赛 ID，用于模块级状态查询兼容接口
+     */
+    std::string latest_match_id() const;
+
+    /**
      * @brief 按模拟输入推进一帧双机位分析，用于无 RTSP/无模型联调
      */
     void process_simulated_frames();
@@ -94,6 +99,11 @@ public:
      * @brief 配置一路输入视频流
      */
     bool configure_stream(const std::string& camera_id, const std::string& stream_uri);
+
+    /**
+     * @brief 配置元数据输出根目录，用于与 E/B/D 的 match 级产物路径对齐
+     */
+    bool configure_metadata_root(const std::string& metadata_root);
 
     /**
      * @brief 配置比赛录制时间零点，优先使用 B 模块首帧写入时间

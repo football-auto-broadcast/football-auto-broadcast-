@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <chrono>
 #include "camera_device.h"
 #include "gst_rtsp_streamer.h"
 
@@ -17,12 +18,14 @@ struct CameraConfig {
     int height = 1944;
     double fps = 25.0;
     std::string rtsp_url;
+    std::string source_path;
 };
 
 struct IngestConfig {
     std::vector<CameraConfig> cameras;
     std::string data_root;
     std::string log_level = "info";
+    std::string source_mode = "camera";
 };
 
 class IngestEngine {
@@ -68,6 +71,7 @@ private:
     std::vector<std::unique_ptr<CameraDevice>> m_cameras;
     std::vector<std::unique_ptr<GstRtspStreamer>> m_streamers;
     std::vector<std::thread> m_streamingThreads;
+    std::vector<std::chrono::steady_clock::time_point> m_lastReconnectAttempts;
     std::atomic<bool> m_running{false};
     Status m_status = Status::idle;
     IngestConfig m_config;

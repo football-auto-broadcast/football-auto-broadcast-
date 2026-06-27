@@ -55,6 +55,7 @@ set(CORE_LIBRARY_SOURCES
     src/json_output.cpp
     src/camera_role.cpp
     src/fusion_policy.cpp
+    src/ffmpeg_frame_reader.cpp
 )
 
 set(CORE_SOURCES
