@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& cmd /c \"`\"I:\\\\tools\\\\vs2022-buildtools\\\\Common7\\\\Tools\\\\VsDevCmd.bat`\" -arch=x64 >NUL 2>&1 && cd /d `\"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module`\" && msbuild ingest-streaming-module.vcxproj /p:Configuration=Release /p:Platform=x64 /t:Build 2>&1\")",
+      "PowerShell(Copy-Item -Force \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\x64\\\\Release\\\\ingest-streaming-module.exe\" \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\bin\\\\ingest-streaming-module.exe\")",
+      "PowerShell(Copy-Item -Force \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\bin\\\\ingest-streaming-module.exe\" \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\bin\\\\ingest_streaming_service.exe\")",
+      "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Copy-Item -Force \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\x64\\\\Release\\\\ingest-streaming-module.exe\" \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\bin\\\\ingest_streaming_service.exe\" -ErrorAction SilentlyContinue)",
+      "PowerShell(cd \"I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\ingest-streaming-module\\\\bin\"; Start-Process -WindowStyle Minimized .\\\\mediamtx.exe -ArgumentList \"mediamtx_8554.yml\"; Start-Process -WindowStyle Minimized .\\\\mediamtx.exe -ArgumentList \"mediamtx_8555.yml\"; Start-Sleep 3; $proc = Start-Process -PassThru -NoNewWindow -RedirectStandardOutput \"$env:TEMP\\\\a_module_out.txt\" -RedirectStandardError \"$env:TEMP\\\\a_module_err.txt\" .\\\\ingest-streaming-module.exe; Start-Sleep 15; if \\(!$proc.HasExited\\) { Get-Content \"$env:TEMP\\\\a_module_err.txt\" -Tail 60 } else { Write-Host \"Process exited early\"; Get-Content \"$env:TEMP\\\\a_module_err.txt\" })",
+      "PowerShell(curl -s http://127.0.0.1:8081/api/v1/ingest/status 2>&1)",
+      "PowerShell(Invoke-RestMethod -Uri \"http://127.0.0.1:8081/api/v1/ingest/status\")",
+      "Bash(\"I:/GitHub/football-auto-broadcast-/third_party/windows/ffmpeg/bin/ffprobe.exe\" -rtsp_transport tcp -loglevel quiet -show_streams rtsp://127.0.0.1:8554/main)",
+      "PowerShell(Start-Sleep 5; try { $status = Invoke-RestMethod -Uri \"http://127.0.0.1:8081/api/v1/ingest/status\" -TimeoutSec 5; $d = $status.data; Write-Host \"A status: $\\($d.status\\) | cam_01: $\\($d.cam_01_status\\) | cam_02: $\\($d.cam_02_status\\) | fps: $\\($d.cam_01_fps\\)/$\\($d.cam_02_fps\\)\" } catch { Write-Host \"A not ready: $_\" })",
+      "PowerShell(Get-Content \"$env:TEMP\\\\c_stderr.txt\" -Tail 20 -ErrorAction SilentlyContinue; Write-Host \"---STDOUT---\"; Get-Content \"$env:TEMP\\\\c_stdout.txt\" -Tail 10 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Name \"vision_event_service\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force)",
+      "PowerShell(& cmd /c \"`\"I:\\\\tools\\\\vs2022-buildtools\\\\Common7\\\\Tools\\\\VsDevCmd.bat`\" -arch=x64 >NUL 2>&1 && I:\\\\tools\\\\cmake\\\\bin\\\\cmake.exe --build I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\vision-event-module\\\\build-ninja-msvc 2>&1\")",
+      "PowerShell(Get-Process -Name \"ffmpeg\" -ErrorAction SilentlyContinue | ForEach-Object { $p = $_; $parent = \\(Get-WmiObject Win32_Process -Filter \"ProcessId=$\\($p.Id\\)\"\\).ParentProcessId; Write-Host \"ffmpeg PID=$\\($p.Id\\) ParentPID=$parent Name=$\\(\\(Get-Process -Id $parent -ErrorAction SilentlyContinue\\).ProcessName\\)\" })",
+      "PowerShell(Get-Process -Name \"record_program_service\" -ErrorAction SilentlyContinue)",
+      "PowerShell(& cmd /c \"call I:\\\\tools\\\\vs2022-buildtools\\\\Common7\\\\Tools\\\\VsDevCmd.bat -arch=x64 >NUL 2>&1 && cd /d I:\\\\GitHub\\\\football-auto-broadcast-\\\\services\\\\record-program-module\\\\build && I:\\\\tools\\\\cmake\\\\bin\\\\cmake.exe --build . 2>&1\")",
+      "Bash(netstat -ano)",
+      "Bash(ipconfig)",
+      "PowerShell(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -eq \"192.168.10.20\" } | Select-Object InterfaceAlias, IPAddress, PrefixLength)",
+      "PowerShell(netsh interface ip delete address \"以太网 2\" 169.254.205.1 2>$null)"
+    ]
+  }
+}
