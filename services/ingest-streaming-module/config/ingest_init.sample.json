@@ -1,0 +1,37 @@
+{
+  "match_id": "local-a-standalone-test",
+  "cameras": [
+    {
+      "camera_id": "cam_01",
+      "role": "main",
+      "model": "MV-CE050-30GC",
+      "lens": "6mm_C_mount",
+      "serial_number": "F92514845",
+      "stream_uri": "rtmp://127.0.0.1:1935/main"
+    },
+    {
+      "camera_id": "cam_02",
+      "role": "aux",
+      "model": "MV-CE050-30GC",
+      "lens": "6mm_C_mount",
+      "serial_number": "D91363830",
+      "stream_uri": "rtmp://127.0.0.1:1935/aux"
+    }
+  ],
+  "network_config": {
+    "mode": "static_ip",
+    "subnet": "169.254.0.0/16"
+  },
+  "capture_config": {
+    "internal_source_resolution": "5mp_native",
+    "rtsp_output_resolution": "1920x1080",
+    "fps": 25,
+    "pixel_format": "bgr8_or_nv12",
+    "video_codec": "h264"
+  },
+  "camera_param_strategy": {
+    "load_from": "mvs_user_set_or_config",
+    "trigger_mode": "continuous",
+    "allow_runtime_page_edit": false
+  }
+}

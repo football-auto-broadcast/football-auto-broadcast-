@@ -1,0 +1,8 @@
+rtspAddress: :8554
+rtmpAddress: :1935
+
+paths:
+  main:
+    source: publisher
+  aux:
+    source: publisher
